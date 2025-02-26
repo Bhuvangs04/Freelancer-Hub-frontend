@@ -80,7 +80,7 @@ export const ClientProfile = () => {
     switch (action.toLowerCase()) {
       case "viewed profile":
         return <Eye className="w-5 h-5 text-blue-500" />;
-      case "created project":
+      case "added a new project":
         return <FileText className="w-5 h-5 text-green-500" />;
       case "updated profile":
         return <Activity className="w-5 h-5 text-purple-500" />;

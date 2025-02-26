@@ -4,7 +4,13 @@ import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Star, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import {
+  Star,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  MessageCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,7 +20,6 @@ import {
 } from "@/components/ui/dialog";
 import { Navigation } from "@/components/Navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-
 
 interface Skill {
   name: string;
@@ -319,19 +324,20 @@ const FreelancerList = () => {
                   <img
                     src={selectedFreelancer.profilePictureUrl}
                     alt={selectedFreelancer.username}
-                    className="w-16 h-16 rounded-full object-cover"
+                    className="w-16 h-16  rounded-full object-cover"
                   />
                   <div>
-                    <h2 className="text-2xl font-bold">
+                    <h2 className="text-2xl font-bold text-blue-500">
                       {selectedFreelancer.username}
                     </h2>
+
                     <Button
                       onClick={() => handleStartChat(selectedFreelancer)}
-                      className="ml-4"
+                      className=" mt-4 bg-red-500 hover:bg-green-600"
                     >
+                      <MessageCircle className="w-6 h-6" />
                       Start Chat
                     </Button>
-                    <p className="text-gray-600">{selectedFreelancer.status}</p>
                   </div>
                 </DialogTitle>
               </DialogHeader>

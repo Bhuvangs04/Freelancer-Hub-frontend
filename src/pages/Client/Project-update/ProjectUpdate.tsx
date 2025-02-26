@@ -6,14 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, AlertCircle, X, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ProjectType {
   _id: string;
@@ -22,11 +23,10 @@ interface ProjectType {
   budget: number;
   status: string;
   deadline: string;
-  skillsRequired: string[]; // Ensure it's an array
+  skillsRequired: string[];
   createdAt: string;
   freelancerId: string;
 }
-
 
 const ProjectDetails = () => {
   const { toast } = useToast();
@@ -54,11 +54,11 @@ const ProjectDetails = () => {
             withCredentials: true,
           }
         );
-          if (response.data && Array.isArray(response.data.projects)) {
-            setProjects(response.data.projects);
-          } else {
-            setProjects([]); // ✅ Avoid `undefined` errors
-          }
+        if (response.data && Array.isArray(response.data.projects)) {
+          setProjects(response.data.projects);
+        } else {
+          setProjects([]); // ✅ Avoid `undefined` errors
+        }
       } catch (error) {
         console.error("Error fetching projects:", error);
       }
@@ -181,137 +181,181 @@ const ProjectDetails = () => {
     setSkills((prev) => prev.filter((skill) => skill !== skillToRemove));
   };
 
+  const filterProjectsByStatus = (status: string) => {
+    return projects.filter(
+      (project) => project.status.toLowerCase() === status.toLowerCase()
+    );
+  };
+
+  const renderProjectCard = (project: ProjectType) => (
+    <Card
+      key={project._id}
+      className="p-6 space-y-6 shadow-lg hover:shadow-xl transition-shadow duration-300"
+    >
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{project.title}</h1>
+          <p className="text-gray-500 mt-1">Project ID: {project._id}</p>
+        </div>
+        <div className="space-x-2">
+          {project.status !== "cancelled" &&
+            project.status !== "Payment Pending" &&
+            !project.freelancerId && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2 mb-3 hover:bg-gray-100"
+                  onClick={() => handleUpdate(project)}
+                >
+                  <Pencil className="h-4 w-4" />
+                  Update Project
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="flex items-center gap-2"
+                  onClick={() => handleDelete(project)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete Project
+                </Button>
+              </>
+            )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Description</h3>
+            <p className="mt-1 text-gray-900">{project.description}</p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Budget</h3>
+            <p className="mt-1 text-gray-900">
+              ₹{project.budget.toLocaleString()}
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Deadline</h3>
+            <p className="mt-1 text-gray-900">
+              {new Date(project.deadline).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Status</h3>
+            <Badge
+              className={`mt-1 ${
+                project.status.toLowerCase() === "open"
+                  ? "bg-green-500 hover:bg-green-600"
+                  : project.status.toLowerCase() === "payment pending"
+                  ? "bg-yellow-500 hover:bg-yellow-600"
+                  : "bg-red-500 hover:bg-red-600"
+              } text-white transition-colors`}
+            >
+              {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+            </Badge>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Freelancer</h3>
+            <p className="mt-1 text-gray-900">
+              {project.freelancerId || "Not assigned yet"}
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Created</h3>
+            <p className="mt-1 text-gray-900">
+              {new Date(project.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-medium text-gray-500">Requirements</h3>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {project.skillsRequired.map((req, index) => (
+            <Badge key={index} variant="secondary" className="text-sm">
+              {req}
+            </Badge>
+          ))}
+        </div>
+      </div>
+    </Card>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <ScrollArea className="h-[800px] rounded-md border p-4">
-          <div className="space-y-4">
-            {projects.length === 0 && (
-              <p className="text-center text-gray-500">
-                No projects found. Create a new project to get started.
-              </p>
-            )}
-            {projects.map((project) => (
-              <Card key={project._id} className="p-6 space-y-6 shadow-lg">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h1 className="text-2xl font-bold text-gray-900">
-                      {project.title}
-                    </h1>
-                    <p className="text-gray-500 mt-1">
-                      Project ID: {project._id}
-                    </p>
-                  </div>
-                  <div className="space-x-2">
-                    {project.status !== "cancelled" &&
-                      !project.freelancerId && (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex items-center gap-2 mb-3"
-                            onClick={() => handleUpdate(project)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                            Update Project
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            className="flex items-center gap-2"
-                            onClick={() => handleDelete(project)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            Delete Project
-                          </Button>
-                        </>
-                      )}
-                  </div>
-                </div>
+      <div className="container mx-auto px-4 max-w-6xl">
+        <Tabs defaultValue="open" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="open" className="text-sm font-medium">
+              Open Projects ({filterProjectsByStatus("open").length})
+            </TabsTrigger>
+            <TabsTrigger
+              value="payment-pending"
+              className="text-sm font-medium"
+            >
+              Payment Pending (
+              {filterProjectsByStatus("Payment Pending").length})
+            </TabsTrigger>
+            <TabsTrigger value="cancelled" className="text-sm font-medium">
+              Cancelled ({filterProjectsByStatus("cancelled").length})
+            </TabsTrigger>
+          </TabsList>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">
-                        Description
-                      </h3>
-                      <p className="mt-1 text-gray-900">
-                        {project.description}
-                      </p>
-                    </div>
+          <TabsContent value="open">
+            <ScrollArea className="h-[800px] rounded-md border p-4">
+              <div className="space-y-4">
+                {filterProjectsByStatus("open").length === 0 ? (
+                  <p className="text-center text-gray-500 py-8">
+                    No open projects found.
+                  </p>
+                ) : (
+                  filterProjectsByStatus("open").map(renderProjectCard)
+                )}
+              </div>
+            </ScrollArea>
+          </TabsContent>
 
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">
-                        Budget
-                      </h3>
-                      <p className="mt-1 text-gray-900">
-                        ₹{project.budget.toLocaleString()}
-                      </p>
-                    </div>
+          <TabsContent value="payment-pending">
+            <ScrollArea className="h-[800px] rounded-md border p-4">
+              <div className="space-y-4">
+                {filterProjectsByStatus("Payment Pending").length === 0 ? (
+                  <p className="text-center text-gray-500 py-8">
+                    No payment pending projects found.
+                  </p>
+                ) : (
+                  filterProjectsByStatus("Payment Pending").map(
+                    renderProjectCard
+                  )
+                )}
+              </div>
+            </ScrollArea>
+          </TabsContent>
 
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">
-                        Deadline
-                      </h3>
-                      <p className="mt-1 text-gray-900">
-                        {new Date(project.deadline).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">
-                        Status
-                      </h3>
-                      <Badge
-                        className={`mt-1 ${
-                          project.status === "open"
-                            ? "bg-green-500 text-white"
-                            : "bg-red-500 text-white"
-                        }`}
-                      >
-                        {project.status.charAt(0).toUpperCase() +
-                          project.status.slice(1)}
-                      </Badge>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">
-                        Freelancer
-                      </h3>
-                      <p className="mt-1 text-gray-900">
-                        {project.freelancerId || "Not assigned yet"}
-                      </p>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">
-                        Created
-                      </h3>
-                      <p className="mt-1 text-gray-900">
-                        {new Date(project.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">
-                    Requirements
-                  </h3>
-                  <ul className="mt-2 list-disc pl-5 space-y-1">
-                    {project.skillsRequired.map((req, index) => (
-                      <li key={index} className="text-gray-900">
-                        {req}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </ScrollArea>
+          <TabsContent value="cancelled">
+            <ScrollArea className="h-[800px] rounded-md border p-4">
+              <div className="space-y-4">
+                {filterProjectsByStatus("cancelled").length === 0 ? (
+                  <p className="text-center text-gray-500 py-8">
+                    No cancelled projects found.
+                  </p>
+                ) : (
+                  filterProjectsByStatus("cancelled").map(renderProjectCard)
+                )}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
 
         {/* Update Project Dialog */}
         <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
