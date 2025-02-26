@@ -1,0 +1,232 @@
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import ProfileHeader from "@/components/profile/ProfileHeader";
+import BioSection from "@/components/profile/BioSection";
+import SkillsSection from "@/components/profile/SkillsSection";
+import ProjectsSection from "@/components/profile/ProjectsSection";
+import ResumeSection from "@/components/profile/ResumeSection";
+
+const ProfileUpdate = () => {
+  const { toast } = useToast();
+
+  // Profile states
+  const [bio, setBio] = useState(""); // ✅ Fixed missing bio state
+  const [skills, setSkills] = useState<
+    { name: string; proficiency: "beginner" | "intermediate" | "expert" }[]
+  >([]);
+  const [newSkill, setNewSkill] = useState("");
+  const [projects, setProjects] = useState<
+    Array<{
+      title: string;
+      description: string;
+      frameworks: string[];
+      githubLink: string;
+    }>
+  >([]);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [newProficiency, setNewProficiency] = useState<
+    "beginner" | "intermediate" | "expert"
+  >("beginner");
+
+  // Add skill
+  const addSkill = () => {
+    if (newSkill.trim() && !skills.some((s) => s.name === newSkill.trim())) {
+      setSkills([
+        ...skills,
+        { name: newSkill.trim(), proficiency: newProficiency },
+      ]);
+      setNewSkill("");
+      setNewProficiency("beginner"); // Reset after adding
+    }
+  };
+
+  // Remove skill
+  const removeSkill = (skillToRemove: string) => {
+    setSkills(skills.filter((skill) => skill.name !== skillToRemove));
+  };
+
+  // Update skill proficiency
+  const updateSkillProficiency = (
+    skillName: string,
+    proficiency: "beginner" | "intermediate" | "expert"
+  ) => {
+    setSkills(
+      skills.map((s) => (s.name === skillName ? { ...s, proficiency } : s))
+    );
+  };
+
+  // Add project
+  const addProject = () => {
+    setProjects([
+      ...projects,
+      { title: "", description: "", frameworks: [], githubLink: "" },
+    ]);
+  };
+
+  // ✅ Profile Update API Call
+  const updateProfile = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/freelancer/freelancer/update`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bio, skills, projects }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.success) {
+        toast({
+          title: "Success",
+          description: "Profile updated successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: data.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // ✅ Profile Image Upload API Call
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/freelancer/freelancer/upload-portfolio/photo`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        setProfileImage(data.imageUrl);
+        toast({
+          title: "Success",
+          description: "Profile picture updated successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: data.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Image upload failed",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // ✅ Resume Upload API Call
+  const handleResumeUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/freelancer/upload-portfolio/resume`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Resume uploaded successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: data.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Resume upload failed",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100 py-8 px-4 sm:px-6 lg:px-8 animate-fadeIn">
+      <div className="max-w-4xl mx-auto space-y-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-neutral-800 mb-2">
+            Profile Update
+          </h1>
+          <p className="text-neutral-600">
+            Showcase your expertise and experience
+          </p>
+        </div>
+        <ProfileHeader
+          onImageUpload={handleImageUpload}
+        />
+        <BioSection bio={bio} onBioChange={setBio} /> {/* ✅ Fixed bio input */}
+        <SkillsSection
+          skills={skills}
+          newSkill={newSkill}
+          newProficiency={newProficiency}
+          onNewSkillChange={(e) => setNewSkill(e.target.value)}
+          onProficiencyChange={setNewProficiency}
+          onAddSkill={addSkill}
+          onRemoveSkill={removeSkill}
+          onProficiencyUpdate={updateSkillProficiency}
+        />
+        <ProjectsSection
+          projects={projects}
+          onProjectsChange={setProjects}
+          onAddProject={addProject}
+        />
+        <ResumeSection onResumeUpload={handleResumeUpload} />
+        {/* ✅ Resume upload */}
+        <div className="flex justify-end space-x-4">
+          <Button variant="outline" className="hover:bg-neutral-100">
+            Cancel
+          </Button>
+          <Button
+            onClick={updateProfile}
+            className="bg-neutral-800 hover:bg-neutral-900"
+          >
+            Save Changes
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProfileUpdate;

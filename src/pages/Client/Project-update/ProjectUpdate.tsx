@@ -1,0 +1,451 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Pencil, Trash2, AlertCircle, X, Plus } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface ProjectType {
+  _id: string;
+  title: string;
+  description: string;
+  budget: number;
+  status: string;
+  deadline: string;
+  skillsRequired: string[]; // Ensure it's an array
+  createdAt: string;
+  freelancerId: string;
+}
+
+
+const ProjectDetails = () => {
+  const { toast } = useToast();
+  const [projects, setProjects] = useState<ProjectType[]>([]); // ✅ Ensures it starts as an array
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showUpdateDialog, setShowUpdateDialog] = useState(false); // ✅ Fixed missing state
+  const [skills, setSkills] = useState([]);
+  const [newSkill, setNewSkill] = useState("");
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    deadline: "",
+  });
+
+  // Fetch projects from backend
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/client/clients/projects`,
+          {
+            withCredentials: true,
+          }
+        );
+          if (response.data && Array.isArray(response.data.projects)) {
+            setProjects(response.data.projects);
+          } else {
+            setProjects([]); // ✅ Avoid `undefined` errors
+          }
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+    fetchProjects();
+  }, []);
+
+  // Handle delete button click
+  const handleDelete = (project) => {
+    setSelectedProject(project);
+    setShowDeleteDialog(true);
+  };
+
+  // Confirm project deletion
+  const confirmDeleteProject = async () => {
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/payments/delete-project/${
+          selectedProject._id
+        }`,
+        {
+          withCredentials: true,
+        }
+      );
+      setProjects((prev) => prev.filter((p) => p._id !== selectedProject._id));
+      toast({
+        title: "Project Deleted",
+        description:
+          "The project has been successfully deleted. Refund will be processed.",
+        variant: "destructive",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete project. Try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+      setShowDeleteDialog(false);
+      setConfirmDelete(false);
+      setSelectedProject(null);
+    }
+  };
+
+  const handleUpdateSubmit = async () => {
+    setLoading(true);
+    try {
+      const updatedData = {
+        ...formData,
+        skillsRequired: skills,
+      };
+
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/client/projects/${
+          selectedProject._id
+        }`,
+        updatedData,
+        {
+          withCredentials: true,
+        }
+      );
+
+      // Update local state
+      setProjects((prev) =>
+        prev.map((p) =>
+          p._id === selectedProject._id ? { ...p, ...updatedData } : p
+        )
+      );
+
+      toast({
+        title: "Success",
+        description: "Project updated successfully",
+      });
+
+      setShowUpdateDialog(false);
+      setSelectedProject(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update project. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleUpdate = (project) => {
+    setSelectedProject(project);
+    setFormData({
+      title: project.title,
+      description: project.description,
+      deadline: project.deadline,
+    });
+    setSkills(project.requirements || []);
+    setShowUpdateDialog(true);
+  };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const addSkill = () => {
+    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
+      setSkills((prev) => [...prev, newSkill.trim()]);
+      setNewSkill("");
+    }
+  };
+
+  const removeSkill = (skillToRemove) => {
+    setSkills((prev) => prev.filter((skill) => skill !== skillToRemove));
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <ScrollArea className="h-[800px] rounded-md border p-4">
+          <div className="space-y-4">
+            {projects.length === 0 && (
+              <p className="text-center text-gray-500">
+                No projects found. Create a new project to get started.
+              </p>
+            )}
+            {projects.map((project) => (
+              <Card key={project._id} className="p-6 space-y-6 shadow-lg">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                      {project.title}
+                    </h1>
+                    <p className="text-gray-500 mt-1">
+                      Project ID: {project._id}
+                    </p>
+                  </div>
+                  <div className="space-x-2">
+                    {project.status !== "cancelled" &&
+                      !project.freelancerId && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center gap-2 mb-3"
+                            onClick={() => handleUpdate(project)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                            Update Project
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="flex items-center gap-2"
+                            onClick={() => handleDelete(project)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete Project
+                          </Button>
+                        </>
+                      )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">
+                        Description
+                      </h3>
+                      <p className="mt-1 text-gray-900">
+                        {project.description}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">
+                        Budget
+                      </h3>
+                      <p className="mt-1 text-gray-900">
+                        ₹{project.budget.toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">
+                        Deadline
+                      </h3>
+                      <p className="mt-1 text-gray-900">
+                        {new Date(project.deadline).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">
+                        Status
+                      </h3>
+                      <Badge
+                        className={`mt-1 ${
+                          project.status === "open"
+                            ? "bg-green-500 text-white"
+                            : "bg-red-500 text-white"
+                        }`}
+                      >
+                        {project.status.charAt(0).toUpperCase() +
+                          project.status.slice(1)}
+                      </Badge>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">
+                        Freelancer
+                      </h3>
+                      <p className="mt-1 text-gray-900">
+                        {project.freelancerId || "Not assigned yet"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">
+                        Created
+                      </h3>
+                      <p className="mt-1 text-gray-900">
+                        {new Date(project.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">
+                    Requirements
+                  </h3>
+                  <ul className="mt-2 list-disc pl-5 space-y-1">
+                    {project.skillsRequired.map((req, index) => (
+                      <li key={index} className="text-gray-900">
+                        {req}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </ScrollArea>
+
+        {/* Update Project Dialog */}
+        <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Update Project</DialogTitle>
+              <DialogDescription>
+                Make changes to your project details here. Budget cannot be
+                modified.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <label className="text-sm font-medium text-gray-500">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  className="mt-1 w-full rounded-md border p-2"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-500">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  className="mt-1 w-full rounded-md border p-2"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-500">
+                  Deadline
+                </label>
+                <input
+                  type="date"
+                  name="deadline"
+                  className="mt-1 w-full rounded-md border p-2"
+                  value={formData.deadline}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">
+                  Requirements
+                </h3>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {skills.map((skill, index) => (
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="flex items-center gap-2"
+                    >
+                      {skill}
+                      <X
+                        className="h-3 w-3 cursor-pointer"
+                        onClick={() => removeSkill(skill)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <input
+                    type="text"
+                    className="flex-1 rounded-md border p-2"
+                    placeholder="Add requirement"
+                    value={newSkill}
+                    onChange={(e) => setNewSkill(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && addSkill()}
+                  />
+                  <Button size="sm" onClick={addSkill}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowUpdateDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateSubmit} disabled={loading}>
+                {loading ? "Updating..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog
+          open={showDeleteDialog}
+          onOpenChange={(open) => {
+            setShowDeleteDialog(open);
+            if (!open) setConfirmDelete(false);
+          }}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-destructive" />
+                {confirmDelete ? "Final Confirmation" : "Delete Project"}
+              </DialogTitle>
+              <DialogDescription>
+                {confirmDelete
+                  ? "This action cannot be undone. Are you absolutely sure? The refund will be processed if the project has been funded, and it may take 1 to 3 days to reflect in your bank account."
+                  : "Are you sure you want to delete this project?"}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDeleteDialog(false);
+                  setConfirmDelete(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={confirmDeleteProject}>
+                {confirmDelete ? "Yes, Delete Project" : "Continue to Delete"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  );
+};
+
+export default ProjectDetails;

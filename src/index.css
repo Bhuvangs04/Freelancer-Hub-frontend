@@ -37,12 +37,60 @@
   }
 }
 
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+
 .hero-gradient {
   background: linear-gradient(
     135deg,
     rgba(59, 130, 246, 0.1) 0%,
     rgba(147, 197, 253, 0.1) 100%
   );
+}
+
+.message-bubble {
+  @apply rounded-2xl px-4 py-2 mb-2 flex;
+}
+
+.message-bubble.sent {
+  @apply bg-primary text-white;
+}
+
+.message-bubble.received {
+  @apply bg-secondary text-foreground;
+}
+
+.chat-modal {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeIn {
@@ -53,6 +101,30 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .styled-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  }
+
+  .styled-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .styled-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .styled-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 20px;
+  }
+
+  .styled-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.7);
   }
 }
 
