@@ -16,6 +16,7 @@ import PolicyPage from "./pages/Company/PolicyPage";
 import ClientProjects from "./pages/Client/Project-update/ProjectUpdate";
 import Client_profile from "./pages/Client/client-main-page-add-project/Client-profile";
 import Chat_client from "./pages/Client/chat/Chat-client";
+// import SecurityLayer from "./components/Security/SecurityLayer";
 
 import ClientAddProject from "./pages/Client/client-main-page-add-project/AddProject";
 import ClientAddProject1 from "./pages/Client/client-main-page-add-project/Bids";

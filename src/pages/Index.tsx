@@ -17,21 +17,25 @@ const testimonials = [
     role: "Web Developer",
     content: "Found amazing clients and doubled my income within 6 months!",
     rating: 5,
-    image: "/placeholder.svg",
+    image:
+      "https://freelancersdetails.s3.eu-north-1.amazonaws.com/profile-pictures/67b0871b5bafb5f82e3be48e-profile.jpg",
   },
   {
-    name: "Michael Chen",
+    name: "Harish P C",
     role: "UI/UX Designer",
-    content: "The platform made it easy to showcase my portfolio and find work.",
+    content:
+      "Great community and excellent support for freelancers.Now my salary is 7 digit.",
     rating: 5,
-    image: "/placeholder.svg",
+    image:
+      "https://freelancersdetails.s3.eu-north-1.amazonaws.com/profile-pictures/67b2f5836b2b8b84ff68e707-profile.jpg",
   },
   {
-    name: "Emma Williams",
+    name: "Manjunath Lakkundi",
     role: "Content Writer",
     content: "Great community and excellent support for freelancers.",
     rating: 4,
-    image: "/placeholder.svg",
+    image:
+      "https://freelancersdetails.s3.eu-north-1.amazonaws.com/profile-pictures/67bc02e8aab3488265e705e6-profile.jpg",
   },
 ];
 
