@@ -16,6 +16,8 @@ import ClientProjects from "./pages/Client/Project-update/ProjectUpdate";
 import Client_profile from "./pages/Client/client-main-page-add-project/Client-profile";
 import Chat_client from "./pages/Client/chat/Chat-client";
 import MyBids from "./pages/Freelancer/freelancer-place-bid/MyBids";
+import ClientProjectsBids from "./pages/Client/Project-update/ClientProjects.bid";
+import ClinetBids from "./pages/Client/Project-update/ProjectBids.bid";
 // import SecurityLayer from "./components/Security/SecurityLayer";
 
 import ClientAddProject from "./pages/Client/client-main-page-add-project/AddProject";
@@ -59,6 +61,22 @@ const App = () => (
             element={
               <FreelancerAuth>
                 <PolicyPage />
+              </FreelancerAuth>
+            }
+          />
+          <Route
+            path="/clients/projects/bids"
+            element={
+              <FreelancerAuth>
+                <ClientProjectsBids />
+              </FreelancerAuth>
+            }
+          />
+          <Route
+            path="/project-bids/:projectId"
+            element={
+              <FreelancerAuth>
+                <ClinetBids />
               </FreelancerAuth>
             }
           />

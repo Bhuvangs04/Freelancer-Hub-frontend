@@ -77,7 +77,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             if (formData.attachment) {
               formDataToSend.append("attachment", formData.attachment);
             }
-      const response = await fetch(`${API_URL}/client/client/add-project`, {
+      const response = await fetch(`${API_URL}/client/clients/add-project`, {
         method: "POST",
         credentials: "include",
         body: formDataToSend,

@@ -252,7 +252,8 @@ const ProjectDetails = () => {
             <h3 className="text-sm font-medium text-gray-500">Status</h3>
             <Badge
               className={`mt-1 ${
-                project.status.toLowerCase() === "open"
+                project.status.toLowerCase() === "open" ||
+                project.status.toLowerCase() === "in_progress"
                   ? "bg-green-500 hover:bg-green-600"
                   : project.status.toLowerCase() === "payment pending"
                   ? "bg-yellow-500 hover:bg-yellow-600"
@@ -296,7 +297,7 @@ const ProjectDetails = () => {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4 max-w-6xl">
         <Tabs defaultValue="open" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="open" className="text-sm font-medium">
               Open Projects ({filterProjectsByStatus("open").length})
             </TabsTrigger>
@@ -309,6 +310,9 @@ const ProjectDetails = () => {
             </TabsTrigger>
             <TabsTrigger value="cancelled" className="text-sm font-medium">
               Cancelled ({filterProjectsByStatus("cancelled").length})
+            </TabsTrigger>
+            <TabsTrigger value="in_progress" className="text-sm font-medium">
+              On Going ({filterProjectsByStatus("in_progress").length})
             </TabsTrigger>
           </TabsList>
 
@@ -351,6 +355,19 @@ const ProjectDetails = () => {
                   </p>
                 ) : (
                   filterProjectsByStatus("cancelled").map(renderProjectCard)
+                )}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+          <TabsContent value="in_progress">
+            <ScrollArea className="h-[800px] rounded-md border p-4">
+              <div className="space-y-4">
+                {filterProjectsByStatus("in_progress").length === 0 ? (
+                  <p className="text-center text-gray-500 py-8">
+                    No on going projects found.
+                  </p>
+                ) : (
+                  filterProjectsByStatus("in_progress").map(renderProjectCard)
                 )}
               </div>
             </ScrollArea>

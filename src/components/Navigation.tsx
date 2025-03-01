@@ -121,6 +121,12 @@ const [TotalWithdrawals, setTotalWithdrawals] = useState<number>(0);
             <span className="text-xl font-bold text-primary">FreelanceHub</span>
           </div>
           <div className="flex items-center space-x-4">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/clients/projects/bids")}
+            >
+              See bids
+            </Button>
             <Button variant="outline" onClick={() => navigate("/ongoing")}>
               Ongoing
             </Button>
@@ -132,7 +138,6 @@ const [TotalWithdrawals, setTotalWithdrawals] = useState<number>(0);
             >
               Add Project
             </Button>
-
             {/* Wallet Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -168,7 +173,6 @@ const [TotalWithdrawals, setTotalWithdrawals] = useState<number>(0);
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
             {/* Transaction History Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -188,7 +192,6 @@ const [TotalWithdrawals, setTotalWithdrawals] = useState<number>(0);
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
             {/* Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
