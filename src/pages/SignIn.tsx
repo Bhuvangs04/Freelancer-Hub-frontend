@@ -80,11 +80,27 @@ const SignIn = () => {
         if (role === "Manager") {
           setSecretCode("");
         }
+        function getRandomString(length) {
+          const characters =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+          let result = "";
+          const charactersLength = characters.length;
+          for (let i = 0; i < length; i++) {
+            result += characters.charAt(
+              Math.floor(Math.random() * charactersLength)
+            );
+          }
+          return result;
+        }
+
+        const randomString = getRandomString(53);
 
         if (data.role === "admin") {
           navigate("/admin-dashboard");
         } else if (data.role === "freelancer") {
-          navigate(`/freelancer/home/in-en/${data.chat_id}`);
+          navigate(
+            `/freelancer/home/in-en/?pr=${randomString}&user=${data.chat_id}&id=${data.email}&name=${data.username}`
+          );
         } else {
           navigate(`/find/freelancers`);
         }

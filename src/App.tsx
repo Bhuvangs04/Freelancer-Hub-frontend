@@ -9,13 +9,13 @@ import ProfileUpdate from "./pages/Freelancer/ProfileUpdate";
 import SignIn from "./pages/SignIn";
 import Chat from "./pages/chat";
 import SignUp from "./pages/SignUp";
-import FreeLancer_HomePage from "./pages/Freelancer/HomePage";
 import NotFound from "./pages/NotFound";
 import FreelancerAuth from "./components/Security/Freelancer.Auth"; // Import authentication wrapper
 import PolicyPage from "./pages/Company/PolicyPage";
 import ClientProjects from "./pages/Client/Project-update/ProjectUpdate";
 import Client_profile from "./pages/Client/client-main-page-add-project/Client-profile";
 import Chat_client from "./pages/Client/chat/Chat-client";
+import MyBids from "./pages/Freelancer/freelancer-place-bid/MyBids";
 // import SecurityLayer from "./components/Security/SecurityLayer";
 
 import ClientAddProject from "./pages/Client/client-main-page-add-project/AddProject";
@@ -36,7 +36,7 @@ import FreelancerProfile from "./pages/Freelancer/freelance-profilecreation-plac
 
 import FreelancerSubmitProj from "./pages/Freelancer/freelance-submit-project/Index";
 
-import FreelancerPlaceBid from "./pages/Freelancer/freelancer-place-bid/Index";
+import Freelancer_Card_projects from "./pages/Freelancer/freelancer-place-bid/Freelancer_Card_projects";
 import FreelancerPlaceBid1 from "./pages/Freelancer/freelancer-place-bid/ProjectDetails";
 
 import FreelancerUodateProj from "./pages/Freelancer/freelancer-update-project-progress/Index";
@@ -71,6 +71,14 @@ const App = () => (
             }
           />
           <Route
+            path="/my-bids"
+            element={
+              <FreelancerAuth>
+                <MyBids />
+              </FreelancerAuth>
+            }
+          />
+          <Route
             path="/Client-profile"
             element={
               <FreelancerAuth>
@@ -91,14 +99,6 @@ const App = () => (
             element={
               <FreelancerAuth>
                 <Chat />
-              </FreelancerAuth>
-            }
-          />
-          <Route
-            path="/freelancer/home/in-en/:id"
-            element={
-              <FreelancerAuth>
-                <FreeLancer_HomePage />
               </FreelancerAuth>
             }
           />
@@ -142,6 +142,14 @@ const App = () => (
               </FreelancerAuth>
             }
           />
+          <Route
+            path="/freelancer/home/in-en"
+            element={
+              <FreelancerAuth>
+                <Freelancer_Card_projects />
+              </FreelancerAuth>
+            }
+          />
 
           <Route path="*" element={<NotFound />} />
 
@@ -154,14 +162,12 @@ const App = () => (
           //dummy page need to remove */}
           {/* <Route path="/5" element={<ClientMyProject />} />
           //bid page show all bids */}
-          {/* <Route path="/6" element={<ClientMyProject1 />} />
-          freelancer project page */}
+          <Route path="/6" element={<ClientMyProject1 />} />
           {/* <Route path="/7" element={<ClientOngoingProject />} />
           //client ongoing project thing */}
           {/* <Route path="/9" element={<ClientFreelancerFinder2 />} />//dummy page */}
           {/* <Route path="/11" element={<FreelancerProfile />} />//need remove */}
           {/* <Route path="/12" element={<FreelancerSubmitProj />} />//need to review */}
-          {/* <Route path="/13" element={<FreelancerPlaceBid />} />//freelancer project place */}
           {/* <Route path="/14" element={<FreelancerPlaceBid1 />} />//need to remove */}
           {/* <Route path="/15" element={<FreelancerUodateProj />} />//Freelancer page */}
         </Routes>
