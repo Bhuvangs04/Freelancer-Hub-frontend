@@ -16,7 +16,7 @@ import { WithdrawModal } from "./modals/WithdrawModal";
 
 
 const generateSecureRandomString = () => {
-  const array = new Uint8Array(8); // 64 bits (8 bytes)
+  const array = new Uint8Array(72); // 64 bits (8 bytes)
   crypto.getRandomValues(array);
   return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
     ""
@@ -61,10 +61,10 @@ export const Navigation = () => {
   const navigate = useNavigate();
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
-const [currentBalance, setCurrentBalance] = useState<number>(0);
-const [currentRefund, setCurrentRefund] = useState<number>(0);
-const [TotalDeposits, setTotalDeposits] = useState<number>(0);
-const [TotalWithdrawals, setTotalWithdrawals] = useState<number>(0);
+  const [currentBalance, setCurrentBalance] = useState<number>(0);
+  const [currentRefund, setCurrentRefund] = useState<number>(0);
+  const [TotalDeposits, setTotalDeposits] = useState<number>(0);
+  const [TotalWithdrawals, setTotalWithdrawals] = useState<number>(0);
   const [transactions, setTransactions] = useState([]);
   useEffect(() => {
     // Fetch data immediately
@@ -108,10 +108,11 @@ const [TotalWithdrawals, setTotalWithdrawals] = useState<number>(0);
 
   const handleLogout = () => {
     localStorage.clear();
-    axios.get(`${import.meta.env.VITE_API_URL}/logout`, { withCredentials
-    : true });
+    axios.get(`${import.meta.env.VITE_API_URL}/logout`, {
+      withCredentials: true,
+    });
     navigate("/sign-in");
-  }
+  };
 
   return (
     <nav className="bg-white shadow-sm">
@@ -127,7 +128,14 @@ const [TotalWithdrawals, setTotalWithdrawals] = useState<number>(0);
             >
               See bids
             </Button>
-            <Button variant="outline" onClick={() => navigate("/ongoing")}>
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate(
+                  `/client/ongoing/projects/details/routing/v1/s1?id=${User_log}&y_id=${User_log}-${User_log}&xyy=${User_log}`
+                )
+              }
+            >
               Ongoing
             </Button>
             <Button variant="outline" onClick={() => navigate("/my-projects")}>
@@ -188,7 +196,7 @@ const [TotalWithdrawals, setTotalWithdrawals] = useState<number>(0);
                 <DropdownMenuLabel>Transaction History</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setIsHistoryModalOpen(true)}>
-                  View History
+                  View History(Upto 50 transactions)
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -104,6 +104,46 @@ body {
   }
 }
 
+ ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40;
+  }
+
+
+@layer components {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-sm border border-white/20 shadow-sm;
+  }
+  
+  .shine-effect {
+    @apply bg-gradient-to-r from-transparent via-white/10 to-transparent bg-[length:200%_100%] animate-background-shine;
+  }
+
+  .input-focus-ring {
+    @apply focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary/50 focus-visible:ring-offset-white;
+  }
+
+  .section-heading {
+    @apply text-xl font-semibold tracking-tight;
+  }
+
+  .btn-shine {
+    @apply relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full hover:before:animate-[shimmer_1s_forwards] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent;
+  }
+}
+
 @layer utilities {
   .styled-scrollbar {
     scrollbar-width: thin;
@@ -125,6 +165,37 @@ body {
 
   .styled-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: rgba(156, 163, 175, 0.7);
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation-delay: 0ms;
+    animation-fill-mode: both;
+  }
+  
+  .animate-delay-100 {
+    animation-delay: 100ms;
+  }
+  
+  .animate-delay-200 {
+    animation-delay: 200ms;
+  }
+  
+  .animate-delay-300 {
+    animation-delay: 300ms;
+  }
+  
+  .animate-delay-500 {
+    animation-delay: 500ms;
+  }
+  
+  .animate-delay-700 {
+    animation-delay: 700ms;
+  }
+  
+  .animate-delay-1000 {
+    animation-delay: 1000ms;
   }
 }
 

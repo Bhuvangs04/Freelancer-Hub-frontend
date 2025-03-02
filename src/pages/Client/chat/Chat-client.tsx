@@ -87,7 +87,6 @@ const Chat_client = () => {
     return phoneRegex.test(message) || emailRegex.test(message);
   };
 
-
   useEffect(() => {
     fetchChatUsers();
     initializeWebSocket();
@@ -135,7 +134,6 @@ const Chat_client = () => {
             return; // Ignore the message for the receiver
           }
           handleNewMessage(data);
-
         } catch (error) {
           console.error("Error decrypting message:", error);
         }
@@ -176,7 +174,8 @@ const Chat_client = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL
+        `${
+          import.meta.env.VITE_API_URL
         }/chat/messages?sender=${userId}&receiver=${selectedUser._id}`,
         {
           credentials: "include",
@@ -195,7 +194,6 @@ const Chat_client = () => {
   };
 
   const handleNewMessage = (message: Message) => {
-
     setMessages((prev) => [...prev, message]);
     updateChatUserLastMessage(message);
   };

@@ -136,7 +136,6 @@ const ProjectBids = () => {
         description: "Bid accepted successfully!",
         variant: "default",
       });
-      fetchBids(); // Refresh bids after accepting
     } catch (error) {
       console.error("Failed to accept bid:", error);
       toast({

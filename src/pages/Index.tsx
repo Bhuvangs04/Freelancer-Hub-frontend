@@ -1,7 +1,7 @@
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TestimonialCard } from "@/components/TestimonialCard";
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 import { Link } from "react-router-dom";
 
 const features = [

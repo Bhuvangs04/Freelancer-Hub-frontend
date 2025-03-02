@@ -1,103 +1,102 @@
-import { Progress } from "@/components/ui/progress";
+import React from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, DollarSign, User, CheckCircle, XCircle } from "lucide-react";
-import { ChatModal } from "./ChatModal1";
-import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
+import { CalendarIcon, IndianRupee } from "lucide-react";
 
-interface ProjectCardProps {
-  project: {
-    id: string;
-    title: string;
-    freelancer: string;
-    status: "in_progress" | "on_hold" | "completed";
-    progress: number;
-    dueDate: string;
-    budget: number;
-  };
-  onViewDetails: (id: string) => void;
+interface Project {
+  id?: string;
+  _id?: string;
+  title: string;
+  freelancer?: string;
+  freelancerId?: string;
+  status: "in_progress" | "on_hold" | "completed";
+  progress: number;
+  dueDate: string;
+  budget: number;
+  description: string;
 }
 
-const statusConfig = {
-  in_progress: { label: "In Progress", color: "bg-status-progress text-white" },
-  on_hold: { label: "On Hold", color: "bg-status-hold text-white" },
-  completed: { label: "Completed", color: "bg-status-completed text-white" },
-};
+interface ProjectCardProps {
+  project: Project;
+  onViewDetails: () => void;
+}
 
-export const ProjectCard = ({ project, onViewDetails }: ProjectCardProps) => {
-  const status = statusConfig[project.status];
-
-  const handleReleasePayment = () => {
-    toast.success(`Payment of $${project.budget.toLocaleString()} released to ${project.freelancer}`);
+export const ProjectCard: React.FC<ProjectCardProps> = ({
+  project,
+  onViewDetails,
+}) => {
+  const statusColorMap = {
+    in_progress: "bg-blue-100 text-blue-800",
+    on_hold: "bg-yellow-100 text-yellow-800",
+    completed: "bg-green-100 text-green-800",
   };
 
-  const handleRejectProject = () => {
-    toast.error(`Project rejected. ${project.freelancer} has been notified.`);
+  const statusText = {
+    in_progress: "In Progress",
+    on_hold: "On Hold",
+    completed: "Completed",
+  };
+
+  // Format date to be more readable
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg">
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-xl font-semibold text-gray-800">{project.title}</h3>
-        <Badge className={status.color}>{status.label}</Badge>
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between text-gray-600">
-          <div className="flex items-center">
-            <User className="w-4 h-4 mr-2" />
-            <span>{project.freelancer}</span>
-          </div>
-          <ChatModal freelancerName={project.freelancer} />
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-lg line-clamp-1">
+            {project.title}
+          </CardTitle>
+          <Badge className={statusColorMap[project.status]}>
+            {statusText[project.status]}
+          </Badge>
         </div>
-
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>Progress</span>
-            <span>{project.progress}%</span>
+        <p className="text-sm text-muted-foreground">
+          {project.freelancer || "Unassigned"}
+        </p>
+      </CardHeader>
+      <CardContent className="pb-2">
+        <div className="space-y-4">
+          <div>
+            <div className="flex justify-between text-sm mb-1">
+              <span>Progress</span>
+              <span>{project.progress}%</span>
+            </div>
+            <Progress value={project.progress} className="h-2" />
           </div>
-          <Progress value={project.progress} className="h-2" />
+
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <CalendarIcon className="h-3.5 w-3.5" />
+              <span>{formatDate(project.dueDate)}</span>
+            </div>
+            <div className="flex items-center  text-muted-foreground">
+              <IndianRupee className="h-3.5 w-3.5  " />
+              <span>{project.budget.toLocaleString()}</span>
+            </div>
+          </div>
         </div>
-
-        <div className="flex items-center justify-between text-gray-600">
-          <div className="flex items-center">
-            <Calendar className="w-4 h-4 mr-2" />
-            <span>{project.dueDate}</span>
-          </div>
-          <div className="flex items-center">
-            <DollarSign className="w-4 h-4 mr-1" />
-            <span>{project.budget.toLocaleString()}</span>
-          </div>
-        </div>
-
-        <Button 
-          onClick={() => onViewDetails(project.id)}
-          className="w-full bg-primary hover:bg-primary-hover active:bg-primary-active"
-        >
+      </CardContent>
+      <CardFooter>
+        <Button variant="outline" className="w-full" onClick={onViewDetails}>
           View Details
         </Button>
-
-        {project.status === "completed" && (
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            <Button
-              onClick={handleReleasePayment}
-              className="bg-green-500 hover:bg-green-600"
-              size="sm"
-            >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Release Payment
-            </Button>
-            <Button
-              onClick={handleRejectProject}
-              variant="destructive"
-              size="sm"
-            >
-              <XCircle className="w-4 h-4 mr-2" />
-              Reject Project
-            </Button>
-          </div>
-        )}
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 };

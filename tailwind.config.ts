@@ -89,6 +89,14 @@ export default {
             opacity: "0",
           },
         },
+        slideUp: {
+          from: { transform: "translateY(10px)", opacity: "0" },
+          to: { transform: "translateY(0)", opacity: "1" },
+        },
+        slideDown: {
+          from: { transform: "translateY(-10px)", opacity: "0" },
+          to: { transform: "translateY(0)", opacity: "1" },
+        },
         "scale-in": {
           from: {
             transform: "scale(0.95)",
@@ -99,6 +107,30 @@ export default {
             opacity: "1",
           },
         },
+        "background-shine": {
+          "0%": {
+            backgroundPosition: "0% 0%",
+          },
+          "100%": {
+            backgroundPosition: "-200% 0%",
+          },
+        },
+        slideInLeft: {
+          from: { transform: "translateX(-20px)", opacity: "0" },
+          to: { transform: "translateX(0)", opacity: "1" },
+        },
+        slideInRight: {
+          from: { transform: "translateX(20px)", opacity: "0" },
+          to: { transform: "translateX(0)", opacity: "1" },
+        },
+        pulse: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.5" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-5px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -106,6 +138,21 @@ export default {
         "fade-in": "fade-in 0.3s ease-out",
         "fade-out": "fade-out 0.2s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
+        "slide-up": "slideUp 0.5s ease-out",
+        "slide-down": "slideDown 0.5s ease-out",
+        "background-shine": "background-shine 2s linear infinite",
+        "slide-in-left": "slideInLeft 0.5s ease-out",
+        "slide-in-right": "slideInRight 0.5s ease-out",
+        pulse: "pulse 2s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite",
+      },
+      backdropFilter: {
+        none: "none",
+        blur: "blur(20px)",
+      },
+      transitionProperty: {
+        height: "height",
+        spacing: "margin, padding",
       },
     },
   },

@@ -47,7 +47,7 @@ export const TransactionHistoryModal = ({
         </DialogHeader>
         <ScrollArea className="h-[400px] pr-4">
           <div className="space-y-4">
-            {transactions.slice(0, 10).map((transaction) => (
+            {transactions.map((transaction) => (
               <div
                 key={transaction.id}
                 className="flex justify-between items-center p-4 border rounded-lg"
@@ -91,8 +91,9 @@ export const TransactionHistoryModal = ({
             ))}
           </div>
         </ScrollArea>
-        <p className="text-sm text-center">
-          Sometimes it takes upto 1-3 hrs to update here.
+        <p className="text-sm text-center text-gray-500 mt-2">
+          Sometimes it takes upto 1-2 hrs to update here.Don't worry if you
+          don't find your transaction. Your money is safe with our company.
         </p>
       </DialogContent>
     </Dialog>

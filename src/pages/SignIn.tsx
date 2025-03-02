@@ -3,12 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 import { useToast } from "@/components/ui/use-toast";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/userSlice";
 import { ReloadIcon } from "@radix-ui/react-icons";
-
+  
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

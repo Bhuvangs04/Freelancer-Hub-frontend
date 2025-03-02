@@ -135,7 +135,7 @@ const ClientProjects = () => {
         className="mr-3 flex items-center gap-2 hover:bg-green-400"
         onClick={() =>
           navigate(
-            `/freelancer/home/in-en/?id=${getRandomString(
+            `/find/freelancers/?id=${getRandomString(
               100
             )}&pr=1&user=1&name=1&role=freelancer&final=${getRandomString(50)}`
           )
@@ -167,12 +167,19 @@ const ClientProjects = () => {
             </Card>
           ))}
         </div>
-      ) : projects.length === 0 ? (
+      ) : projects.length === 0 ||
+        projects.every((project) => project.status === "Payment Pending") ? (
         <div className="text-center p-8 bg-muted rounded-lg">
           <p className="text-lg">You haven't created any projects yet.</p>
           <Button
             className="mt-4"
-            onClick={() => navigate(`/add-project/${client_id}/direct?final=${getRandomString(100)}&role=client&name=1`)}
+            onClick={() =>
+              navigate(
+                `/add-project/${client_id}/direct?final=${getRandomString(
+                  100
+                )}&role=client&name=1`
+              )
+            }
           >
             Create Your First Project
           </Button>

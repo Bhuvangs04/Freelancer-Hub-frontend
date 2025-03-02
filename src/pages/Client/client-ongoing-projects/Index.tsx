@@ -9,122 +9,98 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
-// Mock data
-const MOCK_PROJECTS = [
-  {
-    id: "1",
-    title: "Website Redesign",
-    freelancer: "John Smith",
-    status: "in_progress" as const,
-    progress: 75,
-    dueDate: "2024-04-15",
-    budget: 5000,
-    description: "Complete website redesign for client XYZ",
-    tasks: [
-      { title: "Homepage Design", completed: true },
-      { title: "About Page Content", completed: false },
-      { title: "Contact Form", completed: true },
-    ],
-    files: [
-      { name: "design-mockup.fig", size: "2.3 MB" },
-      { name: "assets.zip", size: "15 MB" },
-    ],
-    messages: [
-      {
-        sender: "John Smith",
-        message: "Homepage design completed, awaiting feedback",
-        time: "2 hours ago",
-      },
-      {
-        sender: "Client",
-        message: "Looks great! Can we adjust the color scheme?",
-        time: "1 hour ago",
-      },
-    ],
-  },
-  {
-    id: "2",
-    title: "Mobile App Development",
-    freelancer: "Sarah Johnson",
-    status: "on_hold" as const,
-    progress: 30,
-    dueDate: "2024-05-20",
-    budget: 12000,
-    description: "Native mobile app development for iOS and Android",
-    tasks: [
-      { title: "UI Design", completed: true },
-      { title: "Backend Integration", completed: false },
-      { title: "Testing", completed: false },
-    ],
-    files: [
-      { name: "wireframes.pdf", size: "5.1 MB" },
-      { name: "api-docs.md", size: "256 KB" },
-    ],
-    messages: [
-      {
-        sender: "Sarah Johnson",
-        message: "Need clarification on API endpoints",
-        time: "1 day ago",
-      },
-      {
-        sender: "Client",
-        message: "I'll schedule a call with the backend team",
-        time: "5 hours ago",
-      },
-    ],
-  },
-  {
-    id: "3",
-    title: "Marketing Campaign",
-    freelancer: "Mike Wilson",
-    status: "completed" as const,
-    progress: 100,
-    dueDate: "2024-03-30",
-    budget: 3500,
-    description: "Social media marketing campaign for product launch",
-    tasks: [
-      { title: "Content Strategy", completed: true },
-      { title: "Asset Creation", completed: true },
-      { title: "Campaign Launch", completed: true },
-    ],
-    files: [
-      { name: "campaign-assets.zip", size: "45 MB" },
-      { name: "analytics.pdf", size: "1.2 MB" },
-    ],
-    messages: [
-      {
-        sender: "Mike Wilson",
-        message: "Campaign successfully completed!",
-        time: "2 days ago",
-      },
-      {
-        sender: "Client",
-        message: "Great work! Looking forward to the next campaign",
-        time: "1 day ago",
-      },
-    ],
-  },
-];
+// Define the project type based on your schema
+interface Task {
+  title: string;
+  completed: boolean;
+}
+
+interface File {
+  name: string;
+  size: string;
+  url:string;
+}
+
+interface Message {
+  sender: string;
+  message: string;
+  timestamp: string;
+}
+
+interface Project {
+  _id: string;
+  title: string;
+  freelancerId: string;
+  clientId: string;
+  status: "in_progress" | "on_hold" | "completed";
+  progress: number;
+  dueDate: string;
+  budget: number;
+  description: string;
+  freelancerBidPrice?: number;
+  tasks: Task[];
+  files: File[];
+  messages: Message[];
+  freelancer?: string;
+}
+
+const API_URL = import.meta.env.VITE_API_URL || "";
+
+// Function to fetch projects
+const fetchProjects = async (): Promise<Project[]> => {
+  const response = await fetch(`${API_URL}/client/ongoing/projects`, {
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch projects");
+  }
+
+  const data = await response.json();
+
+  // Transform data to match the expected structure
+  return data.map((project: any) => ({
+    ...project,
+    _id: project._id || project.id,
+    freelancer: project.freelancer || "Unknown Freelancer",
+  }));
+};
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedProject, setSelectedProject] = useState<typeof MOCK_PROJECTS[0] | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  const filteredProjects = MOCK_PROJECTS.filter((project) => {
-    const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         project.freelancer.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || project.status === statusFilter;
-    return matchesSearch && matchesStatus;
+  // Fetch projects using React Query
+  const {
+    data: projects,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["projects"],
+    queryFn: fetchProjects,
   });
 
+  // Filter projects based on search query and status filter
+  const filteredProjects =
+    projects?.filter((project) => {
+      const matchesSearch =
+        project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (project.freelancer &&
+          project.freelancer.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesStatus =
+        statusFilter === "all" || project.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    }) || [];
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <h1 className="text-3xl font-bold text-gray-900">Projects Overview</h1>
-        
+
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -148,18 +124,49 @@ const Index = () => {
           </Select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              onViewDetails={() => setSelectedProject(project)}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center p-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2 text-lg">Loading projects...</span>
+          </div>
+        ) : error ? (
+          <div className="p-6 text-center bg-destructive/10 rounded-lg border border-destructive">
+            <p className="text-destructive font-medium">
+              Error loading projects. Please try again later.
+            </p>
+          </div>
+        ) : filteredProjects.length === 0 ? (
+          <div className="p-6 text-center bg-muted rounded-lg">
+            <p className="text-muted-foreground">
+              No projects found matching your criteria.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProjects.map((project) => (
+              <ProjectCard
+                key={project._id}
+                project={{
+                  ...project,
+                  id: project._id, // Ensure id is available for components expecting it
+                }}
+                onViewDetails={() => setSelectedProject(project)}
+              />
+            ))}
+          </div>
+        )}
 
         <ProjectModal
-          project={selectedProject}
+          project={
+            selectedProject
+              ? {
+                  ...selectedProject,
+                  id: selectedProject._id, // Ensure id is available for components expecting it
+                  freelancer:
+                    selectedProject.freelancer || "Unknown Freelancer", // Ensure freelancer is defined
+                }
+              : null
+          }
           isOpen={!!selectedProject}
           onClose={() => setSelectedProject(null)}
         />

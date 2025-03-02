@@ -10,7 +10,7 @@ import SignIn from "./pages/SignIn";
 import Chat from "./pages/chat";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
-import FreelancerAuth from "./components/Security/Freelancer.Auth"; // Import authentication wrapper
+import FreelancerAuth from "./components/Security/Freelancer.Auth";
 import PolicyPage from "./pages/Company/PolicyPage";
 import ClientProjects from "./pages/Client/Project-update/ProjectUpdate";
 import Client_profile from "./pages/Client/client-main-page-add-project/Client-profile";
@@ -18,30 +18,15 @@ import Chat_client from "./pages/Client/chat/Chat-client";
 import MyBids from "./pages/Freelancer/freelancer-place-bid/MyBids";
 import ClientProjectsBids from "./pages/Client/Project-update/ClientProjects.bid";
 import ClinetBids from "./pages/Client/Project-update/ProjectBids.bid";
-// import SecurityLayer from "./components/Security/SecurityLayer";
-
 import ClientAddProject from "./pages/Client/client-main-page-add-project/AddProject";
-import ClientAddProject1 from "./pages/Client/client-main-page-add-project/Bids";
-import ClientAddProject2 from "./pages/Client/client-main-page-add-project/Dashboard";
 import ClientAddProject3 from "./pages/Client/client-main-page-add-project/Index";
-import ClientAddProject4 from "./pages/Client/client-main-page-add-project/UpdateProfile";
-
-import ClientMyProject from "./pages/Client/client-my-projects/FreelancerProfilesPage";
-import ClientMyProject1 from "./pages/Client/client-my-projects/Index";
-
 import ClientOngoingProject from "./pages/Client/client-ongoing-projects/Index";
-
 import ClientFreelancerFinder from "./pages/Client/freelance-finder/FreelancerList";
-import ClientFreelancerFinder2 from "./pages/Client/freelance-finder/FreelancerProfile";
-
-import FreelancerProfile from "./pages/Freelancer/freelance-profilecreation-place-bid/Index";
-
-import FreelancerSubmitProj from "./pages/Freelancer/freelance-submit-project/Index";
-
 import Freelancer_Card_projects from "./pages/Freelancer/freelancer-place-bid/Freelancer_Card_projects";
-import FreelancerPlaceBid1 from "./pages/Freelancer/freelancer-place-bid/ProjectDetails";
+import FreelancerEntryPage from "./pages/Freelancer/freelancer.enrty";
+import Dashboard from "./pages/Freelancer/MainPage";
 
-import FreelancerUodateProj from "./pages/Freelancer/freelancer-update-project-progress/Index";
+// import SecurityLayer from "./components/Security/SecurityLayer";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +46,22 @@ const App = () => (
             element={
               <FreelancerAuth>
                 <PolicyPage />
+              </FreelancerAuth>
+            }
+          />
+          <Route
+            path="/freelancer"
+            element={
+              <FreelancerAuth>
+                <FreelancerEntryPage />
+              </FreelancerAuth>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <FreelancerAuth>
+                <Dashboard />
               </FreelancerAuth>
             }
           />
@@ -169,25 +170,15 @@ const App = () => (
             }
           />
 
+          <Route
+            path="/client/ongoing/projects/details/routing/v1/s1"
+            element={
+              <FreelancerAuth>
+                <ClientOngoingProject />
+              </FreelancerAuth>
+            }
+          />
           <Route path="*" element={<NotFound />} />
-
-          {/* <Route path="/1" element={<ClientAddProject1 />} /> //dummy page no
-          need */}
-          {/* <Route path="/2" element={<ClientAddProject2 />} />
-          //dummy need to remove */}
-
-          {/* <Route path="/4" element={<ClientAddProject4 />} />
-          //dummy page need to remove */}
-          {/* <Route path="/5" element={<ClientMyProject />} />
-          //bid page show all bids */}
-          <Route path="/6" element={<ClientMyProject1 />} />
-          {/* <Route path="/7" element={<ClientOngoingProject />} />
-          //client ongoing project thing */}
-          {/* <Route path="/9" element={<ClientFreelancerFinder2 />} />//dummy page */}
-          {/* <Route path="/11" element={<FreelancerProfile />} />//need remove */}
-          {/* <Route path="/12" element={<FreelancerSubmitProj />} />//need to review */}
-          {/* <Route path="/14" element={<FreelancerPlaceBid1 />} />//need to remove */}
-          {/* <Route path="/15" element={<FreelancerUodateProj />} />//Freelancer page */}
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
