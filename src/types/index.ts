@@ -5,15 +5,17 @@ export interface Project {
   clientId: string;
   clientName: string;
   freelancerId: string;
-  status: "in-progress" | "completed" | "on-hold";
+  status: string;
   tasks: Task[];
   files: FileDetails[];
   messages: Message[];
-  deadline?: string;
+  dueDate?: string;
   budget?: number;
   createdAt: string;
   updatedAt: string;
 }
+
+export type ProjectStatus = "in-progress" | "on-hold" | "completed";
 
 export interface Task {
   _id: string;

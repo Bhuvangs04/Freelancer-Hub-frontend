@@ -32,10 +32,11 @@ interface Message {
 
 interface Project {
   _id: string;
+  projectId: string;
   title: string;
   freelancerId: string;
   clientId: string;
-  status: "in_progress" | "on_hold" | "completed";
+  status: string;
   progress: number;
   dueDate: string;
   budget: number;
@@ -65,6 +66,7 @@ const fetchProjects = async (): Promise<Project[]> => {
   return data.map((project: any) => ({
     ...project,
     _id: project._id || project.id,
+    projectId: project.projectId,
     freelancer: project.freelancer || "Unknown Freelancer",
   }));
 };
@@ -149,6 +151,7 @@ const Index = () => {
                 project={{
                   ...project,
                   id: project._id, // Ensure id is available for components expecting it
+                  status: project.status.replace("_", "-"), // Convert status to match the expected format
                 }}
                 onViewDetails={() => setSelectedProject(project)}
               />

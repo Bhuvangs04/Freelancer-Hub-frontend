@@ -29,13 +29,13 @@ export default function ProjectCard({ project, onClick }: ProjectCardProps) {
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   // Format dates
-  const formattedDeadline = project.deadline
-    ? format(new Date(project.deadline), "MMM dd, yyyy")
+  const formattedDeadline = project.dueDate
+    ? format(new Date(project.dueDate), "MMM dd, yyyy")
     : "No deadline";
 
-  const daysLeft = project.deadline
+  const daysLeft = project.dueDate
     ? Math.ceil(
-        (new Date(project.deadline).getTime() - new Date().getTime()) /
+        (new Date(project.dueDate).getTime() - new Date().getTime()) /
           (1000 * 60 * 60 * 24)
       )
     : null;

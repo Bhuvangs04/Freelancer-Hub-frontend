@@ -5,6 +5,7 @@ import {
   Project,
   TaskFormData,
   MessageFormData,
+  ProjectStatus,
 } from "@/types";
 import { toast } from "sonner";
 import axios from "axios";
@@ -20,7 +21,6 @@ const apiClient = axios.create({
   },
   withCredentials: true, // ✅ Ensures cookies are included in requests
 });
-
 
 // Add auth token to requests if available
 apiClient.interceptors.request.use((config) => {
@@ -104,7 +104,6 @@ export const api = {
         `/worksubmission/tasks/${taskId}/${projectId}`
       );
 
-        
       const updatedProject = await api.getProject(projectId);
       if (updatedProject.status === "success" && response.status === 200) {
         toast.success("Task Deleted successfully");
@@ -140,6 +139,39 @@ export const api = {
       return updatedProject;
     } catch (error) {
       return handleApiError(error, "Error updating task status");
+    }
+  },
+
+  updateTaskStatusType: async (
+    projectId: string,
+    status: ProjectStatus
+  ): Promise<ApiResponse<Project>> => {
+    try {
+      // Implement the API call to update task status
+      const response = await apiClient.patch(
+        `/freelancer/projects/${projectId}/${status}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log(response);
+
+      if (response) {
+        toast.success(response.data.messsage);
+      }
+
+      const data = await api.getProject(projectId);
+      return data;
+    } catch (error) {
+      console.error("Error updating task status:", error);
+      return {
+        status: "error",
+        message: "Failed to update task status",
+      };
     }
   },
 

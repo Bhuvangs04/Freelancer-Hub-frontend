@@ -1,10 +1,16 @@
 import { useState, useRef } from "react";
-import { Check, Plus, X, Clock, Trash2 } from "lucide-react";
+import { Check, Plus, X, Clock, Trash2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Project, Task } from "@/types";
+import { Project, Task, ProjectStatus } from "@/types";
 import { api } from "@/lib/api";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface TaskListProps {
   project: Project;
@@ -50,6 +56,53 @@ export default function TaskList({ project, onProjectUpdate }: TaskListProps) {
       setIsSubmitting(false);
     }
   };
+
+  const handleStatusChange = async (status: ProjectStatus) => {
+    try {
+      setLoading(true);
+
+      const response = await api.updateTaskStatusType(project._id, status);
+
+      if (response.status === "success" && response.data) {
+        onProjectUpdate(response.data);
+      }
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get status display properties
+  const getStatusProps = (status: ProjectStatus = "in-progress") => {
+    switch (status) {
+      case "in-progress":
+        return {
+          label: "In Progress",
+          color: "bg-blue-100 text-blue-800",
+          icon: <Clock size={14} className="mr-1" />,
+        };
+      case "on-hold":
+        return {
+          label: "On Hold",
+          color: "bg-orange-100 text-orange-800",
+          icon: <Clock size={14} className="mr-1 rotate-90" />,
+        };
+      case "completed":
+        return {
+          label: "Completed",
+          color: "bg-green-100 text-green-800",
+          icon: <Check size={14} className="mr-1" />,
+        };
+      default:
+        return {
+          label: "Pending",
+          color: "bg-yellow-100 text-yellow-800",
+          icon: <Clock size={14} className="mr-1" />,
+        };
+    }
+  };
+
+  const statusProps = getStatusProps(project.status as ProjectStatus);
 
   // Handle task status toggle
   const handleToggleTask = async (taskId: string, completed: boolean) => {
@@ -108,6 +161,43 @@ export default function TaskList({ project, onProjectUpdate }: TaskListProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 border animate-in fade-in">
       <div className="flex justify-between items-center mb-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger disabled={loading} asChild>
+            <button
+              className={cn(
+                "py-2 px-4 rounded-full text-sm flex items-center transition-all hover:opacity-90",
+                statusProps.color
+              )}
+            >
+              {statusProps.icon}
+              {statusProps.label}
+              <ChevronDown size={16} className="ml-2" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48 bg-white z-50">
+            <DropdownMenuItem
+              onClick={() => handleStatusChange("in-progress")}
+              className="cursor-pointer flex items-center text-sm"
+            >
+              <Clock size={14} className="mr-2 text-blue-500" />
+              In Progress
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleStatusChange("on-hold")}
+              className="cursor-pointer flex items-center text-sm"
+            >
+              <Clock size={14} className="mr-2 rotate-90 text-orange-500" />
+              On Hold
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleStatusChange("completed")}
+              className="cursor-pointer flex items-center text-sm"
+            >
+              <Check size={14} className="mr-2 text-green-500" />
+              Completed
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <h3 className="text-lg font-semibold text-gray-900">Tasks</h3>
         <span className="text-sm text-gray-500">
           {completedTasks.length} of {tasks.length} completed

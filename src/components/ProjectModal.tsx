@@ -37,7 +37,7 @@ interface Project {
   freelancer?: string;
   freelancerId?: string;
   clientId?: string;
-  status: "in_progress" | "on_hold" | "completed";
+  status: string;
   progress: number;
   dueDate: string;
   budget: number;
@@ -124,14 +124,14 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
   if (!project) return null;
 
   const statusColorMap = {
-    in_progress: "bg-blue-100 text-blue-800",
-    on_hold: "bg-yellow-100 text-yellow-800",
+    "in-progress": "bg-blue-100 text-blue-800",
+    "on-hold": "bg-yellow-100 text-yellow-800",
     completed: "bg-green-100 text-green-800",
   };
 
   const statusText = {
-    in_progress: "In Progress",
-    on_hold: "On Hold",
+    "in-progress": "In Progress",
+    "on-hold": "On Hold",
     completed: "Completed",
   };
 
