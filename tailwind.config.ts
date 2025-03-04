@@ -131,6 +131,11 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-5px)" },
         },
+        shimmer: {
+          "100%": {
+            transform: "translateX(100%)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -145,6 +150,7 @@ export default {
         "slide-in-right": "slideInRight 0.5s ease-out",
         pulse: "pulse 2s ease-in-out infinite",
         float: "float 3s ease-in-out infinite",
+        shimmer: "shimmer 2s infinite",
       },
       backdropFilter: {
         none: "none",

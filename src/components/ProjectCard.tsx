@@ -9,7 +9,13 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CalendarIcon, BadgeIndianRupee, X, IndianRupee } from "lucide-react";
+import {
+  CalendarIcon,
+  BadgeIndianRupee,
+  X,
+  IndianRupee,
+  Star,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -51,6 +57,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const [rejectionReason, setRejectionReason] = useState("");
   const [reasonError, setReasonError] = useState(false);
 
+  // Rating state
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [commentError, setCommentError] = useState(false);
+
   const statusColorMap = {
     "in-progress": "bg-blue-100 text-blue-800",
     "on-hold": "bg-yellow-100 text-yellow-800",
@@ -73,10 +85,51 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     });
   };
 
+  const openRatingModal = () => {
+    setIsRatingModalOpen(true);
+    setRating(5);
+    setComment("");
+    setCommentError(false);
+  };
+
   const handleApprovePayment = async () => {
+    // Open rating modal instead of immediately processing payment
+    openRatingModal();
+  };
+
+  // Submit payment with rating
+  const submitRatingAndApprovePayment = async () => {
+    if (!comment.trim()) {
+      setCommentError(true);
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await fetch(
+      // First, send the rating to the ratings API
+      const ratingResponse = await fetch(
+        `${import.meta.env.VITE_API_URL}/freelancer/client-rating/${
+          project.projectId
+        }`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            projectId: project.projectId,
+            rating: rating,
+            comments: comment.trim(),
+          }),
+        }
+      );
+
+      if (!ratingResponse.ok) {
+        const ratingData = await ratingResponse.json();
+        throw new Error(ratingData.message || "Failed to submit rating");
+      }
+
+      // Then process the payment
+      const paymentResponse = await fetch(
         `${import.meta.env.VITE_API_URL}/payments/release-payment`,
         {
           method: "POST",
@@ -90,14 +143,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         }
       );
 
-      const data = await response.json();
-      if (response.ok) {
-        toast.success("Payment approved successfully!");
+      const paymentData = await paymentResponse.json();
+      if (paymentResponse.ok) {
+        toast.success("Payment approved and rating submitted successfully!");
+        setIsRatingModalOpen(false);
       } else {
-        toast.error(data.message || "Failed to approve payment.");
+        toast.error(paymentData.message || "Failed to approve payment.");
       }
     } catch (error) {
-      toast.error("Error approving payment.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Error processing payment and rating."
+      );
     }
     setLoading(false);
   };
@@ -222,6 +280,71 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </CardFooter>
       </Card>
 
+      {/* Rating Modal */}
+      <Dialog open={isRatingModalOpen} onOpenChange={setIsRatingModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Rate Freelancer</DialogTitle>
+            <DialogDescription>
+              Please rate the freelancer and provide feedback before approving
+              the payment.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            <div className="space-y-4">
+              <Label>Rating</Label>
+              <div className="flex justify-center items-center">
+                <RatingSelector rating={rating} onChange={setRating} />
+              </div>
+              <div className="text-center text-sm text-muted-foreground">
+                {rating} out of 5 stars
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rating-comment" className="text-right">
+                Feedback <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="rating-comment"
+                placeholder="Please provide feedback about the freelancer's work..."
+                value={comment}
+                onChange={(e) => {
+                  setComment(e.target.value);
+                  if (e.target.value.trim()) setCommentError(false);
+                }}
+                className={commentError ? "border-red-500" : ""}
+              />
+              {commentError && (
+                <p className="text-sm text-red-500">
+                  Please provide feedback for the freelancer
+                </p>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter className="sm:justify-end">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setIsRatingModalOpen(false)}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={submitRatingAndApprovePayment}
+              className="bg-green-600 hover:bg-green-700"
+              disabled={loading}
+            >
+              {loading ? "Processing..." : "Submit & Approve Payment"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Rejection Reason Modal */}
       <Dialog
         open={isRejectionModalOpen}
@@ -280,5 +403,32 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </DialogContent>
       </Dialog>
     </>
+  );
+};
+
+// Star rating selector component
+const RatingSelector: React.FC<{
+  rating: number;
+  onChange: (rating: number) => void;
+}> = ({ rating, onChange }) => {
+  return (
+    <div className="flex space-x-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => onChange(star)}
+          className="focus:outline-none transition-transform hover:scale-110"
+        >
+          <Star
+            className={`h-8 w-8 ${
+              star <= rating
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-gray-300"
+            }`}
+          />
+        </button>
+      ))}
+    </div>
   );
 };

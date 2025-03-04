@@ -25,6 +25,7 @@ import ClientFreelancerFinder from "./pages/Client/freelance-finder/FreelancerLi
 import Freelancer_Card_projects from "./pages/Freelancer/freelancer-place-bid/Freelancer_Card_projects";
 import FreelancerEntryPage from "./pages/Freelancer/freelancer.enrty";
 import Dashboard from "./pages/Freelancer/MainPage";
+import FreelancerProfile from "./pages/Freelancer/Freelancer.profile";
 
 // import SecurityLayer from "./components/Security/SecurityLayer";
 
@@ -46,6 +47,14 @@ const App = () => (
             element={
               <FreelancerAuth>
                 <PolicyPage />
+              </FreelancerAuth>
+            }
+          />
+          <Route
+            path="/freelancer/profile"
+            element={
+              <FreelancerAuth>
+                <FreelancerProfile />
               </FreelancerAuth>
             }
           />
