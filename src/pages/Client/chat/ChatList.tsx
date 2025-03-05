@@ -58,8 +58,8 @@ export const ChatList = ({
   }
 
   return (
-    <div className="w-80 border-r border-gray-200">
-      <div className="p-4 border-b border-gray-200">
+    <div className="w-80 border-r border-gray-200 flex flex-col h-full">
+      <div className="p-4 border-b border-gray-200 flex-shrink-0">
         <h2 className="text-xl font-semibold mb-4">Messages</h2>
         <Input
           placeholder="Search users..."
@@ -68,49 +68,54 @@ export const ChatList = ({
           className="w-full"
         />
       </div>
-      <ScrollArea className="h-[calc(100vh-16rem)]">
-        <div className="space-y-1">
-          {filteredUsers.map((user) => (
-            <button
-              key={user._id}
-              onClick={() => onSelectUser(user)}
-              className={`w-full p-4 text-left transition-colors hover:bg-gray-50 ${
-                selectedUser?._id === user._id ? "bg-gray-50" : ""
-              }`}
-            >
-              <div className="flex items-start space-x-4">
-                <div className="relative">
-                  <img
-                    src={user.profilePictureUrl}
-                    alt={user.username}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <span
-                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                      user.status === "online" ? "bg-green-500" : "bg-gray-400"
-                    }`}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-medium truncate">{user.username}</h3>
-                    {user.unreadCount ? (
-                      <span className="ml-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">
-                        {user.unreadCount}
-                      </span>
-                    ) : null}
+
+      <div className="flex-grow relative">
+        <ScrollArea className="h-[calc(100vh-180px)]">
+          <div className="space-y-1 p-2">
+            {filteredUsers.map((user) => (
+              <button
+                key={user._id}
+                onClick={() => onSelectUser(user)}
+                className={`w-full p-4 text-left transition-colors hover:bg-gray-50 rounded-md ${
+                  selectedUser?._id === user._id ? "bg-gray-50" : ""
+                }`}
+              >
+                <div className="flex items-start space-x-4">
+                  <div className="relative">
+                    <img
+                      src={user.profilePictureUrl}
+                      alt={user.username}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <span
+                      className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+                        user.status === "online"
+                          ? "bg-green-500"
+                          : "bg-gray-400"
+                      }`}
+                    />
                   </div>
-                  {user.lastMessage && (
-                    <p className="text-sm text-gray-500 truncate">
-                      {user.lastMessage}
-                    </p>
-                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-medium truncate">{user.username}</h3>
+                      {user.unreadCount ? (
+                        <span className="ml-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">
+                          {user.unreadCount}
+                        </span>
+                      ) : null}
+                    </div>
+                    {user.lastMessage && (
+                      <p className="text-sm text-gray-500 truncate">
+                        {user.lastMessage}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
-        </div>
-      </ScrollArea>
+              </button>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
 };

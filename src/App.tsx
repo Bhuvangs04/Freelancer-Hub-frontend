@@ -7,7 +7,6 @@ import Index from "./pages/Index";
 import Profile from "./pages/Freelancer/ViewProfile";
 import ProfileUpdate from "./pages/Freelancer/ProfileUpdate";
 import SignIn from "./pages/SignIn";
-import Chat from "./pages/chat";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import FreelancerAuth from "./components/Security/Freelancer.Auth";
@@ -23,9 +22,11 @@ import ClientAddProject3 from "./pages/Client/client-main-page-add-project/Index
 import ClientOngoingProject from "./pages/Client/client-ongoing-projects/Index";
 import ClientFreelancerFinder from "./pages/Client/freelance-finder/FreelancerList";
 import Freelancer_Card_projects from "./pages/Freelancer/freelancer-place-bid/Freelancer_Card_projects";
-import FreelancerEntryPage from "./pages/Freelancer/freelancer.enrty";
 import Dashboard from "./pages/Freelancer/MainPage";
 import FreelancerProfile from "./pages/Freelancer/Freelancer.profile";
+import Forbidden from "./pages/ForbiddenPage";
+
+import ProtectedRoute from "@/components/Security/PorperCheck";
 
 // import SecurityLayer from "./components/Security/SecurityLayer";
 
@@ -41,6 +42,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/forbidden" element={<Forbidden />} />
+
           {/* Routes that require authentication */}
           <Route
             path="/freelancer-Hub/policy"
@@ -54,15 +57,9 @@ const App = () => (
             path="/freelancer/profile"
             element={
               <FreelancerAuth>
-                <FreelancerProfile />
-              </FreelancerAuth>
-            }
-          />
-          <Route
-            path="/freelancer"
-            element={
-              <FreelancerAuth>
-                <FreelancerEntryPage />
+                <ProtectedRoute role="freelancer">
+                  <FreelancerProfile />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -70,7 +67,9 @@ const App = () => (
             path="/dashboard"
             element={
               <FreelancerAuth>
-                <Dashboard />
+                <ProtectedRoute role="freelancer">
+                  <Dashboard />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -78,7 +77,9 @@ const App = () => (
             path="/clients/projects/bids"
             element={
               <FreelancerAuth>
-                <ClientProjectsBids />
+                <ProtectedRoute role="client">
+                  <ClientProjectsBids />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -86,7 +87,9 @@ const App = () => (
             path="/project-bids/:projectId"
             element={
               <FreelancerAuth>
-                <ClinetBids />
+                <ProtectedRoute role="client">
+                  <ClinetBids />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -94,7 +97,19 @@ const App = () => (
             path="/chat"
             element={
               <FreelancerAuth>
-                <Chat_client />
+                <ProtectedRoute role="client">
+                  <Chat_client />
+                </ProtectedRoute>
+              </FreelancerAuth>
+            }
+          />
+          <Route
+            path="/chat/freelancer"
+            element={
+              <FreelancerAuth>
+                <ProtectedRoute role="freelancer">
+                  <Chat_client />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -102,7 +117,9 @@ const App = () => (
             path="/my-bids"
             element={
               <FreelancerAuth>
-                <MyBids />
+                <ProtectedRoute role="freelancer">
+                  <MyBids />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -110,7 +127,9 @@ const App = () => (
             path="/Client-profile"
             element={
               <FreelancerAuth>
-                <Client_profile />
+                <ProtectedRoute role="client">
+                  <Client_profile />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -118,15 +137,9 @@ const App = () => (
             path="/my-projects"
             element={
               <FreelancerAuth>
-                <ClientProjects />
-              </FreelancerAuth>
-            }
-          />
-          <Route
-            path="/chat/:chattingId/chatting"
-            element={
-              <FreelancerAuth>
-                <Chat />
+                <ProtectedRoute role="client">
+                  <ClientProjects />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -134,7 +147,9 @@ const App = () => (
             path="/Profile/update"
             element={
               <FreelancerAuth>
-                <ProfileUpdate />
+                <ProtectedRoute role="freelancer">
+                  <ProfileUpdate />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -142,7 +157,9 @@ const App = () => (
             path="/view"
             element={
               <FreelancerAuth>
-                <Profile />
+                <ProtectedRoute role="freelancer">
+                  <Profile />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -150,7 +167,9 @@ const App = () => (
             path="/find/freelancers"
             element={
               <FreelancerAuth>
-                <ClientFreelancerFinder />
+                <ProtectedRoute role="client">
+                  <ClientFreelancerFinder />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -158,7 +177,9 @@ const App = () => (
             path="/add-project/:clientId/direct"
             element={
               <FreelancerAuth>
-                <ClientAddProject />
+                <ProtectedRoute role="client">
+                  <ClientAddProject />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -166,7 +187,9 @@ const App = () => (
             path="/create/client-page"
             element={
               <FreelancerAuth>
-                <ClientAddProject3 />
+                <ProtectedRoute role="client">
+                  <ClientAddProject3 />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -174,7 +197,9 @@ const App = () => (
             path="/freelancer/home/in-en"
             element={
               <FreelancerAuth>
-                <Freelancer_Card_projects />
+                <ProtectedRoute role="freelancer">
+                  <Freelancer_Card_projects />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />
@@ -183,7 +208,9 @@ const App = () => (
             path="/client/ongoing/projects/details/routing/v1/s1"
             element={
               <FreelancerAuth>
-                <ClientOngoingProject />
+                <ProtectedRoute role="client">
+                  <ClientOngoingProject />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />

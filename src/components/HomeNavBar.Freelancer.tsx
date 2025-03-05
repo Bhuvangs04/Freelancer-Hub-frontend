@@ -1,101 +1,229 @@
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import {
+  Menu,
+  X,
+  User,
+  LayoutDashboard,
+  ClipboardList,
+  LogOut,
+  Building2Icon,
+  WalletCards,
+  MessageCircle,
+  UserCheck,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { User, UserPlus, Wallet, Grid, Settings } from "lucide-react";
 
-const Index = () => {
-  // Get user authentication state from Redux
-  const user = useSelector((state: any) => state.user);
-  const isLoggedIn = user.isAuthenticated;
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+
+  // Freelancer-specific links
+  const freelancerLinks = [
+    {
+      name: "Messages",
+      href: "/chat/freelancer",
+      icon: <MessageCircle className="h-4 w-4 mr-2" />,
+    },
+    {
+      name: "Dashboard",
+      href: "/dashboard",
+      icon: <LayoutDashboard className="h-4 w-4 mr-2" />,
+    },
+    {
+      name: "See Bids",
+      href: "/my-bids",
+      icon: <ClipboardList className="h-4 w-4 mr-2" />,
+    },
+    {
+      name: "My works & Payments",
+      href: "/freelancer/profile",
+      icon: <WalletCards className="h-4 w-4 mr-2" />,
+    },
+  ];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
 
   return (
-    <div className=" bg-gradient-to-b from-gray-50 to-gray-100">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 backdrop-blur-md bg-white/75 border-b border-gray-200 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <span className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-gray-600">
-                FreelancerHub
-              </span>
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? "bg-background/80 backdrop-blur-md border-b border-border/50 shadow-sm"
+          : "bg-transparent"
+      }`}
+    >
+      <div className="py-3 container mx-auto px-4 md:px-6">
+        <div className="flex items-center justify-between">
+          <Link
+            to="/freelancer/home/in-en"
+            className="text-xl font-semibold tracking-tight transition-colors flex items-center gap-1.5"
+          >
+            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-white font-bold text-lg">F</span>
+            </div>
+            <span>FreelancerHub</span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-6">
+            <div className="flex items-center gap-6">
+              {/* Freelancer specific links */}
+              {freelancerLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className={`text-sm font-medium transition-colors hover:text-primary flex items-center ${
+                    location.pathname === link.href
+                      ? "text-primary"
+                      : "text-foreground/80"
+                  }`}
+                >
+                  {link.icon}
+                  {link.name}
+                </Link>
+              ))}
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="icon"
-                    className="relative h-10 w-10 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                    size="sm"
+                    className="flex items-center gap-2"
                   >
-                    <User className="h-5 w-5 text-gray-700" />
+                    <User className="h-4 w-4" />
+                    Profile
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 mt-2 p-2 bg-white rounded-lg shadow-lg border border-gray-200 animate-in fade-in-80 slide-in-from-top-1">
-                  {isLoggedIn ? (
-                    <>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/view"
-                          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-                        >
-                          <User className="h-4 w-4" />
-                          Profile
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/Profile/update"
-                          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-                        >
-                          <Settings className="h-4 w-4" />
-                          Update Profile
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/wallet"
-                          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-                        >
-                          <Wallet className="h-4 w-4" />
-                          Wallet
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/projects"
-                          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-                        >
-                          <Grid className="h-4 w-4" />
-                          Projects
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <DropdownMenuItem asChild>
-                      <Link
-                        to="/sign-in"
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-                      >
-                        <UserPlus className="h-4 w-4" />
-                        Sign In
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/view"
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <User className="h-4 w-4" />
+                      View Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/freelancer-Hub/policy"
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Building2Icon className="h-4 w-4" />
+                      Company Policies
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/Profile/update"
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <UserCheck className="h-4 w-4" />
+                      Update Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/sign-in"
+                      className="flex items-center gap-2 text-red-500 cursor-pointer"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </Link>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+          </nav>
+
+          {/* Mobile Navigation Toggle */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="p-2 -mr-2 md:hidden"
+            aria-label="Toggle menu"
+          >
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Navigation Menu */}
+      {isOpen && (
+        <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg py-4 px-4 h-[calc(100vh-4rem)] flex flex-col animate-fade-in">
+          <div className="space-y-4">
+
+
+            {/* Freelancer specific links for mobile */}
+            {freelancerLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.href}
+                className={`flex items-center py-2 text-base font-medium transition-colors hover:text-primary ${
+                  location.pathname === link.href
+                    ? "text-primary"
+                    : "text-foreground/80"
+                }`}
+              >
+                {link.icon}
+                {link.name}
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-6 space-y-3">
+            <Link to="/view" className="flex items-center gap-2 cursor-pointer">
+              <User className="h-4 w-4" />
+              View Profile
+            </Link>
+            <Link
+              to="/freelancer-Hub/policy"
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Building2Icon className="h-4 w-4" />
+              Company Policies
+            </Link>
+            <Link
+              to="/Profile/update"
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <UserCheck className="h-4 w-4" />
+              Update Profile
+            </Link>
+            <Button asChild variant="destructive" className="w-full">
+              <Link
+                to="/sign-in"
+                className="flex items-center gap-2 text-red-500 cursor-pointer"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Link>
+            </Button>
           </div>
         </div>
-      </nav>
-    </div>
+      )}
+    </header>
   );
 };
 
-export default Index;
+export default Navbar;

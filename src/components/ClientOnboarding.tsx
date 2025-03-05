@@ -18,6 +18,16 @@ import { Building, User } from "lucide-react";
 const username = localStorage.getItem("username");
 const email = localStorage.getItem("email");
 
+const generateSecureRandomString = () => {
+  const array = new Uint8Array(105); // 64 bits (8 bytes)
+  crypto.getRandomValues(array);
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
+    ""
+  );
+};
+
+const User_log = generateSecureRandomString();
+
 export const ClientOnboarding = () => {
   const navigate = useNavigate();
   const [clientType, setClientType] = useState<"individual" | "company">(
@@ -58,7 +68,7 @@ export const ClientOnboarding = () => {
     formData.append("file", file);
 
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/client/client/update-profile-picture`,
+      `${import.meta.env.VITE_API_URL}/client/pictureUpdate`,
       {
         method: "POST",
         body: formData,
@@ -72,7 +82,7 @@ export const ClientOnboarding = () => {
 
   const updateProfile = async (profileData: any) => {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/client/client/company`,
+      `${import.meta.env.VITE_API_URL}/client/company`,
       {
         method: "POST",
         headers: {
@@ -123,7 +133,7 @@ export const ClientOnboarding = () => {
       });
 
       toast.success("Profile created successfully!");
-      navigate("/client/profile");
+      navigate(`/Client-profile?email=${email}?id=${User_log}&email=${email}`);
     } catch (error) {
       toast.error("Failed to create profile. Please try again.");
     } finally {

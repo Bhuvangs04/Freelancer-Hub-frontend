@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Navigation } from "@/components/Navigation";
+import Navbar from "@/components/HomeNavBar.Freelancer";
 import { ChatList } from "./ChatList";
 import { ChatWindow } from "./ChatWindow";
 import { useToast } from "@/components/ui/use-toast";
@@ -20,7 +20,6 @@ interface ChatUser {
   lastMessage?: string;
   unreadCount?: number;
 }
-
 
 async function importEncryptionKey(hexKey: string): Promise<CryptoKey> {
   const keyBuffer = new Uint8Array(
@@ -65,11 +64,7 @@ async function decryptMessage(encryptedMessage: string, hexKey: string) {
   }
 }
 
-
-
 const secretKey = import.meta.env.VITE_ENCRYPTION_KEY;
-
-
 
 const Chat_client = () => {
   const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
@@ -278,26 +273,28 @@ const Chat_client = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden h-[calc(100vh-12rem)]">
-          <div className="flex h-full">
-            <ChatList
-              users={chatUsers}
-              selectedUser={selectedUser}
-              onSelectUser={handleSelectUser}
-              isLoading={isLoading}
-            />
-            <ChatWindow
-              selectedUser={selectedUser}
-              messages={messages}
-              onSendMessage={handleSendMessage}
-            />
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="container mx-auto px-4 py-8 flex-grow mt-16">
+          <div className="bg-white rounded-lg shadow-sm overflow-hidden h-[calc(100vh-12rem)]">
+            <div className="flex h-full">
+              <ChatList
+                users={chatUsers}
+                selectedUser={selectedUser}
+                onSelectUser={handleSelectUser}
+                isLoading={isLoading}
+              />
+              <ChatWindow
+                selectedUser={selectedUser}
+                messages={messages}
+                onSendMessage={handleSendMessage}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -136,6 +136,12 @@ export default {
             transform: "translateX(100%)",
           },
         },
+        "rotate-warning": {
+          "0%": { transform: "rotate(0deg)" },
+          "25%": { transform: "rotate(-3deg)" },
+          "75%": { transform: "rotate(3deg)" },
+          "100%": { transform: "rotate(0deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -151,6 +157,7 @@ export default {
         pulse: "pulse 2s ease-in-out infinite",
         float: "float 3s ease-in-out infinite",
         shimmer: "shimmer 2s infinite",
+        "rotate-warning": "rotate-warning 1.5s ease-in-out infinite",
       },
       backdropFilter: {
         none: "none",

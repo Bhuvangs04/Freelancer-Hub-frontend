@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -13,7 +13,6 @@ import {
 import { Wallet, UserRound, History } from "lucide-react";
 import { TransactionHistoryModal } from "./modals/TransactionHistoryModal";
 import { WithdrawModal } from "./modals/WithdrawModal";
-
 
 const generateSecureRandomString = () => {
   const array = new Uint8Array(72); // 64 bits (8 bytes)
@@ -119,7 +118,15 @@ export const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <span className="text-xl font-bold text-primary">FreelanceHub</span>
+            <span className="text-xl font-bold text-primary">
+              {" "}
+              <Link
+                to="/find/freelancers"
+                className="text-2xl font-semibold text-primary flex items-center gap-2"
+              >
+                FreelanceHub
+              </Link>
+            </span>
           </div>
           <div className="flex items-center space-x-4">
             <Button

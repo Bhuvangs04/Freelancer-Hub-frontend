@@ -4,11 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/userSlice";
-import { ReloadIcon } from "@radix-ui/react-icons";
-  
+import { motion } from "framer-motion";
+import {
+  LockKeyhole,
+  Mail,
+  UserCog,
+  ArrowRight,
+  AlertTriangle,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -134,101 +149,181 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/90">
       <Navbar />
-      <div className="pt-24 pb-12">
-        <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl">
-          <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
-            Welcome Back
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="role" className="text-gray-700">
-                Role
-              </Label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full border rounded-lg p-2 bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
-                disabled={isLoading}
-              >
-                <option value="Manager">Admin Access Only</option>
-                <option value="Client">User (Freelancer/Client)</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-700">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="focus:ring-2 focus:ring-primary/20"
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-700">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="focus:ring-2 focus:ring-primary/20"
-                disabled={isLoading}
-              />
-            </div>
-            {role === "Manager" && (
-              <div className="space-y-2">
-                <Label htmlFor="secretCode" className="text-gray-700">
-                  Secret Code
-                </Label>
-                <Input
-                  id="secretCode"
-                  type="text"
-                  placeholder="Enter the secret code"
-                  value={secretCode}
-                  onChange={(e) => setSecretCode(e.target.value)}
-                  required
-                  className="focus:ring-2 focus:ring-primary/20"
-                  disabled={isLoading}
-                />
-              </div>
-            )}
-            <Button
-              type="submit"
-              className="w-full transition-all duration-200 hover:shadow-md"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <ReloadIcon className="h-4 w-4 animate-spin" />
-                  Signing in...
+      <div className="container mx-auto pt-28 pb-12 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-md mx-auto"
+        >
+          <Card className="border-gradient overflow-hidden">
+            <CardHeader className="space-y-1 pb-3">
+              <CardTitle className="text-2xl font-bold text-center">
+                <span className="text-gradient">Welcome Back</span>
+              </CardTitle>
+              <CardDescription className="text-center text-muted-foreground">
+                Enter your credentials to access your account
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="role" className="font-medium">
+                    <span className="flex items-center gap-2">
+                      <UserCog className="h-4 w-4" />
+                      Select Account Type
+                    </span>
+                  </Label>
+                  <div className="relative">
+                    <select
+                      id="role"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      className="w-full h-10 px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 appearance-none"
+                      disabled={isLoading}
+                    >
+                      <option value="Manager">Admin Access Only</option>
+                      <option value="Client">User (Freelancer/Client)</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted-foreground">
+                      <svg
+                        className="h-4 w-4 fill-current"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
-          </form>
-          <p className="text-center mt-6 text-sm text-gray-600">
-            Don't have an account?{" "}
-            <Link
-              to="/sign-up"
-              className="text-primary hover:underline transition-colors duration-200"
-            >
-              Sign Up
-            </Link>
-          </p>
-        </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="font-medium">
+                    <span className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Email Address
+                    </span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="enter@your.email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="pl-3 focus:ring-2 focus:ring-primary/30"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="font-medium">
+                    <span className="flex items-center gap-2">
+                      <LockKeyhole className="h-4 w-4" />
+                      Password
+                    </span>
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="focus:ring-2 focus:ring-primary/30"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                {role === "Manager" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-2"
+                  >
+                    <Label htmlFor="secretCode" className="font-medium">
+                      <span className="flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4" />
+                        Secret Code
+                      </span>
+                    </Label>
+                    <Input
+                      id="secretCode"
+                      type="text"
+                      placeholder="Enter admin access code"
+                      value={secretCode}
+                      onChange={(e) => setSecretCode(e.target.value)}
+                      required
+                      className="focus:ring-2 focus:ring-primary/30"
+                      disabled={isLoading}
+                    />
+                  </motion.div>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full group relative overflow-hidden font-medium"
+                  disabled={isLoading}
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    {isLoading ? (
+                      <>
+                        <svg
+                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Signing In...
+                      </>
+                    ) : (
+                      <>
+                        Sign In
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                      </>
+                    )}
+                  </span>
+                </Button>
+              </form>
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-2 pt-0">
+              <div className="text-center text-sm">
+                <span className="text-muted-foreground">
+                  Don't have an account?{" "}
+                </span>
+                <Link
+                  to="/sign-up"
+                  className="font-medium text-primary hover:underline transition-colors duration-200"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            </CardFooter>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );
