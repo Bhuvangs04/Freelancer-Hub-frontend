@@ -1,9 +1,16 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, AlertCircle, X, Plus } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  AlertCircle,
+  X,
+  Plus,
+  ArrowLeftIcon,
+} from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
@@ -15,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
 
 interface ProjectType {
   _id: string;
@@ -29,6 +37,7 @@ interface ProjectType {
 }
 
 const ProjectDetails = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [projects, setProjects] = useState<ProjectType[]>([]); // ✅ Ensures it starts as an array
   const [selectedProject, setSelectedProject] = useState(null);
@@ -295,6 +304,14 @@ const ProjectDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
+      <Button
+        variant="ghost"
+        className="ml-3 mt-5 flex items-center gap-2 hover:bg-green-400"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeftIcon width={24} />
+        Back
+      </Button>
       <div className="container mx-auto px-4 max-w-6xl">
         <Tabs defaultValue="open" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">

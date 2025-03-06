@@ -16,6 +16,7 @@ import {
   XCircle,
   IndianRupee,
   Home,
+  ArrowLeftIcon,
 } from "lucide-react";
 import {
   Card,
@@ -43,9 +44,6 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
 
-
-
-
 const generateSecureRandomString = () => {
   const array = new Uint8Array(72); // 64 bits (8 bytes)
   crypto.getRandomValues(array);
@@ -56,9 +54,8 @@ const generateSecureRandomString = () => {
 
 const userId = generateSecureRandomString();
 
-
 const FreelancerDashboard = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [bankDetails, setBankDetails] = useState({
     accountNumber: "",
@@ -68,7 +65,7 @@ const FreelancerDashboard = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const freelancerId = 123; 
+  const freelancerId = localStorage.getItem("Chatting_id");
 
   const {
     data,
@@ -87,7 +84,6 @@ const FreelancerDashboard = () => {
         throw new Error("Network response was not ok");
       }
       return response.json();
-      
     },
     // Fallback data to show while loading or in case of error
     placeholderData: {
@@ -98,7 +94,6 @@ const FreelancerDashboard = () => {
 
   const transactions = data?.transactions?.flatMap((e) => e.transactions) || [];
   const projects = data?.projects || [];
-
 
   // Calculate totals from mock data
   const totalEarnings = transactions
@@ -137,46 +132,46 @@ const FreelancerDashboard = () => {
     setIsLoading(true);
 
     // Simulate API call with timeout
-try {
-  const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/payments/freelancer/withdraw/balance`,
-    {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        accountNumber: bankDetails.accountNumber,
-        accountName: bankDetails.accountName,
-        ifscCode: bankDetails.ifscCode,
-        amount: Number(bankDetails.amount),
-      }),
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/payments/freelancer/withdraw/balance`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            accountNumber: bankDetails.accountNumber,
+            accountName: bankDetails.accountName,
+            ifscCode: bankDetails.ifscCode,
+            amount: Number(bankDetails.amount),
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Withdrawal failed");
+      }
+
+      toast.success(result.message);
+
+      // Reset form
+      setBankDetails({
+        accountNumber: "",
+        accountName: "",
+        ifscCode: "",
+        amount: "",
+      });
+
+      setIsWithdrawModalOpen(false);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
-  );
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.message || "Withdrawal failed");
-  }
-
-  toast.success(result.message);
-
-  // Reset form
-  setBankDetails({
-    accountNumber: "",
-    accountName: "",
-    ifscCode: "",
-    amount: "",
-  });
-
-  setIsWithdrawModalOpen(false);
-} catch (error) {
-  toast.error(error.message);
-} finally {
-  setIsLoading(false);
-}
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,8 +184,7 @@ try {
 
   const ongoingProjects = projects.filter((p) => p.status === "in_progress");
   const completedProjects = projects.filter((p) => p.status === "completed");
-   const rejectedProjects = projects.filter((p) => p.status === "rejected");
-
+  const rejectedProjects = projects.filter((p) => p.status === "rejected");
 
   if (isDataLoading) {
     return (
@@ -231,69 +225,17 @@ try {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation for bigger screens */}
-      <nav className="border-b fixed w-full bg-background z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <span className="text-xl font-semibold">FreelanceDetails</span>
-              <div className="hidden md:flex ml-10 space-x-8">
-                <a
-                  href="#"
-                  className="text-primary px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
-                >
-                  <Home size={18} />
-                  Dashboard
-                </a>
-                <a
-                  href="#"
-                  className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
-                >
-                  <LayoutList size={18} />
-                  Projects
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t z-10">
-        <div className="flex justify-around">
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center py-2 px-3 text-xs"
-          >
-            <Home size={20} />
-            Home
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center py-2 px-3 text-xs"
-          >
-            <LayoutList size={20} />
-            Projects
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center py-2 px-3 text-xs"
-          >
-            <IndianRupee size={20} />
-            Payments
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center py-2 px-3 text-xs"
-          >
-            <UserRound size={20} />
-            Profile
-          </Button>
-        </div>
-      </div>
+      <Button
+        variant="ghost"
+        className="ml-3 mt-5 flex items-center gap-2 hover:bg-green-400"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeftIcon width={24} />
+        Back
+      </Button>
 
       {/* Main content */}
-      <main className="pt-20 pb-20 md:pb-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <main className=" pb-20 md:pb-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="mb-8 animate-fade-in">
           <h1 className="text-2xl md:text-3xl font-bold">Welcome back</h1>
           <p className="text-muted-foreground">

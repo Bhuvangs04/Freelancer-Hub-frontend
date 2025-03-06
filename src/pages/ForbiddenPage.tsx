@@ -1,11 +1,11 @@
-import React from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, Lock, Shield, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 const Forbidden = () => {
+  const Navigate = useNavigate();
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-b from-background to-secondary/50 px-4">
       {/* Animated background elements */}
@@ -76,17 +76,18 @@ const Forbidden = () => {
             </div>
 
             {/* Return button */}
-            <Link to="/">
-              <Button
-                variant="outline"
-                className="w-full group relative overflow-hidden border-gradient"
-              >
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                  Return to Safety
-                </span>
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              className="w-full group relative overflow-hidden border-gradient"
+              onClick={() => {
+                Navigate(-1);
+              }}
+            >
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                Return to Safety
+              </span>
+            </Button>
           </div>
         </motion.div>
 

@@ -86,7 +86,7 @@ export const Navigation = () => {
         setTotalWithdrawals,
         setTransactions
       );
-    }, 100000);
+    }, 60000);
 
     // Cleanup interval on unmount
     return () => clearInterval(interval);
@@ -131,7 +131,21 @@ export const Navigation = () => {
           <div className="flex items-center space-x-4">
             <Button
               variant="outline"
-              onClick={() => navigate("/clients/projects/bids")}
+              onClick={() =>
+                navigate(
+                  `/chat?bidsid=${User_log}&y_id=${User_log}-${User_log}&xyy=${User_log}`
+                )
+              }
+            >
+              Messages
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate(
+                  `/clients/projects/bids?id=${User_log}&y_id=${User_log}-${User_log}&xyy=${User_log}`
+                )
+              }
             >
               See bids
             </Button>
@@ -145,11 +159,22 @@ export const Navigation = () => {
             >
               Ongoing
             </Button>
-            <Button variant="outline" onClick={() => navigate("/my-projects")}>
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate(
+                  `/my-projects?id=${User_log}&y_id=${User_log}-${User_log}&xyy=${User_log}`
+                )
+              }
+            >
               My Projects
             </Button>
             <Button
-              onClick={() => navigate(`/add-project/${client_id}/direct`)}
+              onClick={() =>
+                navigate(
+                  `/add-project/${client_id}/direct?id=${User_log}&y_id=${User_log}-${User_log}&xyy=${User_log}`
+                )
+              }
             >
               Add Project
             </Button>
@@ -222,23 +247,40 @@ export const Navigation = () => {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => navigate("/Client-profile/?id=" + User_log)}
+                  onClick={() =>
+                    navigate(
+                      `/Client-profile/?id=${User_log}&y_id=${User_log}-${User_log}&xyy=${User_log}`
+                    )
+                  }
                 >
                   My Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() =>
                     navigate(
-                      `/create/client-page/?name=${client_name}&email=${client_email}`
+                      `/create/client-page/?name=${client_name}&email=${client_email}?id=${User_log}&y_id=${User_log}-${User_log}&xyy=${User_log}`
                     )
                   }
                 >
                   Profile Settings
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => navigate("/freelancer-Hub/policy")}
+                  onClick={() =>
+                    navigate(
+                      `/freelancer-Hub/policy?id=${User_log}&y_id=${User_log}-${User_log}&xyy=${User_log}`
+                    )
+                  }
                 >
                   Company Policies
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    navigate(
+                      `/client/dispute?id=${User_log}&y_id=${User_log}-${User_log}&xyy=${User_log}`
+                    )
+                  }
+                >
+                  Disputes
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

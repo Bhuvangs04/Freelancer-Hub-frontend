@@ -25,6 +25,7 @@ import Freelancer_Card_projects from "./pages/Freelancer/freelancer-place-bid/Fr
 import Dashboard from "./pages/Freelancer/MainPage";
 import FreelancerProfile from "./pages/Freelancer/Freelancer.profile";
 import Forbidden from "./pages/ForbiddenPage";
+import DisputeForm from "./pages/Disputes/Disputes";
 
 import ProtectedRoute from "@/components/Security/PorperCheck";
 
@@ -50,6 +51,26 @@ const App = () => (
             element={
               <FreelancerAuth>
                 <PolicyPage />
+              </FreelancerAuth>
+            }
+          />
+          <Route
+            path="/freelancer/disputes"
+            element={
+              <FreelancerAuth>
+                <ProtectedRoute role="freelancer">
+                  <DisputeForm />
+                </ProtectedRoute>
+              </FreelancerAuth>
+            }
+          />
+          <Route
+            path="/client/dispute"
+            element={
+              <FreelancerAuth>
+                <ProtectedRoute role="client">
+                  <DisputeForm />
+                </ProtectedRoute>
               </FreelancerAuth>
             }
           />

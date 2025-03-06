@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { FileQuestion, ArrowLeft } from "lucide-react";
@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 
 const NotFound = () => {
   const location = useLocation();
+  const Navigate = useNavigate();
 
   useEffect(() => {
     console.error(
@@ -83,14 +84,18 @@ const NotFound = () => {
             </div>
 
             {/* Return button */}
-            <Link to="/">
-              <Button className="w-full group relative overflow-hidden">
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                  Return to Home
-                </span>
-              </Button>
-            </Link>
+
+            <Button
+              className="w-full group relative overflow-hidden"
+              onClick={() => {
+                Navigate(-1);
+              }}
+            >
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                Return to Home
+              </span>
+            </Button>
           </div>
         </motion.div>
       </motion.div>

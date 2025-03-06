@@ -1,8 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { SendHorizontal } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { SendHorizontal, Paperclip, Smile, User, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Message {
   _id: string;
@@ -24,7 +30,6 @@ interface ChatWindowProps {
   messages: Message[];
   onSendMessage: (message: string) => void;
 }
-const userId = localStorage.getItem("Chatting_id");
 
 export const ChatWindow = ({
   selectedUser,
@@ -32,17 +37,18 @@ export const ChatWindow = ({
   onSendMessage,
 }: ChatWindowProps) => {
   const [newMessage, setNewMessage] = useState("");
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const currentUserId = userId; // Replace with actual user ID
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const userId = localStorage.getItem("Chatting_id");
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollArea = scrollAreaRef.current;
-      scrollArea.scrollTop = scrollArea.scrollHeight;
-    }
+    scrollToBottom();
   }, [messages]);
 
-  const handleSend = (e: React.FormEvent) => {
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim()) {
       onSendMessage(newMessage);
@@ -50,91 +56,210 @@ export const ChatWindow = ({
     }
   };
 
+  const formatMessageTime = (timestamp: string) => {
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const formatMessageDate = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString([], {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // Group messages by date
+  const groupedMessages: { [key: string]: Message[] } = {};
+  messages.forEach((message) => {
+    const date = new Date(message.timestamp).toLocaleDateString();
+    if (!groupedMessages[date]) {
+      groupedMessages[date] = [];
+    }
+    groupedMessages[date].push(message);
+  });
+
   if (!selectedUser) {
     return (
-      <div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
-        <div className="text-center text-gray-500">
-          <h3 className="text-lg font-medium">Welcome to Messages</h3>
-          <p className="mt-1">Select a conversation to start chatting</p>
+      <div className="flex-1 flex items-center justify-center bg-gray-50">
+        <div className="text-center p-8">
+          <div className="mx-auto w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
+            <Info className="h-8 w-8 text-indigo-600" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Your Messages
+          </h3>
+          <p className="text-gray-500 max-w-sm">
+            Select a conversation or start a new one to begin messaging
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center space-x-4">
-          <div className="relative">
+    <div className="flex-1 h-300 flex flex-col">
+      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          {selectedUser.profilePictureUrl ? (
             <img
               src={selectedUser.profilePictureUrl}
               alt={selectedUser.username}
-              className="w-10 h-10 rounded-full object-cover"
+              className="h-10 w-10 rounded-full object-cover"
             />
-            <span
-              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                selectedUser.status === "online"
-                  ? "bg-green-500"
-                  : "bg-gray-400"
-              }`}
-            />
-          </div>
+          ) : (
+            <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+              <User className="h-5 w-5 text-indigo-600" />
+            </div>
+          )}
+
           <div>
-            <h2 className="font-semibold">{selectedUser.username}</h2>
-            <p className="text-sm text-gray-500">{selectedUser.status}</p>
+            <h3 className="font-medium text-gray-900">
+              {selectedUser.username}
+            </h3>
+            <div className="flex items-center">
+              <span
+                className={cn(
+                  "h-2 w-2 rounded-full mr-2",
+                  selectedUser.status === "online"
+                    ? "bg-green-500"
+                    : selectedUser.status === "away"
+                    ? "bg-yellow-500"
+                    : "bg-gray-400"
+                )}
+              />
+              <span className="text-sm text-gray-500 capitalize">
+                {selectedUser.status}
+              </span>
+            </div>
           </div>
         </div>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Info className="h-5 w-5 text-gray-500" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>View Profile</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-        <div className="space-y-4">
-          {messages.map((message) => {
-            const isCurrentUser = message.sender === currentUserId;
-            return (
-              <div
-                key={message._id}
-                className={`flex ${
-                  isCurrentUser ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`max-w-[70%] px-4 py-2 rounded-xl ${
-                    isCurrentUser
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-900"
-                  }`}
-                >
-                  <p className="break-words">{message.message}</p>
-                  <span
-                    className={`text-xs mt-1 block ${
-                      isCurrentUser ? "text-blue-100" : "text-gray-500"
-                    }`}
-                  >
-                    {new Date(message.timestamp).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
+      <div className="flex-1 overflow-y-auto p-2 bg-indigo-50/30">
+        {Object.keys(groupedMessages).length > 0 ? (
+          Object.entries(groupedMessages).map(([date, dateMessages]) => (
+            <div key={date}>
+              <div className="flex justify-center my-4">
+                <div className="bg-white text-xs text-gray-500 px-3 py-1 rounded-full shadow-sm">
+                  {formatMessageDate(dateMessages[0].timestamp)}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </ScrollArea>
 
-      <form onSubmit={handleSend} className="p-4 border-t border-gray-200">
-        <div className="flex space-x-2">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1"
-          />
-          <Button type="submit" size="icon">
+              {dateMessages.map((message, index) => {
+                const isCurrentUser = message.sender === userId;
+                const showAvatar =
+                  index === 0 ||
+                  dateMessages[index - 1].sender !== message.sender;
+
+                return (
+                  <div
+                    key={message._id}
+                    className={cn(
+                      "flex mb-4",
+                      isCurrentUser ? "justify-end" : "justify-start"
+                    )}
+                  >
+                    {!isCurrentUser && showAvatar && (
+                      <div className="flex-shrink-0 mr-3">
+                        {selectedUser.profilePictureUrl ? (
+                          <img
+                            src={selectedUser.profilePictureUrl}
+                            alt={selectedUser.username}
+                            className="h-8 w-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                            <User className="h-4 w-4 text-indigo-600" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div
+                      className={cn(
+                        "max-w-[70%]",
+                        !isCurrentUser && !showAvatar && "ml-11"
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "px-4 py-2 rounded-2xl inline-block",
+                          isCurrentUser
+                            ? "bg-indigo-600 text-white rounded-tr-none"
+                            : "bg-white text-gray-800 rounded-tl-none shadow-sm"
+                        )}
+                      >
+                        <p className="mb-1">{message.message}</p>
+                        <div
+                          className={cn(
+                            "text-xs flex justify-end",
+                            isCurrentUser ? "text-indigo-200" : "text-gray-500"
+                          )}
+                        >
+                          {formatMessageTime(message.timestamp)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {isCurrentUser && showAvatar && (
+                      <div className="flex-shrink-0 ml-3">
+                        <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                          <User className="h-4 w-4 text-indigo-600" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))
+        ) : (
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center p-8">
+              <p className="text-gray-500">No messages yet. Say hello! 👋</p>
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+      <div className="p-5 border-t border-gray-200">
+        <form onSubmit={handleSubmit} className="flex items-center space-x-2">
+          <div className="flex-1 relative">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+              className="pr-15 bg-gray-50 focus-visible:ring-indigo-500 h-10 text-sm py-1"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            variant="default"
+            className="bg-indigo-600 hover:bg-indigo-700 h-8 w-8 p-0"
+            disabled={!newMessage.trim()}
+          >
             <SendHorizontal className="h-4 w-4" />
           </Button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

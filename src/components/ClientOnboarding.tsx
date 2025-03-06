@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Building, User } from "lucide-react";
+import { Building, User, ArrowLeftIcon } from "lucide-react";
 
 const username = localStorage.getItem("username");
 const email = localStorage.getItem("email");
@@ -284,6 +284,17 @@ export const ClientOnboarding = () => {
           >
             {isLoading ? "Updating Profile..." : "Update Profile"}
           </Button>
+
+          <div className="flex justify-center">
+            <Button
+              variant="ghost"
+              className="py-6 flex items-center gap-2 hover:bg-green-400"
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeftIcon width={24} />
+              Back
+            </Button>
+          </div>
         </form>
       </Card>
     </div>

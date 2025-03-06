@@ -41,6 +41,7 @@ import {
   IndianRupee,
   Clock,
   FileText,
+  ArrowLeftIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate, useParams } from "react-router-dom";
@@ -345,6 +346,14 @@ const ProjectForm = () => {
 
   return (
     <div className="w-full animate-fade-in">
+      <Button
+        variant="ghost"
+        className="ml-3 mt-5 flex items-center gap-2 hover:bg-green-400"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeftIcon width={24} />
+        Back
+      </Button>
       <Card className="glass-card shadow-md transition-all duration-300 overflow-hidden">
         <CardHeader className="pb-6 space-y-4">
           <div className="space-y-1">
@@ -460,69 +469,74 @@ const ProjectForm = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
-              control={form.control}
-              name="budget"
-              render={({ field }) => (
-                <FormItem
-                className="space-y-2 animate-slide-in"
-                style={{ animationDelay: "250ms" }}
-                >
-                <FormLabel className="flex items-center gap-2 font-medium">
-                  <IndianRupee className="h-4 w-4 text-primary" />
-                  Budget (₹)
-                </FormLabel>
-                <FormControl>
-                  <Input
-                  {...field}
-                  type="number"
-                  placeholder="Enter your budget"
-                  className="input-focus-ring"
-                  onChange={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (value + parseFloat(calculateCommission(value)) <= 50000) {
-                    field.onChange(e);
-                    } else {
-                    toast.error("Total amount including service fee should not exceed ₹50000");
-                    }
-                  }}
-                  />
-                </FormControl>
-                <FormMessage />
-                {field.value && (
-                  <div className="mt-2 p-2 bg-primary/5 rounded-md border border-primary/10 flex items-center justify-between text-sm">
-                  <span>Service Fee (10%):</span>
-                  <span className="font-medium">
-                    ₹{calculateCommission(parseFloat(field.value))}
-                  </span>
-                  </div>
+                control={form.control}
+                name="budget"
+                render={({ field }) => (
+                  <FormItem
+                    className="space-y-2 animate-slide-in"
+                    style={{ animationDelay: "250ms" }}
+                  >
+                    <FormLabel className="flex items-center gap-2 font-medium">
+                      <IndianRupee className="h-4 w-4 text-primary" />
+                      Budget (₹)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="number"
+                        placeholder="Enter your budget"
+                        className="input-focus-ring"
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value);
+                          if (
+                            value + parseFloat(calculateCommission(value)) <=
+                            50000
+                          ) {
+                            field.onChange(e);
+                          } else {
+                            toast.error(
+                              "Total amount including service fee should not exceed ₹50000"
+                            );
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                    {field.value && (
+                      <div className="mt-2 p-2 bg-primary/5 rounded-md border border-primary/10 flex items-center justify-between text-sm">
+                        <span>Service Fee (10%):</span>
+                        <span className="font-medium">
+                          ₹{calculateCommission(parseFloat(field.value))}
+                        </span>
+                      </div>
+                    )}
+                  </FormItem>
                 )}
-                </FormItem>
-              )}
               />
 
               <FormField
-              control={form.control}
-              name="duration"
-              render={({ field }) => (
-                <FormItem
-                className="space-y-2 animate-slide-in"
-                style={{ animationDelay: "300ms" }}
-                >
-                <FormLabel className="flex items-center gap-2 font-medium">
-                  <Clock className="h-4 w-4 text-primary" />
-                  Duration (in weeks)
-                </FormLabel>
-                <FormControl>
-                  <Input
-                  {...field}
-                  type="number"
-                  placeholder="e.g. 4"
-                  className="input-focus-ring"
-                  />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-              )}
+                control={form.control}
+                name="duration"
+                render={({ field }) => (
+                  <FormItem
+                    className="space-y-2 animate-slide-in"
+                    style={{ animationDelay: "300ms" }}
+                  >
+                    <FormLabel className="flex items-center gap-2 font-medium">
+                      <Clock className="h-4 w-4 text-primary" />
+                      Duration (in weeks)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="number"
+                        placeholder="e.g. 4"
+                        className="input-focus-ring"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
 

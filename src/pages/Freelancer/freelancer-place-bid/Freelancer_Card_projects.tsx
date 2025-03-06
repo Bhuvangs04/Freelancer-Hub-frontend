@@ -102,7 +102,7 @@ const ProjectCard = ({
           <h3 className="text-xl font-semibold tracking-tight">
             {project.projectId.title}
           </h3>
-          <p className="text-sm text-muted-foreground line-clamp-3">
+          <p className="text-sm text-muted-foreground max-h-24 overflow-y-auto">
             {project.projectId.description}
           </p>
         </div>
@@ -473,8 +473,8 @@ const Freelancer_Card_projects = () => {
             {selectedProject && (
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-sm font-medium mb-1">Description</h4>
-                  <p className="text-sm">
+                  <h4 className="text-sm font-medium mb-1 ">Description</h4>
+                  <p className="text-sm line-clamp-4">
                     {selectedProject.projectId.description}
                   </p>
                 </div>

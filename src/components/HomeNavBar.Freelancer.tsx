@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import {
   Menu,
   X,
@@ -62,6 +64,13 @@ const Navbar = () => {
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    axios.get(`${import.meta.env.VITE_API_URL}/logout`, {
+      withCredentials: true,
+    });
+  };
 
   return (
     <header
@@ -145,12 +154,24 @@ const Navbar = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
-                      to="/sign-in"
-                      className="flex items-center gap-2 text-red-500 cursor-pointer"
+                      to="/freelancer/disputes"
+                      className="flex items-center gap-2 cursor-pointer"
                     >
-                      <LogOut className="h-4 w-4" />
-                      Logout
+                      <UserCheck className="h-4 w-4" />
+                      Disputes
                     </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Button asChild variant="outline" className="w-full">
+                      <Link
+                        to="/sign-in"
+                        className="flex items-center gap-2 text-red-500 cursor-pointer"
+                        onClick={() => handleLogout()}
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                      </Link>
+                    </Button>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -172,8 +193,6 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg py-4 px-4 h-[calc(100vh-4rem)] flex flex-col animate-fade-in">
           <div className="space-y-4">
-
-
             {/* Freelancer specific links for mobile */}
             {freelancerLinks.map((link) => (
               <Link
@@ -214,6 +233,7 @@ const Navbar = () => {
               <Link
                 to="/sign-in"
                 className="flex items-center gap-2 text-red-500 cursor-pointer"
+                onClick={() => handleLogout()}
               >
                 <LogOut className="h-4 w-4" />
                 Logout

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -6,9 +6,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { ChevronUp } from "lucide-react";
+import { ChevronUp, ArrowLeftIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const PolicySection = () => {
+  const navigate = useNavigate();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -26,6 +28,14 @@ const PolicySection = () => {
 
   return (
     <div className="min-h-screen bg-policy-background">
+      <Button
+        variant="ghost"
+        className="ml-3 mt-5 flex items-center gap-2 hover:bg-green-400"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeftIcon width={24} />
+        Back
+      </Button>
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="space-y-8 animate-fade-in">
           <header className="text-center space-y-4 mb-12">
@@ -109,12 +119,13 @@ const PolicySection = () => {
                       Payment."
                     </li>
                     <li>
-                      Once payment is released, it will take upto 24 hours to reflect
-                      in the freelancer's account.
+                      Once payment is released, it will take upto 24 hours to
+                      reflect in the freelancer's account.
                     </li>
                     <li>
                       If a project is deleted before assigning a freelancer, the
-                      full deposited amount is refunded to the client's bank account.
+                      full deposited amount is refunded to the client's bank
+                      account.
                     </li>
                   </ul>
                 </div>

@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import Navbar from "@/components/HomeNavBar.Freelancer";
+import { Button } from "@/components/ui/button";
 import { ChatList } from "./ChatList";
 import { ChatWindow } from "./ChatWindow";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeftIcon, LockIcon, User2 } from "lucide-react";
 
 interface Message {
   _id: string;
@@ -67,6 +69,7 @@ async function decryptMessage(encryptedMessage: string, hexKey: string) {
 const secretKey = import.meta.env.VITE_ENCRYPTION_KEY;
 
 const Chat_client = () => {
+  const navigate = useNavigate();
   const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
@@ -274,10 +277,19 @@ const Chat_client = () => {
 
   return (
     <>
-      <Navbar />
+      <div className="absolute top-4 left-4">
+        <Button
+          variant="ghost"
+          className="flex gap-2 hover:bg-green-400"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeftIcon width={24} />
+          Back
+        </Button>
+      </div>
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        <div className="container mx-auto px-4 py-8 flex-grow mt-16">
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden h-[calc(100vh-12rem)]">
+        <div className="container mx-auto px-4 py-8 flex-grow mt-8">
+          <div className="bg-white rounded-lg shadow-sm overflow-hidden h-[calc(100vh-4rem)]">
             <div className="flex h-full">
               <ChatList
                 users={chatUsers}
@@ -292,6 +304,10 @@ const Chat_client = () => {
               />
             </div>
           </div>
+        </div>
+        <div className="flex justify-center mb-4">
+          <LockIcon width={24} className="mr-2 text-red-500" />
+          <span className="text-lg text-blue-500">Secure and Private</span>
         </div>
       </div>
     </>

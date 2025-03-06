@@ -1,17 +1,26 @@
 import { useEffect, useState } from "react";
-import { ChevronLeft, Calendar, Clock, LayoutGrid, List } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  ChevronLeft,
+  Calendar,
+  Clock,
+  LayoutGrid,
+  List,
+  ArrowLeftIcon,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { Project } from "@/types";
 import { api } from "@/lib/api";
-import Navbar from "@/components/Navbar";
 import ProjectCard from "@/components/FreelacerCard";
 import TaskList from "@/components/TaskList";
 import FileUpload from "@/components/FileUpload";
 import MessageForm from "@/components/MessageForm";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -75,12 +84,17 @@ export default function Dashboard() {
     setSelectedProject(null);
   };
 
-
-  
   return (
     <>
-      <Navbar />
-      <div className="pt-20 min-h-screen bg-gray-50 animate-in fade-in">
+      <div className=" min-h-screen bg-gray-50 animate-in fade-in">
+        <Button
+          variant="ghost"
+          className="ml-3 mt-5 flex items-center gap-2 hover:bg-green-400"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeftIcon width={24} />
+          Back
+        </Button>
         <div className="container mx-auto px-4 py-6">
           {/* Dashboard Header */}
           <header className="mb-8">

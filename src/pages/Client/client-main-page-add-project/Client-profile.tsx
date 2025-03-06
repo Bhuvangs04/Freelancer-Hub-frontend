@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2,
@@ -11,11 +12,14 @@ import {
   Eye,
   Activity,
   FileText,
+  ArrowLeftIcon,
 } from "lucide-react";
 import { ProjectList } from "./Client-profile-project-list";
 import { ProfileResponse } from "@/types/profile";
+import { useNavigate } from "react-router-dom";
 
 export const ClientProfile = () => {
+  const navigate = useNavigate();
   const [profileData, setProfileData] = useState<ProfileResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -91,6 +95,14 @@ export const ClientProfile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 overflow-x-hidden">
+      <Button
+        variant="ghost"
+        className="ml-4 py-6 mt-4 flex items-center gap-2 hover:bg-green-400"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeftIcon width={24} />
+        Back
+      </Button>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -244,8 +256,8 @@ export const ClientProfile = () => {
                   emptyMessage="No cancelled projects"
                 />
                 <p className="text-red-500 text-sm">
-                    Any refund related queries contact{" "}
-                    <b>support@freelancer_hub</b> <i>24/7</i> available.
+                  Any refund related queries contact{" "}
+                  <b>support@freelancer_hub</b> <i>24/7</i> available.
                 </p>
               </Card>
             </motion.div>

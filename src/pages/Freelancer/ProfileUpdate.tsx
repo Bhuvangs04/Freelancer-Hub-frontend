@@ -2,12 +2,15 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import ProfileHeader from "@/components/profile/ProfileHeader";
+import { useNavigate } from "react-router-dom";
 import BioSection from "@/components/profile/BioSection";
 import SkillsSection from "@/components/profile/SkillsSection";
 import ProjectsSection from "@/components/profile/ProjectsSection";
 import ResumeSection from "@/components/profile/ResumeSection";
+import { ArrowLeftIcon } from "lucide-react";
 
 const ProfileUpdate = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   // Profile states
@@ -149,9 +152,7 @@ const ProfileUpdate = () => {
 
     try {
       const response = await fetch(
-        `${
-          import.meta.env.VITE_API_URL
-        }/freelancer/upload-portfolio/resume`,
+        `${import.meta.env.VITE_API_URL}/freelancer/upload-portfolio/resume`,
         {
           method: "POST",
           credentials: "include",
@@ -183,6 +184,15 @@ const ProfileUpdate = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100 py-8 px-4 sm:px-6 lg:px-8 animate-fadeIn">
+      <Button
+        variant="ghost"
+        className="ml-3 mt-5 flex items-center gap-2 hover:bg-green-400"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeftIcon width={24} />
+        Back
+      </Button>
+
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-neutral-800 mb-2">
@@ -192,9 +202,7 @@ const ProfileUpdate = () => {
             Showcase your expertise and experience
           </p>
         </div>
-        <ProfileHeader
-          onImageUpload={handleImageUpload}
-        />
+        <ProfileHeader onImageUpload={handleImageUpload} />
         <BioSection bio={bio} onBioChange={setBio} /> {/* ✅ Fixed bio input */}
         <SkillsSection
           skills={skills}

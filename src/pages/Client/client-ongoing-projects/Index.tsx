@@ -9,8 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, ArrowLeftIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 // Define the project type based on your schema
 interface Task {
@@ -21,7 +23,7 @@ interface Task {
 interface File {
   name: string;
   size: string;
-  url:string;
+  url: string;
 }
 
 interface Message {
@@ -72,6 +74,7 @@ const fetchProjects = async (): Promise<Project[]> => {
 };
 
 const Index = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -100,6 +103,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 p-6">
+      <Button
+        variant="ghost"
+        className="ml-3 mt-5 flex items-center gap-2 hover:bg-green-400"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeftIcon width={24} />
+        Back
+      </Button>
       <div className="max-w-7xl mx-auto space-y-6">
         <h1 className="text-3xl font-bold text-gray-900">Projects Overview</h1>
 

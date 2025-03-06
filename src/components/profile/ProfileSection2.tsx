@@ -92,7 +92,7 @@ export const ProfileSection2 = () => {
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-gray-100 relative isolate">
       {/* Header Section */}
-      <div className="h-[50vh] w-full bg-gradient-to-r from-blue-600 to-purple-600 absolute top-0 left-0 right-0 z-0">
+      <div className="h-[50vh] w-full absolute top-0 left-0 right-0 z-0">
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 to-transparent" />
       </div>
