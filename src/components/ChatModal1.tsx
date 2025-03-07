@@ -12,6 +12,7 @@ import { MessageCircle, SmilePlus, Send, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import EmojiPicker from "emoji-picker-react";
+import FileSharingModal from "./FileSharingModal";
 
 interface Message {
   _id?: string;
@@ -335,6 +336,12 @@ export const ChatModal = ({
             {!isConnected && (
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             )}
+            <FileSharingModal
+              recipientId={freelancerId}
+              recipientName={freelancerName}
+              senderId={sender}
+              className="text-gray-400 hover:text-gray-600"
+            />
           </SheetTitle>
         </SheetHeader>
 

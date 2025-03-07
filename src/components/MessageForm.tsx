@@ -1,10 +1,18 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, User, SmilePlus, Paperclip } from "lucide-react";
+import { Send, User, SmilePlus, Paperclip, File } from "lucide-react";
 import { Project, Message } from "@/types";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import EmojiPicker from "emoji-picker-react";
+import FileSharingModal from "@/components/FileSharingModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface MessageFormProps {
   project: Project;
@@ -19,6 +27,7 @@ export default function MessageForm({
   const [isSending, setIsSending] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showFileTransfer, setShowFileTransfer] = useState(false);
   const [messages, setMessages] = useState<Message[]>(project?.messages || []);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -320,6 +329,31 @@ export default function MessageForm({
               disabled={isSending || !isConnected}
             />
             <div className="absolute bottom-3 right-3 flex space-x-2">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="text-gray-400 hover:text-gray-600"
+                    title="Send file"
+                  >
+                    <Paperclip size={20} />
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Send File</DialogTitle>
+                  </DialogHeader>
+                  {userId && freelancerId && (
+                    <FileSharingModal
+                      senderId={userId}
+                      recipientId={freelancerId}
+                      recipientName="You"
+                      className="text-gray-400 hover:text-gray-600"
+                    />
+                  )}
+                </DialogContent>
+              </Dialog>
+
               <button
                 type="button"
                 className="text-gray-400 hover:text-gray-600"
