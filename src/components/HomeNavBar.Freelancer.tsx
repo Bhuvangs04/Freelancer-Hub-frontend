@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 import {
   Menu,
   X,
@@ -22,6 +21,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const generateSecureRandomString = () => {
+  const array = new Uint8Array(95); // 64 bits (8 bytes)
+  crypto.getRandomValues(array);
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
+    ""
+  );
+};
+
+const User_log = generateSecureRandomString();
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -31,22 +40,22 @@ const Navbar = () => {
   const freelancerLinks = [
     {
       name: "Messages",
-      href: "/chat/freelancer",
+      href: `/chat/freelancer?userid=${User_log}&${User_log}-${User_log}`,
       icon: <MessageCircle className="h-4 w-4 mr-2" />,
     },
     {
       name: "Dashboard",
-      href: "/dashboard",
+      href: `/dashboard?userid=${User_log}+${User_log}&${User_log}-${User_log}`,
       icon: <LayoutDashboard className="h-4 w-4 mr-2" />,
     },
     {
       name: "See Bids",
-      href: "/my-bids",
+      href: `/my-bids?userid=${User_log}+${User_log}&${User_log}-${User_log}`,
       icon: <ClipboardList className="h-4 w-4 mr-2" />,
     },
     {
       name: "My works & Payments",
-      href: "/freelancer/profile",
+      href: `/freelancer/profile?userid=${User_log}+${User_log}&${User_log}-${User_log}`,
       icon: <WalletCards className="h-4 w-4 mr-2" />,
     },
   ];
@@ -127,7 +136,7 @@ const Navbar = () => {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem asChild>
                     <Link
-                      to="/view"
+                      to={`/view?namehash=${User_log}+passwordhash=${User_log}&${User_log}-${User_log}`}
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <User className="h-4 w-4" />
@@ -136,7 +145,7 @@ const Navbar = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
-                      to="/freelancer-Hub/policy"
+                      to={`/freelancer-Hub/policy?namehash=${User_log}+passwordhash=${User_log}&${User_log}-${User_log}`}
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <Building2Icon className="h-4 w-4" />
@@ -145,7 +154,7 @@ const Navbar = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
-                      to="/Profile/update"
+                      to={`/Profile/update?id=${User_log}+name-hash=${User_log}&password-hash=${User_log}-loginid=${User_log}`}
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <UserCheck className="h-4 w-4" />
@@ -154,7 +163,7 @@ const Navbar = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
-                      to="/freelancer/disputes"
+                      to={`/freelancer/disputes?id=${User_log}+name-hash=${User_log}&password-hash=${User_log}-loginid=${User_log}`}
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <UserCheck className="h-4 w-4" />

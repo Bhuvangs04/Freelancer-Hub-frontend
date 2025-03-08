@@ -26,7 +26,6 @@ import Dashboard from "./pages/Freelancer/MainPage";
 import FreelancerProfile from "./pages/Freelancer/Freelancer.profile";
 import Forbidden from "./pages/ForbiddenPage";
 import DisputeForm from "./pages/Disputes/Disputes";
-
 import ProtectedRoute from "@/components/Security/PorperCheck";
 
 // import SecurityLayer from "./components/Security/SecurityLayer";

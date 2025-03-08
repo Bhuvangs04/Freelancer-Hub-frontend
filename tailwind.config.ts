@@ -142,6 +142,14 @@ export default {
           "75%": { transform: "rotate(3deg)" },
           "100%": { transform: "rotate(0deg)" },
         },
+        "pulse-subtle": {
+          "0%, 100%": {
+            opacity: "1",
+          },
+          "50%": {
+            opacity: "0.8",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -158,6 +166,7 @@ export default {
         float: "float 3s ease-in-out infinite",
         shimmer: "shimmer 2s infinite",
         "rotate-warning": "rotate-warning 1.5s ease-in-out infinite",
+        "pulse-subtle": "pulse-subtle 3s infinite ease-in-out",
       },
       backdropFilter: {
         none: "none",

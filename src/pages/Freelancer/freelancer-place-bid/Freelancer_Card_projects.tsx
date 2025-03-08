@@ -204,15 +204,15 @@ const FilterSection = ({
         <input
           type="range"
           min="1000"
-          max="100000"
-          step="1000"
+          max="50000"
+          step="500"
           value={budget}
           onChange={(e) => setBudget(parseInt(e.target.value))}
           className="w-full"
         />
         <div className="flex justify-between text-xs text-muted-foreground mt-2">
           <span>₹1,000</span>
-          <span>₹100,000</span>
+          <span>₹50,000</span>
         </div>
       </div>
     </div>
@@ -360,15 +360,6 @@ const Freelancer_Card_projects = () => {
             <h1 className="mt-12 text-4xl font-semibold tracking-tight">
               Projects
             </h1>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className="mt-12 flex items-center gap-2"
-            >
-              <Sliders className="h-4 w-4" />
-              Filters
-            </Button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[300px,1fr] gap-8">

@@ -1,27 +1,25 @@
-import { ProfileSection2 } from "@/components/profile/ProfileSection2";
-import { ProjectsGrid } from "@/components/profile/ProjectsGrid";
-import { SkillsSection } from "@/components/profile/SkillsSection2";
+import ProfileSection2 from "@/components/profile/ProfileSection2";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
 const Index = () => {
   const navigate = useNavigate();
-  return (
-    <div className="min-h-screen">
-      <Button
-        variant="ghost"
-        className="ml-3 mt-5 flex items-center gap-2 hover:bg-green-400"
-        onClick={() => navigate(-1)}
-      >
-        <ArrowLeftIcon width={24} />
-        Back
-      </Button>
 
-      <div className="container py-12 space-y-16">
-        <ProfileSection2 />
-        <ProjectsGrid />
-        <SkillsSection />
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
+      <div className="container mx-auto px-4">
+        <Button
+          variant="ghost"
+          className="mt-6 flex items-center gap-2 hover:bg-primary/10 transition-colors"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
       </div>
+
+      <ProfileSection2 />
     </div>
   );
 };
