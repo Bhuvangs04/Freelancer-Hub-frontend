@@ -27,6 +27,7 @@ import FreelancerProfile from "./pages/Freelancer/Freelancer.profile";
 import Forbidden from "./pages/ForbiddenPage";
 import DisputeForm from "./pages/Disputes/Disputes";
 import ProtectedRoute from "@/components/Security/PorperCheck";
+import { Analytics } from "@vercel/analytics/react";
 
 // import SecurityLayer from "./components/Security/SecurityLayer";
 
@@ -37,6 +38,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <Analytics />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
