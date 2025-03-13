@@ -375,7 +375,7 @@ export function useWebRTCConnection({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 4000 * 1024 * 1024) {
+    if (file.size > 400 * 1024 * 1024) {
       toast.error("File size exceeds 400MB limit");
       return;
     }
