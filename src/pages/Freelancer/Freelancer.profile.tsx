@@ -430,8 +430,8 @@ const FreelancerDashboard = () => {
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {transactions.slice(0, 4).map((transaction) => (
+                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                      {transactions.map((transaction) => (
                         <div
                           key={transaction.id}
                           className="flex items-center justify-between p-3 rounded-lg hover:bg-accent transition-colors"
@@ -489,17 +489,6 @@ const FreelancerDashboard = () => {
                   )}
                 </div>
               </CardContent>
-              {transactions.length > 4 && (
-                <CardFooter>
-                  <Button
-                    variant="outline"
-                    className="w-full flex items-center justify-center gap-1"
-                  >
-                    View All Transactions
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </CardFooter>
-              )}
             </Card>
           </div>
 
