@@ -137,7 +137,7 @@ export default function ProjectCard({ project, onClick }: ProjectCardProps) {
 
         <div className="flex items-center text-sm text-gray-600">
           <MessageSquare size={14} className="mr-1.5 text-gray-400" />
-          <span>{project.messages.length} messages</span>
+          <span>{project.messages?.length || 0} messages</span>
         </div>
       </div>
 
@@ -159,7 +159,7 @@ export default function ProjectCard({ project, onClick }: ProjectCardProps) {
             label="Files"
           />
           <StatusIcon
-            value={project.messages.length > 0}
+            value={project.messages?.length > 0}
             icon={<MessageSquare size={16} />}
             label="Messages"
           />
