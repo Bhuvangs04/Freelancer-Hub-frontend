@@ -286,11 +286,18 @@ const FreelancerDashboard = () => {
                 open={isWithdrawModalOpen}
                 onOpenChange={setIsWithdrawModalOpen}
               >
-                <DialogTrigger asChild>
-                  <Button size="sm" className="w-full">
-                    Withdraw Funds
+                 {availableBalance.toLocaleString() !== "0" ? (
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="w-full">
+                      Withdraw Funds
+                    </Button>
+                  </DialogTrigger>
+                ) : (
+                  <Button size="sm" className="w-full" disabled>
+                    {" "}
+                    No Funds
                   </Button>
-                </DialogTrigger>
+                )}
                 <DialogContent className="sm:max-w-[425px] animate-scale-in">
                   <DialogHeader>
                     <DialogTitle>Withdraw Funds</DialogTitle>
@@ -686,25 +693,24 @@ const FreelancerDashboard = () => {
                                 </div>
                                 <Badge
                                   variant="outline"
-                                  className="bg-green-50 text-green-700 border-green-200"
+                                  className="bg-orange-50 text-red-500 border-red-200"
                                 >
-                                  Completed
+                                  Rejected
                                 </Badge>
                               </div>
 
                               <Progress
-                                value={100}
-                                className="h-2 mb-2 bg-green-100"
+                                value={project.progress}
+                                className="h-2 mb-2 bg-red-100"
                               />
 
                               <div className="flex justify-between items-center mt-3">
                                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                   <Calendar className="h-3.5 w-3.5" />
-                                  <span>
-                                    Completed:{" "}
-                                    {new Date(
-                                      project.deadline
-                                    ).toLocaleDateString()}
+                                  <span className="text-sm text-muted-foreground">
+                                    Rejected: Check the email about the
+                                    rejection of the project from the client
+                                    side.
                                   </span>
                                 </div>
                                 <Button
