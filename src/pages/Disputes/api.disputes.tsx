@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 
-const API_URL = import.meta.env.VITE_API_URL; // Replace with your actual API URL
+const API_URL = import.meta.env.VITE_DISTPUTES_URL; // Replace with your actual API URL
 
 export interface Project {
   _id: string;
