@@ -105,7 +105,7 @@ profileImage,
             )}
             {hasPermission && resumeUrl && (
               <iframe
-                src={resumeUrl}
+                src={`${resumeUrl} #toolbar=0`}
                 className={cn(
                   "w-full h-full border-none transition-opacity duration-500",
                   loading ? "opacity-0" : "opacity-100"
