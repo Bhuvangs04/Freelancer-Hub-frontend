@@ -248,10 +248,11 @@ const ProjectForm = () => {
 
   const handlePayment = async () => {
     const values = form.getValues();
-    if (!values.budget) {
-      toast.error("Please enter a budget amount");
-      return;
-    }
+    if (values.budget == null || values.budget < 0) {
+  toast.error("Please enter a valid budget amount");
+  return;
+}
+
 
     // Validate form first
     const isValid = await form.trigger();
