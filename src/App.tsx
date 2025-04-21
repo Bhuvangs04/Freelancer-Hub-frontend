@@ -198,11 +198,9 @@ const App = () => (
           <Route
             path="/add-project/:clientId/direct"
             element={
-              <FreelancerAuth>
-                <ProtectedRoute role="client">
-                  <ClientAddProject />
-                </ProtectedRoute>
-              </FreelancerAuth>
+              <ProtectedRoute role="client">
+                <ClientAddProject />
+              </ProtectedRoute>
             }
           />
           <Route

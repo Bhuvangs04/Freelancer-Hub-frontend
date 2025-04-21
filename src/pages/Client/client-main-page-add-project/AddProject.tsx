@@ -176,10 +176,10 @@ const ProjectForm = () => {
     },
   });
 
-  // Check if user is authenticated
-  if (chattingIdFromUrl !== getFromLocal) {
-    navigate("/sign-in");
-  }
+  // // Check if user is authenticated
+  // if (chattingIdFromUrl !== getFromLocal) {
+  //   navigate("/sign-in");
+  // }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -201,7 +201,7 @@ const ProjectForm = () => {
       formDataToSend.append("category", values.category);
       formDataToSend.append("deadline", values.deadline);
       formDataToSend.append("skills", JSON.stringify(skills));
-      formDataToSend.append("Form_id", chattingIdFromUrl || "");
+      formDataToSend.append("Form_id", getFromLocal || "");
       if (attachment) {
         formDataToSend.append("attachment", attachment);
       }
@@ -279,7 +279,7 @@ const ProjectForm = () => {
         credentials: "include",
         body: JSON.stringify({
           amount: totalAmount * 100,
-          client_id: chattingIdFromUrl,
+          client_id: getFromLocal,
           currency: "INR",
           project_id: projectId,
         }),

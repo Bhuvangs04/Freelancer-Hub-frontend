@@ -28,11 +28,7 @@ export function useWebRTCConnection({
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
   const fileChunksRef = useRef<ArrayBuffer[]>([]);
-  const fileInfoRef = useRef<{
-    name: string;
-    type: string;
-    size: number;
-  } | null>(null);
+  const fileInfoRef = useRef<{ name: string; type: string; size: number } | null>(null);
   const pendingCandidates = useRef<RTCIceCandidateInit[]>([]);
 
   useEffect(() => {
@@ -45,43 +41,29 @@ export function useWebRTCConnection({
     const handleMessage = async (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data);
+        if (!data.type || !data.sender || !data.receiver) {
+          console.warn("Invalid WebSocket message:", data);
+          return;
+        }
 
         if (["offer", "answer", "candidate"].includes(data.type)) {
           await processWebRTCSignal(data);
-        } else if (
-          data.type === "connection-request" &&
-          data.receiver === userId
-        ) {
+        } else if (data.type === "connection-request" && data.receiver === userId) {
           addConnectionRequest(data);
           toast.info(`${data.senderName || "Someone"} wants to connect`, {
-            action: {
-              label: "Accept",
-              onClick: () => acceptConnectionRequest(data.sender),
-            },
+            action: { label: "Accept", onClick: () => acceptConnectionRequest(data.sender) },
             duration: 10000,
           });
-        } else if (
-          data.type === "connection-accepted" &&
-          data.receiver === userId
-        ) {
-          // Initiator: Do nothing here, wait for offer (already sent in initiateConnection)
-          setFileTransferState((prev) => ({
-            ...prev,
-            isWaitingForAcceptance: false,
-          }));
+        } else if (data.type === "connection-accepted" && data.receiver === userId) {
+          setFileTransferState((prev) => ({ ...prev, isWaitingForAcceptance: false }));
           toast.success("Connection request accepted");
-        } else if (
-          data.type === "connection-rejected" &&
-          data.receiver === userId
-        ) {
-          setFileTransferState((prev) => ({
-            ...prev,
-            isWaitingForAcceptance: false,
-          }));
+        } else if (data.type === "connection-rejected" && data.receiver === userId) {
+          setFileTransferState((prev) => ({ ...prev, isWaitingForAcceptance: false }));
           toast.error("Connection request rejected");
         }
       } catch (error) {
         console.error("WebSocket message error:", error);
+        toast.error("WebSocket error occurred");
       }
     };
 
@@ -101,13 +83,36 @@ export function useWebRTCConnection({
     if (fileTransferState.receivedFile?.url) {
       URL.revokeObjectURL(fileTransferState.receivedFile.url);
     }
+    setFileTransferState((prev) => ({
+      ...prev,
+      isRtcConnected: false,
+      isTransferring: false,
+      progress: 0,
+      file: null,
+      receivedFile: null,
+    }));
+    fileChunksRef.current = [];
+    fileInfoRef.current = null;
+    pendingCandidates.current = [];
   };
 
   const setupWebRTC = () => {
     if (peerConnectionRef.current) return;
 
     peerConnectionRef.current = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+        // Add a TURN server for production use (example credentials)
+        {
+          urls: "turn:turn.example.com:3478",
+          username: "username",
+          credential: "password",
+        },
+      ],
+      iceTransportPolicy: "all",
+      bundlePolicy: "balanced",
+      rtcpMuxPolicy: "require",
     });
 
     peerConnectionRef.current.onicecandidate = (event) => {
@@ -123,12 +128,15 @@ export function useWebRTCConnection({
       }
     };
 
-    peerConnectionRef.current.onconnectionstatechange = () => {
-      const state = peerConnectionRef.current?.connectionState;
-      if (state === "connected") {
+    peerConnectionRef.current.oniceconnectionstatechange = () => {
+      const state = peerConnectionRef.current?.iceConnectionState;
+      console.log("ICE Connection State:", state);
+      if (state === "connected" || state === "completed") {
         setFileTransferState((prev) => ({ ...prev, isRtcConnected: true }));
-      } else if (state === "disconnected" || state === "failed") {
+      } else if (state === "disconnected" || state === "failed" || state === "closed") {
+        console.warn("ICE connection failed or closed:", state);
         setFileTransferState((prev) => ({ ...prev, isRtcConnected: false }));
+        cleanupRTCConnection();
       }
     };
 
@@ -140,29 +148,44 @@ export function useWebRTCConnection({
 
   const createOffer = async () => {
     setupWebRTC();
-    dataChannelRef.current =
-      peerConnectionRef.current!.createDataChannel("fileTransfer");
+    dataChannelRef.current = peerConnectionRef.current!.createDataChannel("fileTransfer", {
+      negotiated: false,
+      maxRetransmits: 0, // Prioritize speed over reliability for file transfer
+    });
     setupDataChannel(dataChannelRef.current);
 
-    const offer = await peerConnectionRef.current!.createOffer();
-    await peerConnectionRef.current!.setLocalDescription(offer);
-    webSocket?.send(
-      JSON.stringify({
-        type: "offer",
-        offer,
-        sender: userId,
-        receiver: peerId,
-      })
-    );
+    try {
+      const offer = await peerConnectionRef.current!.createOffer();
+      await peerConnectionRef.current!.setLocalDescription(offer);
+      webSocket?.send(
+        JSON.stringify({
+          type: "offer",
+          offer,
+          sender: userId,
+          receiver: peerId,
+        })
+      );
+    } catch (error) {
+      console.error("Error creating offer:", error);
+      toast.error("Failed to initiate connection");
+      cleanupRTCConnection();
+    }
   };
 
   const setupDataChannel = (channel: RTCDataChannel) => {
     channel.binaryType = "arraybuffer";
-    channel.onopen = () =>
+    channel.onopen = () => {
+      console.log("Data channel opened");
       setFileTransferState((prev) => ({ ...prev, isRtcConnected: true }));
-    channel.onclose = () =>
+    };
+    channel.onclose = () => {
+      console.log("Data channel closed");
       setFileTransferState((prev) => ({ ...prev, isRtcConnected: false }));
-    channel.onerror = (error) => console.error("DataChannel error:", error);
+    };
+    channel.onerror = (error) => {
+      console.error("DataChannel error:", error);
+      toast.error("Data channel error");
+    };
     channel.onmessage = handleDataChannelMessage;
   };
 
@@ -170,33 +193,32 @@ export function useWebRTCConnection({
     const data = event.data;
     const startTime = performance.now();
 
-            console.log(
-              `Chunk processed in ${performance.now() - startTime}ms`
-            );
-
     if (typeof data === "string") {
-      const metadata = JSON.parse(data);
-      if (metadata.type === "file-info") {
-        fileChunksRef.current = [];
-        fileInfoRef.current = metadata.fileInfo;
-        setFileTransferState((prev) => ({
-          ...prev,
-          progress: 0,
-          isTransferring: true,
-        }));
-        toast.info(`Receiving file: ${metadata.fileInfo.name}`);
-      } else if (metadata.type === "file-complete") {
-        finalizeFileReceive();
-      } else if (metadata.type === "transfer-cancelled") {
-        setFileTransferState((prev) => ({
-          ...prev,
-          isTransferring: false,
-          progress: 0,
-        }));
-        toast.info("File transfer cancelled");
+      try {
+        const metadata = JSON.parse(data);
+        if (metadata.type === "file-info") {
+          fileChunksRef.current = [];
+          fileInfoRef.current = metadata.fileInfo;
+          setFileTransferState((prev) => ({
+            ...prev,
+            progress: 0,
+            isTransferring: true,
+          }));
+          toast.info(`Receiving file: ${metadata.fileInfo.name}`);
+        } else if (metadata.type === "file-complete") {
+          finalizeFileReceive();
+        } else if (metadata.type === "transfer-cancelled") {
+          setFileTransferState((prev) => ({
+            ...prev,
+            isTransferring: false,
+            progress: 0,
+          }));
+          toast.info("File transfer cancelled");
+        }
+      } catch (error) {
+        console.error("Error parsing metadata:", error);
       }
     } else if (data instanceof ArrayBuffer) {
-
       fileChunksRef.current.push(data);
       if (fileInfoRef.current) {
         const currentSize = fileChunksRef.current.reduce(
@@ -210,23 +232,18 @@ export function useWebRTCConnection({
         setFileTransferState((prev) => ({ ...prev, progress: percentage }));
       }
     }
+    console.log(`Chunk processed in ${performance.now() - startTime}ms`);
   };
 
   const finalizeFileReceive = () => {
     if (!fileInfoRef.current) return;
 
     try {
-      const fileBlob = new Blob(fileChunksRef.current, {
-        type: fileInfoRef.current.type,
-      });
+      const fileBlob = new Blob(fileChunksRef.current, { type: fileInfoRef.current.type });
       const url = URL.createObjectURL(fileBlob);
       setFileTransferState((prev) => ({
         ...prev,
-        receivedFile: {
-          name: fileInfoRef.current!.name,
-          url,
-          size: fileInfoRef.current!.size,
-        },
+        receivedFile: { name: fileInfoRef.current!.name, url, size: fileInfoRef.current!.size },
         isTransferring: false,
         progress: 100,
       }));
@@ -241,7 +258,7 @@ export function useWebRTCConnection({
 
   const processWebRTCSignal = async (data: any) => {
     if (!peerConnectionRef.current) {
-      console.warn("No peer connection exists, setting up new one");
+      console.warn("No peer connection, setting up new one");
       setupWebRTC();
     }
 
@@ -274,9 +291,7 @@ export function useWebRTCConnection({
         await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
         while (pendingCandidates.current.length > 0) {
           const candidate = pendingCandidates.current.shift();
-          if (candidate) {
-            await pc.addIceCandidate(new RTCIceCandidate(candidate));
-          }
+          if (candidate) await pc.addIceCandidate(new RTCIceCandidate(candidate));
         }
       } else if (data.type === "candidate") {
         if (pc.remoteDescription) {
@@ -292,7 +307,7 @@ export function useWebRTCConnection({
   };
 
   const sendConnectionRequest = () => {
-    if (!webSocket?.readyState || webSocket.readyState !== WebSocket.OPEN) {
+    if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
       toast.error("No WebSocket connection");
       return;
     }
@@ -306,12 +321,11 @@ export function useWebRTCConnection({
     );
     setFileTransferState((prev) => ({ ...prev, isWaitingForAcceptance: true }));
     toast.info("Connection request sent...");
-    // Initiator creates the offer after sending the request
     createOffer();
   };
 
   const acceptConnectionRequest = async (sender: string) => {
-    if (!webSocket?.readyState || webSocket.readyState !== WebSocket.OPEN) {
+    if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
       toast.error("No WebSocket connection");
       return;
     }
@@ -324,16 +338,12 @@ export function useWebRTCConnection({
     );
     setFileTransferState((prev) => ({
       ...prev,
-      connectionRequests: prev.connectionRequests.filter(
-        (req) => req.sender !== sender
-      ),
+      connectionRequests: prev.connectionRequests.filter((req) => req.sender !== sender),
     }));
-    // Responder waits for offer, no createOffer here
   };
 
   const rejectConnectionRequest = (sender: string) => {
-    if (!webSocket?.readyState || webSocket.readyState !== WebSocket.OPEN)
-      return;
+    if (!webSocket || webSocket.readyState !== WebSocket.OPEN) return;
     webSocket.send(
       JSON.stringify({
         type: "connection-rejected",
@@ -343,29 +353,19 @@ export function useWebRTCConnection({
     );
     setFileTransferState((prev) => ({
       ...prev,
-      connectionRequests: prev.connectionRequests.filter(
-        (req) => req.sender !== sender
-      ),
+      connectionRequests: prev.connectionRequests.filter((req) => req.sender !== sender),
     }));
   };
 
   const initiateConnection = () => {
-    if (
-      !webSocket ||
-      webSocket.readyState !== WebSocket.OPEN ||
-      !peerId.trim()
-    ) {
+    if (!webSocket || webSocket.readyState !== WebSocket.OPEN || !peerId.trim()) {
       toast.error("Cannot connect - check WebSocket or peer ID");
       return;
     }
     sendConnectionRequest();
   };
 
-  const addConnectionRequest = (request: {
-    sender: string;
-    senderName?: string;
-    receiver: string;
-  }) => {
+  const addConnectionRequest = (request: { sender: string; senderName?: string; receiver: string }) => {
     setFileTransferState((prev) => ({
       ...prev,
       connectionRequests: [...prev.connectionRequests, request],
@@ -375,7 +375,7 @@ export function useWebRTCConnection({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 400 * 1024 * 1024) {
+    if (file.size > 4000 * 1024 * 1024) {
       toast.error("File size exceeds 400MB limit");
       return;
     }
@@ -383,8 +383,7 @@ export function useWebRTCConnection({
     toast.success(`Selected file: ${file.name}`);
   };
 
-
-const sendFile = async () => {
+  const sendFile = async () => {
     if (
       !fileTransferState.file ||
       !dataChannelRef.current ||
@@ -400,7 +399,7 @@ const sendFile = async () => {
       progress: 0,
     }));
 
-    const chunkSize = 262144; // 256 KB (matches max-message-size)
+    const chunkSize = 16384; // 16KB for better throughput and lower latency
     const fileReader = new FileReader();
     let offset = 0;
     let lastProgressUpdate = 0;
@@ -418,10 +417,7 @@ const sendFile = async () => {
 
     const waitForBuffer = (threshold: number) =>
       new Promise<void>((resolve) => {
-        if (
-          dataChannelRef.current &&
-          dataChannelRef.current.bufferedAmount <= threshold
-        ) {
+        if (dataChannelRef.current && dataChannelRef.current.bufferedAmount <= threshold) {
           resolve();
         } else {
           console.log("Waiting for buffer... Buffered amount:", dataChannelRef.current?.bufferedAmount);
@@ -440,11 +436,12 @@ const sendFile = async () => {
 
     const sendNextChunk = async () => {
       if (!dataChannelRef.current || dataChannelRef.current.readyState !== "open") {
+        toast.error("Data channel closed during transfer");
         return;
       }
 
-      const maxBufferedAmount = 14 * 1024 * 1024; // 14 MB
-      const bufferThreshold = 10 * 1024 * 1024; // Resume at 10 MB
+      const maxBufferedAmount = 16 * 1024 * 1024; // 16MB
+      const bufferThreshold = 12 * 1024 * 1024; // Resume at 12MB
 
       while (
         offset < fileTransferState.file!.size &&
@@ -471,8 +468,8 @@ const sendFile = async () => {
             resolve();
           };
 
-          fileReader.onerror = (error) => {
-            console.error("FileReader error:", error);
+          fileReader.onerror = () => {
+            console.error("FileReader error");
             toast.error("Failed to read file");
             setFileTransferState((prev) => ({ ...prev, isTransferring: false }));
             resolve();
@@ -491,27 +488,28 @@ const sendFile = async () => {
           ...prev,
           isTransferring: false,
           progress: 100,
+          file: null, // Reset file after successful send
         }));
         toast.success(`File sent: ${fileTransferState.file!.name}`);
       }
     };
-  
-    dataChannelRef.current.bufferedAmountLowThreshold = 10 * 1024 * 1024; // 10 MB
+
+    dataChannelRef.current.bufferedAmountLowThreshold = 12 * 1024 * 1024; // 12MB
     await sendNextChunk();
   };
 
   const cancelFileTransfer = () => {
     if (dataChannelRef.current?.readyState === "open") {
-      dataChannelRef.current.send(
-        JSON.stringify({ type: "transfer-cancelled" })
-      );
+      dataChannelRef.current.send(JSON.stringify({ type: "transfer-cancelled" }));
     }
     setFileTransferState((prev) => ({
       ...prev,
       isTransferring: false,
       progress: 0,
+      file: null,
     }));
     fileChunksRef.current = [];
+    fileInfoRef.current = null;
   };
 
   const isConnected = useCallback(() => {

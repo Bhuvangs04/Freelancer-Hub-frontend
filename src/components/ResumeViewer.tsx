@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,6 +8,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { File, Mail, Loader2, X, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import * as pdfjsLib from "pdfjs-dist";
+import pdfjsWorker from "pdfjs-dist/build/pdf.worker?url";
 
 interface ResumeViewerProps {
   profileImage: string | null;
@@ -16,14 +18,17 @@ interface ResumeViewerProps {
   title?: string;
 }
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+
 const ResumeViewer: React.FC<ResumeViewerProps> = ({
-profileImage,
+  profileImage,
   resumeUrl,
   hasPermission,
   title = "Resume",
 }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const handleOpen = () => {
     if (hasPermission) {
@@ -31,6 +36,35 @@ profileImage,
       setOpen(true);
     }
   };
+
+  useEffect(() => {
+    if (hasPermission && resumeUrl && open) {
+      const loadingTask = pdfjsLib.getDocument(resumeUrl);
+      loadingTask.promise
+        .then((pdf) => {
+          return pdf.getPage(1).then((page) => {
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale });
+            const canvas = canvasRef.current;
+            if (canvas) {
+              const context = canvas.getContext("2d");
+              canvas.height = viewport.height;
+              canvas.width = viewport.width;
+              const renderContext = {
+                canvasContext: context!,
+                viewport: viewport,
+              };
+              return page.render(renderContext).promise;
+            }
+          });
+        })
+        .then(() => setLoading(false))
+        .catch((err) => {
+          console.error("Error loading PDF:", err);
+          setLoading(false);
+        });
+    }
+  }, [resumeUrl, open, hasPermission]);
 
   return (
     <>
@@ -62,7 +96,7 @@ profileImage,
           <DialogHeader className="p-4 border-b sticky top-0 bg-white/90 backdrop-blur-md z-10 flex flex-row items-center justify-between">
             <DialogTitle className="text-xl font-medium flex items-center">
               <img
-                src={profileImage}
+                src={profileImage ?? ""}
                 alt={title}
                 className="w-12 h-12 rounded-full object-cover"
               />
@@ -72,7 +106,7 @@ profileImage,
             <div className="flex items-center gap-2">
               {hasPermission && resumeUrl && (
                 <Button
-                 disabled
+                  disabled
                   variant="outline"
                   size="sm"
                   className="rounded-full h-8 px-3 text-sm font-medium border-gray-200 hover:bg-gray-50"
@@ -92,7 +126,7 @@ profileImage,
               </Button>
             </div>
           </DialogHeader>
-          <div className="relative flex-1 w-full h-[80vh] overflow-hidden bg-gray-50">
+          <div className="relative flex-1 w-full h-[80vh] overflow-auto bg-gray-50 flex justify-center items-start">
             {loading && (
               <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-20">
                 <div className="flex flex-col items-center">
@@ -103,17 +137,13 @@ profileImage,
                 </div>
               </div>
             )}
-            {hasPermission && resumeUrl && (
-              <iframe
-                src={resumeUrl}
-                className={cn(
-                  "w-full h-full border-none transition-opacity duration-500",
-                  loading ? "opacity-0" : "opacity-100"
-                )}
-                onLoad={() => setLoading(false)}
-                title="Resume Viewer"
-              />
-            )}
+            <canvas
+              ref={canvasRef}
+              className={cn(
+                "transition-opacity duration-500",
+                loading ? "opacity-0" : "opacity-100"
+              )}
+            />
           </div>
         </DialogContent>
       </Dialog>

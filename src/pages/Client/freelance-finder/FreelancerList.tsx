@@ -258,17 +258,19 @@ const FreelancerList = () => {
                             {freelancer.status}
                           </h3>
                           <div className="mt-2 flex flex-wrap gap-2">
-                            {freelancer.skills[0].slice(0, 3).map((skill) => (
-                              <span
-                                key={skill.name}
-                                className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
-                              >
-                                {skill.name} ({skill.proficiency})
-                              </span>
-                            ))}
-                            {freelancer.skills[0].length > 3 && (
+                            {freelancer.skills?.[0]
+                              ?.slice(0, 3)
+                              ?.map((skill) => (
+                                <span
+                                  key={skill.name}
+                                  className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                                >
+                                  {skill.name} ({skill.proficiency})
+                                </span>
+                              ))}
+                            {freelancer.skills[0]?.length > 3 && (
                               <span className="text-gray-500 text-sm">
-                                +{freelancer.skills[0].length - 3} more
+                                +{freelancer.skills[0]?.length - 3} more
                               </span>
                             )}
                           </div>

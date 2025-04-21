@@ -286,11 +286,18 @@ const FreelancerDashboard = () => {
                 open={isWithdrawModalOpen}
                 onOpenChange={setIsWithdrawModalOpen}
               >
-                <DialogTrigger asChild>
-                  <Button size="sm" className="w-full">
-                    Withdraw Funds
+                {availableBalance.toLocaleString() !== "0" ? (
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="w-full">
+                      Withdraw Funds
+                    </Button>
+                  </DialogTrigger>
+                ) : (
+                  <Button size="sm" className="w-full" disabled>
+                    {" "}
+                    No Funds
                   </Button>
-                </DialogTrigger>
+                )}
                 <DialogContent className="sm:max-w-[425px] animate-scale-in">
                   <DialogHeader>
                     <DialogTitle>Withdraw Funds</DialogTitle>
@@ -423,8 +430,8 @@ const FreelancerDashboard = () => {
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {transactions.slice(0, 4).map((transaction) => (
+                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                      {transactions.map((transaction) => (
                         <div
                           key={transaction.id}
                           className="flex items-center justify-between p-3 rounded-lg hover:bg-accent transition-colors"
@@ -482,17 +489,6 @@ const FreelancerDashboard = () => {
                   )}
                 </div>
               </CardContent>
-              {transactions.length > 4 && (
-                <CardFooter>
-                  <Button
-                    variant="outline"
-                    className="w-full flex items-center justify-center gap-1"
-                  >
-                    View All Transactions
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </CardFooter>
-              )}
             </Card>
           </div>
 
@@ -559,14 +555,17 @@ const FreelancerDashboard = () => {
                                     Budget: {project.budget}
                                   </p>
                                 </div>
-                                <Badge variant="outline">
+                                <Badge
+                                  variant="outline"
+                                  className="bg-yellow-50 text-yellow-700 border-yellow-200"
+                                >
                                   {project.progress}% Complete
                                 </Badge>
                               </div>
 
                               <Progress
                                 value={project.progress}
-                                className="h-2 mb-2"
+                                className="h-2 mb-2 bg-yellow-100"
                               />
 
                               <div className="flex justify-between items-center mt-3">
@@ -686,25 +685,24 @@ const FreelancerDashboard = () => {
                                 </div>
                                 <Badge
                                   variant="outline"
-                                  className="bg-green-50 text-green-700 border-green-200"
+                                  className="bg-orange-50 text-red-500 border-red-200"
                                 >
-                                  Completed
+                                  Rejected
                                 </Badge>
                               </div>
 
                               <Progress
-                                value={100}
-                                className="h-2 mb-2 bg-green-100"
+                                value={project.progress}
+                                className="h-2 mb-2 bg-red-100"
                               />
 
                               <div className="flex justify-between items-center mt-3">
                                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                   <Calendar className="h-3.5 w-3.5" />
-                                  <span>
-                                    Completed:{" "}
-                                    {new Date(
-                                      project.deadline
-                                    ).toLocaleDateString()}
+                                  <span className="text-sm text-muted-foreground">
+                                    Rejected: Check the email about the
+                                    rejection of the project from the client
+                                    side.
                                   </span>
                                 </div>
                                 <Button
