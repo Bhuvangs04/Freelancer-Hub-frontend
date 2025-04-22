@@ -53,10 +53,8 @@ const Portfolio = () => {
     null
   );
   const username = useParams().username;
-  const storedUsername = localStorage.getItem("username");
 
- 
-    const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const handleCopyEmail = async () => {
@@ -73,15 +71,7 @@ const Portfolio = () => {
     }
   };
 
-   if (username !== storedUsername) {
-     console.error(
-       "Username mismatch. Expected:",
-       storedUsername,
-       "Received:",
-       username
-     );
-     return <div>Error: Username mismatch</div>;
-   }
+   
 
 
    useEffect(() => {
