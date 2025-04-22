@@ -27,6 +27,7 @@ import FreelancerProfile from "./pages/Freelancer/Freelancer.profile";
 import Forbidden from "./pages/ForbiddenPage";
 import DisputeForm from "./pages/Disputes/Disputes";
 import ProtectedRoute from "@/components/Security/PorperCheck";
+import Freelancer_portfolio from "./pages/Freelancer-portfolio";
 import { Analytics } from "@vercel/analytics/react";
 
 // import SecurityLayer from "./components/Security/SecurityLayer";
@@ -42,6 +43,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route
+            path="/freelancer/portfolio/:username/view"
+            element={<Freelancer_portfolio />}
+          />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/forbidden" element={<Forbidden />} />

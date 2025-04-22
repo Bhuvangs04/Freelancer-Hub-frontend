@@ -7,6 +7,9 @@ import BioSection from "@/components/profile/BioSection";
 import SkillsSection from "@/components/profile/SkillsSection";
 import ProjectsSection from "@/components/profile/ProjectsSection";
 import ResumeSection from "@/components/profile/ResumeSection";
+import ExperiencesSection, {
+  Experience,
+} from "@/components/profile/ExperiencesSection";
 import { ArrowLeftIcon } from "lucide-react";
 
 const ProfileUpdate = () => {
@@ -18,6 +21,14 @@ const ProfileUpdate = () => {
   const [skills, setSkills] = useState<
     { name: string; proficiency: "beginner" | "intermediate" | "expert" }[]
   >([]);
+  const [experiences, setExperiences] = useState<Experience[]>([
+    {
+      company: "Example Company",
+      role: "Please Entry Your Role",
+      period: "2020 - Present",
+      description: "Working on full-stack development using React and Node.js",
+    },
+  ]);
   const [newSkill, setNewSkill] = useState("");
   const [projects, setProjects] = useState<
     Array<{
@@ -76,7 +87,7 @@ const ProfileUpdate = () => {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ bio, skills, projects }),
+          body: JSON.stringify({ bio, skills, projects, experiences }),
         }
       );
 
@@ -204,6 +215,10 @@ const ProfileUpdate = () => {
         </div>
         <ProfileHeader onImageUpload={handleImageUpload} />
         <BioSection bio={bio} onBioChange={setBio} /> {/* ✅ Fixed bio input */}
+        <ExperiencesSection
+          experiences={experiences}
+          onExperiencesChange={setExperiences}
+        />
         <SkillsSection
           skills={skills}
           newSkill={newSkill}

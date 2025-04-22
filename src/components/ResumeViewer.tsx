@@ -43,7 +43,7 @@ const ResumeViewer: React.FC<ResumeViewerProps> = ({
       loadingTask.promise
         .then((pdf) => {
           return pdf.getPage(1).then((page) => {
-            const scale = 1.5;
+            const scale = 1.1;
             const viewport = page.getViewport({ scale });
             const canvas = canvasRef.current;
             if (canvas) {
@@ -109,11 +109,11 @@ const ResumeViewer: React.FC<ResumeViewerProps> = ({
                   disabled
                   variant="outline"
                   size="sm"
-                  className="rounded-full h-8 px-3 text-sm font-medium border-gray-200 hover:bg-gray-50"
+                  className="rounded-full h-8 px-3 text-sm font-medium border-gray-100 hover:bg-gray-50 cursor-not-allowed"
                   onClick={() => window.open(resumeUrl, "_blank")}
                 >
-                  <ArrowDown className="h-3.5 w-3.5 mr-1" />
-                  Download
+                  <ArrowDown className="h-3.5 w-3.5 mr-1 text-blue-600" />
+                  Membership to Download
                 </Button>
               )}
               <Button
