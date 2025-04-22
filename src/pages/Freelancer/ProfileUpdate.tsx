@@ -18,6 +18,8 @@ const ProfileUpdate = () => {
 
   // Profile states
   const [bio, setBio] = useState(""); // ✅ Fixed missing bio state
+  const [location, setLocation] = useState(""); // ✅ Fixed missing location state
+  const [Role, setRole] = useState(""); // ✅ Fixed missing role state
   const [skills, setSkills] = useState<
     { name: string; proficiency: "beginner" | "intermediate" | "expert" }[]
   >([]);
@@ -87,7 +89,14 @@ const ProfileUpdate = () => {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ bio, skills, projects, experiences }),
+          body: JSON.stringify({
+            bio,
+            skills,
+            projects,
+            experiences,
+            location,
+            title: Role,
+          }),
         }
       );
 
@@ -214,7 +223,15 @@ const ProfileUpdate = () => {
           </p>
         </div>
         <ProfileHeader onImageUpload={handleImageUpload} />
-        <BioSection bio={bio} onBioChange={setBio} /> {/* ✅ Fixed bio input */}
+        <BioSection
+          bio={bio}
+          onBioChange={setBio}
+          Role={Role}
+          onRoleChange={setRole}
+          location={location}
+          onLocationChange={setLocation}
+        />{" "}
+        {/* ✅ Fixed bio input */}
         <ExperiencesSection
           experiences={experiences}
           onExperiencesChange={setExperiences}

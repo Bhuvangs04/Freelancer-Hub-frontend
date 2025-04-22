@@ -27,6 +27,9 @@ interface ApiFreelancer {
   experiences: ApiExperience[];
   skills: ApiSkill[];
   oldProjects: ApiProject[];
+  bio: string;
+  location: string;
+  title: string;
 }
 
 interface ApiResponse {
@@ -100,8 +103,6 @@ interface AppData {
   isLoading: boolean;
   error: string | null;
 }
-
-
 
 const fetchFreelancerData = async (username): Promise<ApiResponse> => {
   try {
@@ -277,13 +278,13 @@ const transformApiData = (apiResponse: ApiResponse): AppData => {
 
   const personalInfo: PersonalInfo = {
     name: freelancer.username,
-    title: "Full Stack Developer",
+    title: freelancer.title || "Loading title...",
     email: freelancer.email,
-    location: "San Francisco, CA",
-    bio: "Passionate developer with a keen eye for design and a love for creating intuitive, user-friendly applications.",
+    location: freelancer.location || "Loading location...",
+    bio: freelancer.bio || "Loading profile information...",
     profileImage:
       freelancer.profilePictureUrl ||
-      "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+      "https://static.vecteezy.com/system/resources/previews/036/594/092/non_2x/man-empty-avatar-photo-placeholder-for-social-networks-resumes-forums-and-dating-sites-male-and-female-no-photo-images-for-unfilled-user-profile-free-vector.jpg 980w, https://static.vecteezy.com/system/resources/previews/036/594/092/large_2x/man-empty-avatar-photo-placeholder-for-social-networks-resumes-forums-and-dating-sites-male-and-female-no-photo-images-for-unfilled-user-profile-free-vector.jpg 1960w",
   };
 
   const skills: Skill[] = freelancer.skills.map((skill) => ({
@@ -328,12 +329,12 @@ const getDefaultData = (): AppData => {
       location: "Loading...",
       bio: "Loading profile information...",
       profileImage:
-        "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+        "https://static.vecteezy.com/system/resources/previews/036/594/092/non_2x/man-empty-avatar-photo-placeholder-for-social-networks-resumes-forums-and-dating-sites-male-and-female-no-photo-images-for-unfilled-user-profile-free-vector.jpg 980w, https://static.vecteezy.com/system/resources/previews/036/594/092/large_2x/man-empty-avatar-photo-placeholder-for-social-networks-resumes-forums-and-dating-sites-male-and-female-no-photo-images-for-unfilled-user-profile-free-vector.jpg 1960w",
     },
     skills: [
       { name: "Loading...", level: 50, icon: "Code" },
-      { name: "Loading...", level: 50, icon: "Atoms" },
-      { name: "Loading...", level: 50, icon: "FileType" },
+      { name: "Loading...", level: 75, icon: "LayoutGrid" },
+      { name: "Loading...", level: 85, icon: "FileType" },
     ],
     experiences: [
       {
@@ -592,18 +593,17 @@ const Hero: React.FC<{ personalInfo: PersonalInfo }> = ({ personalInfo }) => {
 
           <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
             <div className="relative">
-              <div className="w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-8 border-white dark:border-gray-800 shadow-xl">
+              {/* Circular profile image container */}
+              <div className="w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-8 border-white dark:border-gray-800 shadow-xl relative">
+                {/* Profile image */}
                 <img
                   src={personalInfo.profileImage}
                   alt={personalInfo.name}
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  decoding="async"
+                  style={{ imageRendering: "auto" }}
                 />
-              </div>
-
-              <div className="absolute -bottom-4 -right-4 bg-white dark:bg-gray-800 rounded-full p-4 shadow-lg">
-                <div className="bg-indigo-600 text-white rounded-full p-3">
-                  <ArrowDownCircle size={24} />
-                </div>
               </div>
             </div>
           </div>
