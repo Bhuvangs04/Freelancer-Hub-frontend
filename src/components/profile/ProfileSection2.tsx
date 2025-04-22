@@ -489,9 +489,12 @@ const Profile = () => {
                        >
                          <Edit2 className="w-4 h-4 mr-2" /> Edit Profile
                        </Button>
-                       <Button onClick={handleCopyPortfolioLink}>
-                         <ExternalLink className="w-4 h-4 mr-2" /> Copy Portflio
-                         Website Link
+                       <Button
+                         className="ml-2"
+                         onClick={handleCopyPortfolioLink}
+                       >
+                         <ExternalLink className="w-4 h-4 mr-2" /> Copy
+                         Portfolio Website Link
                        </Button>
                      </div>
                    )}
