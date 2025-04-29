@@ -69,7 +69,9 @@ const ChatModal = ({
       });
 
     // WebSocket connection
-    ws.current = new WebSocket(`ws://localhost:9000/${senderId}`);
+    ws.current = new WebSocket(`ws:${
+        import.meta.env.VITE_API_URL
+      }/${senderId}`);
 
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
