@@ -127,7 +127,7 @@ const SignIn = () => {
         const randomString = getRandomString(53);
 
         if (data.role === "admin") {
-          window.location.href = `${import.meta.env.VITE_ADMIN_URL}/admin`;
+          window.location.href = `${import.meta.env.VITE_ADMIN_URL}`;
         } else if (data.role === "freelancer") {
           navigate(
             `/freelancer/home/in-en/?pr=${randomString}&user=${data.chat_id}&id=${data.email}&name=${data.username}`
