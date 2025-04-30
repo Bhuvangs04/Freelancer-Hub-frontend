@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import api, { Project } from "./api.disputes";
+import api,{ Project } from "./api.disputes";
 
 
 interface ProjectSelectorProps {

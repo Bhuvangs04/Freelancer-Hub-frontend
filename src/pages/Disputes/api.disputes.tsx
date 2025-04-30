@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 
-const API_URL = import.meta.env.VITE_API_URL; // Replace with your actual API URL
+const API_URL = import.meta.env.VITE_DISTPUTES_URL; // Replace with your actual API URL
 
 export interface Project {
   _id: string;
@@ -83,6 +83,7 @@ const api = {
 
       if (!response.ok) {
         const errorData = await response.json();
+        handleError(errorData);
         toast.error(errorData.message || "Failed to load projects");
         return [];
       }
@@ -122,6 +123,7 @@ const api = {
 
       if (!response.ok) {
         const errorData = await response.json();
+        handleError(errorData);
         toast.error(errorData.message || "Failed to load projects");
         return [];
       }
