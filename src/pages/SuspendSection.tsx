@@ -1,13 +1,10 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import StatusBadge from "./StatusBadge";
 import StatusMessage from "./StatusMessage";
 import {
   CalendarClock,
-  ChevronRight,
   Hourglass,
-  Mail,
   Shield,
 } from "lucide-react";
 

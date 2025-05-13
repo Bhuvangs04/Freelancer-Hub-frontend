@@ -1,7 +1,5 @@
 import {
   ApiResponse,
-  FileDetails,
-  Message,
   Project,
   TaskFormData,
   MessageFormData,
@@ -33,7 +31,7 @@ apiClient.interceptors.request.use((config) => {
 
 // Helper to handle API errors
 const handleApiError = (
-  error: any,
+  error,
   customMessage: string
 ): ApiResponse<any> => {
   console.error(`${customMessage}:`, error);
@@ -121,7 +119,7 @@ export const api = {
     completed: boolean
   ): Promise<ApiResponse<Project>> => {
     try {
-      const response = await apiClient.patch(
+      await apiClient.patch(
         `/worksubmission/tasks/${taskId}`,
         {
           projectId,
@@ -181,7 +179,7 @@ export const api = {
     messageData: MessageFormData
   ): Promise<ApiResponse<Project>> => {
     try {
-      const response = await apiClient.post(`/messages`, {
+      await apiClient.post(`/messages`, {
         projectId,
         content: messageData.content,
       });
@@ -210,7 +208,7 @@ export const api = {
       formData.append("fileName", file.name);
 
       // Use axios directly with different Content-Type
-      const response = await axios.post(
+      await axios.post(
         `${API_BASE_URL}/worksubmission/upload-file`,
         formData,
         {
@@ -238,7 +236,7 @@ export const api = {
     fileId: string
   ): Promise<ApiResponse<Project>> => {
     try {
-      const response = await apiClient.delete(
+      await apiClient.delete(
         `${API_BASE_URL}/worksubmission/projects/${projectId}/files/${fileId}`
       );
 

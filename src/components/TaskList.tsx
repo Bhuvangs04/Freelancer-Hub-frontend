@@ -67,6 +67,8 @@ export default function TaskList({ project, onProjectUpdate }: TaskListProps) {
         onProjectUpdate(response.data);
       }
     } catch (error) {
+      toast.error("Failed to update project status");
+      console.error(error);
     } finally {
       setLoading(false);
     }

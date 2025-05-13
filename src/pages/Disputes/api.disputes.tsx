@@ -25,17 +25,17 @@ export interface Client {
   username: string;
 }
 
-interface User {
-  userId: string;
-  role: "client" | "freelancer";
-}
+// interface User {
+//   userId: string;
+//   role: "client" | "freelancer";
+// }
 
 
 const getToken = (): string | null => {
   return localStorage.getItem("Chatting_id");
 };
 
-const handleError = (error: any): never => {
+const handleError = (error): never => {
   console.error("API Error:", error);
 
   let message = "An unexpected error occurred";

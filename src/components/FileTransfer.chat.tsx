@@ -28,7 +28,6 @@ interface FileTransferProps {
 
 const FileTransfer: React.FC<FileTransferProps> = ({
   userId,
-  userName,
   className,
   initialPeerId,
 }) => {

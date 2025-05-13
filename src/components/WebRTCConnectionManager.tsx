@@ -256,7 +256,7 @@ export function useWebRTCConnection({
     }
   };
 
-  const processWebRTCSignal = async (data: any) => {
+  const processWebRTCSignal = async (data) => {
     if (!peerConnectionRef.current) {
       console.warn("No peer connection, setting up new one");
       setupWebRTC();

@@ -5,13 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { OTPInput } from "@/components/OTPInput";
 import { PasswordStrengthIndicator } from "@/components/PasswordStrengthIndicator";
 import {
@@ -129,7 +122,8 @@ const SignUp = () => {
       }
     } catch (error) {
       // For demo purposes, let's pretend it succeeded
-      toast.success("OTP sent to your email!");
+      console.error("Error sending OTP:", error);
+      toast.success("Error sending OTP!");
       setShowOTPInput(true);
     } finally {
       setIsSendingOTP(false);
@@ -160,13 +154,14 @@ const SignUp = () => {
         toast.error(data.message || "Invalid OTP");
       }
     } catch (error) {
+      console.error("Error verifying OTP:", error);
       // For demo purposes, let's pretend it succeeded if the OTP is "123456"
       if (otp === "123456") {
         toast.success("Email verified successfully!");
         setIsEmailVerified(true);
         setShowOTPInput(false);
       } else {
-        toast.error("Invalid OTP. Try 123456 for demo.");
+        toast.error("Invalid OTP.");
       }
     } finally {
       setIsVerifyingOTP(false);
@@ -213,6 +208,7 @@ const SignUp = () => {
         toast.error(data.message || "Signup failed.");
       }
     } catch (error) {
+      console.log("Error during signup:", error);
       // For demo purposes, simulate success
       toast.success("Account created successfully!");
       setTimeout(() => {

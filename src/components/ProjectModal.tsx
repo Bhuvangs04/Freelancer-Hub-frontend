@@ -92,7 +92,7 @@ async function decryptMessage(encryptedMessage: string, hexKey: string) {
     );
 
     return new TextDecoder().decode(decrypted);
-  } catch (error: any) {
+  } catch (error) {
     console.error("Decryption failed:", error.message);
     return "Decryption error";
   }

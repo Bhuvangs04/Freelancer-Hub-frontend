@@ -4,18 +4,13 @@ import {
   Activity,
   Clock,
   CheckCircle,
-  ChevronRight,
   ArrowUpRight,
   ArrowDownRight,
   Wallet,
   MoreHorizontal,
-  LayoutList,
   BarChart3,
   Calendar,
-  UserRound,
   XCircle,
-  IndianRupee,
-  Home,
   ArrowLeftIcon,
 } from "lucide-react";
 import {

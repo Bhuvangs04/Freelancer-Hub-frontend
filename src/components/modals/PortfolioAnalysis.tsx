@@ -29,8 +29,6 @@ import {
   groupViewsByYear,
 } from "@/components/modals/portfolioService";
 import {
-  Bar,
-  BarChart,
   XAxis,
   YAxis,
   Tooltip,

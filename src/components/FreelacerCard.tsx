@@ -3,8 +3,6 @@ import {
   Calendar,
   Clock,
   IndianRupee,
-  CheckCircle,
-  AlertCircle,
   MoreVertical,
   MessageSquare,
   FileText,

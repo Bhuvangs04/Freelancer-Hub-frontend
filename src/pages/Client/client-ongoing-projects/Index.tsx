@@ -65,7 +65,7 @@ const fetchProjects = async (): Promise<Project[]> => {
   const data = await response.json();
 
   // Transform data to match the expected structure
-  return data.map((project: any) => ({
+  return data.map((project) => ({
     ...project,
     _id: project._id || project.id,
     projectId: project.projectId,

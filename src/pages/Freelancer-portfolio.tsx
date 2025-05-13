@@ -10,7 +10,7 @@ import {
   MapPin,
   ArrowDownCircle,
   Send,
-  Phone,
+
   Github,
   ExternalLink,
   Briefcase,
@@ -625,7 +625,7 @@ const Hero: React.FC<{ personalInfo: PersonalInfo }> = ({ personalInfo }) => {
 
 const Skills: React.FC<{ skills: Skill[] }> = ({ skills }) => {
   const getIcon = (iconName: string) => {
-    const Icon = (Icons as any)[iconName];
+    const Icon = (Icons)[iconName];
     return Icon ? <Icon size={24} /> : null;
   };
 
@@ -873,7 +873,7 @@ const Contact: React.FC<{
   loading: boolean;
 }> = ({ socialLinks, personalInfo, handleSubmit, handleChange, formData, loading }) => {
   const getIcon = (iconName: string) => {
-    const Icon = (Icons as any)[iconName];
+    const Icon = (Icons)[iconName];
     return Icon ? <Icon size={20} /> : null;
   };
 
@@ -1062,7 +1062,7 @@ const Footer: React.FC<{ socialLinks: SocialLink[]; name: string }> = ({
   name,
 }) => {
   const getIcon = (iconName: string) => {
-    const Icon = (Icons as any)[iconName];
+    const Icon = (Icons)[iconName];
     return Icon ? <Icon size={18} /> : null;
   };
 
@@ -1214,6 +1214,7 @@ try {
     alert("Failed to send message");
   }
 } catch (error) {
+  console.error("Error sending message:", error);
   alert("Something went wrong");
 } finally {
   setLoading(false);

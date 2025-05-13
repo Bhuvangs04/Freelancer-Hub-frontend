@@ -80,7 +80,7 @@ export const ClientOnboarding = () => {
     return response.json();
   };
 
-  const updateProfile = async (profileData: any) => {
+  const updateProfile = async (profileData) => {
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/client/company`,
       {

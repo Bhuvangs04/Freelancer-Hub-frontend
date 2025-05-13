@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChatInterface } from "./ChatInterface";
-import { ProgressBar } from "./ProgressBar";
+import ProgressBar from "./ProgressBar";
 import { StatusBadge } from "./StatusBadge";
 
 interface Project {
@@ -26,7 +26,6 @@ export const ProjectModal1 = ({
   isOpen,
   onClose,
   onUpdateStatus,
-  onUpdateProgress,
 }: ProjectModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

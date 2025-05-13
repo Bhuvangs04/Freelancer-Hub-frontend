@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -8,7 +8,6 @@ import { motion } from "framer-motion";
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const location = useLocation();
 
   // Toggle mobile menu
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);

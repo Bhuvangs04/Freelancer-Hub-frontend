@@ -114,6 +114,7 @@ const ProfileUpdate = () => {
         });
       }
     } catch (error) {
+      console.error("Error updating profile:", error); 
       toast({
         title: "Error",
         description: "Failed to update profile",
@@ -157,6 +158,8 @@ const ProfileUpdate = () => {
         });
       }
     } catch (error) {
+      console.error("Error updating profile:", error); 
+
       toast({
         title: "Error",
         description: "Image upload failed",
@@ -194,6 +197,8 @@ const ProfileUpdate = () => {
         });
       }
     } catch (error) {
+      console.error("Error updating profile:", error); 
+
       toast({
         title: "Error",
         description: "Resume upload failed",

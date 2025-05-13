@@ -29,33 +29,33 @@ export default function FileUpload({
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
+  // const formatFileSize = (bytes: number): string => {
+  //   if (bytes < 1024) return `${bytes} B`;
+  //   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  //   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  // };
 
-  const getFileIcon = (fileName: string) => {
-    const extension = fileName.split(".").pop()?.toLowerCase();
+  // const getFileIcon = (fileName: string) => {
+  //   const extension = fileName.split(".").pop()?.toLowerCase();
 
-    switch (extension) {
-      case "pdf":
-        return <FileText size={20} className="text-red-500" />;
-      case "doc":
-      case "docx":
-        return <FileText size={20} className="text-blue-500" />;
-      case "xls":
-      case "xlsx":
-        return <FileText size={20} className="text-green-500" />;
-      case "jpg":
-      case "jpeg":
-      case "png":
-      case "gif":
-        return <FileText size={20} className="text-purple-500" />;
-      default:
-        return <FileText size={20} className="text-gray-500" />;
-    }
-  };
+  //   switch (extension) {
+  //     case "pdf":
+  //       return <FileText size={20} className="text-red-500" />;
+  //     case "doc":
+  //     case "docx":
+  //       return <FileText size={20} className="text-blue-500" />;
+  //     case "xls":
+  //     case "xlsx":
+  //       return <FileText size={20} className="text-green-500" />;
+  //     case "jpg":
+  //     case "jpeg":
+  //     case "png":
+  //     case "gif":
+  //       return <FileText size={20} className="text-purple-500" />;
+  //     default:
+  //       return <FileText size={20} className="text-gray-500" />;
+  //   }
+  // };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();

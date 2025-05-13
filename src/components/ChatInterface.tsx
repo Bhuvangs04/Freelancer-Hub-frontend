@@ -11,9 +11,11 @@ interface Message {
 
 
 
-export const ChatInterface = () => {
+export const ChatInterface = ({ projectId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+
+  console.log("Project ID:", projectId);
 
   const handleSend = () => {
     if (!newMessage.trim()) return;

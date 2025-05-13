@@ -26,6 +26,7 @@ const useCheckPermission = (role) => {
           navigate("/forbidden");
         }
       } catch (error) {
+        console.error("Error checking permission:", error);
         setIsAllowed(false);
         navigate("/forbidden");
       }

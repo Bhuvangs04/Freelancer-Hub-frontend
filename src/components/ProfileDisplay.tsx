@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Upload, User } from "lucide-react";
+import { User } from "lucide-react";
 import { ProfileData } from "./ProfileForm";
 
 const ProfileDisplay = () => {

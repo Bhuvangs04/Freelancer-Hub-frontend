@@ -11,7 +11,6 @@ interface FreelancerCardProps {
 }
 
 export const FreelancerCard = ({
-  id,
   name,
   skills,
   hourlyRate,

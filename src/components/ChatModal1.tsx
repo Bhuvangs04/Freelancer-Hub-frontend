@@ -317,7 +317,7 @@ export const ChatModal = ({
         minute: "2-digit",
       });
     } catch (e) {
-
+      console.error("Error formatting time:", e);
       return "";
     }
   };

@@ -326,7 +326,7 @@ export function useFileTransfer(
     }
   };
 
-  const processWebRTCSignal = async (signal: any) => {
+  const processWebRTCSignal = async (signal) => {
     if (!peerConnectionRef.current) {
       setupWebRTC();
     }

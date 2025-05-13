@@ -4,7 +4,7 @@ import { ChatList } from "./ChatList";
 import { ChatWindow } from "./ChatWindow";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeftIcon, LockIcon, User2 } from "lucide-react";
+import { ArrowLeftIcon, LockIcon } from "lucide-react";
 
 interface Message {
   _id: string;

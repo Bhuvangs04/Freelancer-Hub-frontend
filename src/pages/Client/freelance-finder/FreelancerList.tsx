@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import {
-  Star,
+
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -53,8 +53,6 @@ const FreelancerList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
-  const [budget, setBudget] = useState([200]);
-  const [showAllSkills, setShowAllSkills] = useState(false);
   const [freelancers, setFreelancers] = useState<Freelancer[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFreelancer, setSelectedFreelancer] =

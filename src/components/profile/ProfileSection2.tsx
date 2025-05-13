@@ -28,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -62,6 +61,7 @@ const Profile = () => {
         );
         alert("Link copied");
       } catch (error) {
+        console.error("Failed to copy link:", error);
         alert("Failed to copy Link");
       }
     } else {
@@ -306,7 +306,7 @@ const Profile = () => {
         }
       );
 
-      const data = await response.json();
+      await response.json();
       if (response.ok) {
         setSkills([...skills, newSkill]);
         setNewSkill({ name: "", proficiency: "" });

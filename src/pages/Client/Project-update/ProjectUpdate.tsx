@@ -23,6 +23,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
+import { c } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
 
 interface ProjectType {
   _id: string;
@@ -106,6 +107,7 @@ const ProjectDetails = () => {
         variant: "destructive",
       });
     } catch (error) {
+      console.error("Error deleting project:", error);
       toast({
         title: "Error",
         description: "Failed to delete project. Try again.",
@@ -152,6 +154,7 @@ const ProjectDetails = () => {
       setShowUpdateDialog(false);
       setSelectedProject(null);
     } catch (error) {
+      console.error("Error updating project:", error);
       toast({
         title: "Error",
         description: "Failed to update project. Please try again.",

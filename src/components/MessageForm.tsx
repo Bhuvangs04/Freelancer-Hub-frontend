@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, User, SmilePlus, Paperclip, File } from "lucide-react";
+import { Send, User, SmilePlus, Paperclip } from "lucide-react";
 import { Project, Message } from "@/types";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -21,13 +21,11 @@ interface MessageFormProps {
 
 export default function MessageForm({
   project,
-  onProjectUpdate,
 }: MessageFormProps) {
   const [messageContent, setMessageContent] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showFileTransfer, setShowFileTransfer] = useState(false);
   const [messages, setMessages] = useState<Message[]>(project?.messages || []);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -104,7 +102,7 @@ export default function MessageForm({
         encryptedWithAuthTag
       );
       return new TextDecoder().decode(decrypted);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Decryption failed:", error.message);
       return "Decryption error";
     }

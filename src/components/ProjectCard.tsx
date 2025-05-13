@@ -199,6 +199,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         toast.error(data.message || "Failed to reject project.");
       }
     } catch (error) {
+      console.error("Error rejecting project:", error);
       toast.error("Error rejecting project.");
     }
     setLoading(false);

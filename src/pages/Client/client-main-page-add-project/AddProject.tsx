@@ -13,7 +13,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -59,15 +58,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface ProjectFormData extends FormValues {
-  skills: string[];
-  attachment: File | null;
-}
 
-interface SkillsInputProps {
-  skills: string[];
-  setSkills: (skills: string[]) => void;
-}
+// interface SkillsInputProps {
+//   skills: string[];
+//   setSkills: (skills: string[]) => void;
+// }
 
 const API_URL = import.meta.env.VITE_API_URL;
 const RAZORPAY_KEY = "rzp_test_Rllu5UrIWbb27c";
@@ -78,7 +73,7 @@ declare global {
   }
 }
 
-const EnhancedSkillsInput = ({ skills, setSkills }: SkillsInputProps) => {
+const EnhancedSkillsInput = ({ skills, setSkills }) => {
   const [input, setInput] = useState("");
 
   const addSkill = () => {
@@ -161,7 +156,6 @@ const ProjectForm = () => {
     clientId: "",
   });
   const params = useParams<{ clientId: string }>();
-  const chattingIdFromUrl = params.clientId;
   const getFromLocal = localStorage.getItem("Chatting_id");
 
   const form = useForm<FormValues>({
@@ -224,6 +218,7 @@ const ProjectForm = () => {
 
       return data.projectId;
     } catch (error) {
+      console.error("Error adding project:", error);
       toast.error("Failed to add project");
       setIsLoading(false);
       return null;
@@ -295,7 +290,7 @@ const ProjectForm = () => {
         name: "Freelance Platform",
         description: `Payment for ${values.title}`,
         order_id: order.id,
-        handler: async (response: any) => {
+        handler: async (response) => {
           await verifyPayment(response, projectId);
         },
         prefill: { email: userData.email, name: userData.username },
@@ -311,7 +306,7 @@ const ProjectForm = () => {
     }
   };
 
-  const verifyPayment = async (paymentData: any, projectId: string) => {
+  const verifyPayment = async (paymentData, projectId: string) => {
     try {
       const response = await fetch(`${API_URL}/payments/verify-payment`, {
         method: "POST",

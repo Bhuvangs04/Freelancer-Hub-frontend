@@ -12,7 +12,7 @@ export const FreelancerSelection = ({ projectId }: FreelancerSelectionProps) => 
   const handleAccept = (freelancerId: string) => {
     // Update project status and assign freelancer
     const projects = JSON.parse(localStorage.getItem("clientProjects") || "[]");
-    const updatedProjects = projects.map((project: any) => {
+    const updatedProjects = projects.map((project) => {
       if (project.id === projectId) {
         return {
           ...project,
