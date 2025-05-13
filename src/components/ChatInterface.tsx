@@ -9,11 +9,9 @@ interface Message {
   timestamp: Date;
 }
 
-interface ChatInterfaceProps {
-  projectId: string;
-}
 
-export const ChatInterface = ({ projectId }: ChatInterfaceProps) => {
+
+export const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
 

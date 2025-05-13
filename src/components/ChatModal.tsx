@@ -59,7 +59,7 @@ const ChatModal = ({
       .then((res) => res.json())
       .then((data) => {
         setMessages(
-          data.map((msg: any) => ({
+          data.map((msg) => ({
             id: msg._id,
             text: maskSensitiveInfo(msg.message),
             sender: msg.sender === senderId ? "client" : "freelancer",

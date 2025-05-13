@@ -126,7 +126,7 @@ export default function MessageForm({
 
     ws.onmessage = async (event) => {
       try {
-        let data = JSON.parse(event.data);
+        const data = JSON.parse(event.data);
         const decryptedMessage = await decryptMessage(data.message, secretKey);
         data.message = decryptedMessage;
 

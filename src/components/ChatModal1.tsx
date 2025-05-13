@@ -152,7 +152,7 @@ export const ChatModal = ({
 
     ws.onmessage = async (event) => {
       try {
-        let data = JSON.parse(event.data);
+        const data = JSON.parse(event.data);
 
         const decryptedMessage = await decryptMessage(data.message, secretKey);
 
@@ -317,6 +317,7 @@ export const ChatModal = ({
         minute: "2-digit",
       });
     } catch (e) {
+
       return "";
     }
   };

@@ -37,7 +37,7 @@ const SignIn = () => {
   const { toast } = useToast();
 
   function xorEncrypt(data, key) {
-    let encoded = new TextEncoder().encode(data);
+    const encoded = new TextEncoder().encode(data);
     return btoa(
       String.fromCharCode(
         ...encoded.map((byte, i) => byte ^ key.charCodeAt(i % key.length))

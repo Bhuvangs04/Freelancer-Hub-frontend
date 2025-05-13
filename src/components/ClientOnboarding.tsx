@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -134,8 +134,8 @@ export const ClientOnboarding = () => {
 
       toast.success("Profile created successfully!");
       navigate(`/Client-profile?email=${email}?id=${User_log}&email=${email}`);
-    } catch (error) {
-      toast.error("Failed to create profile. Please try again.");
+    } catch (e) {
+      toast.error("Failed to create profile. Please try again.:" + `${e}`);
     } finally {
       setIsLoading(false);
     }
