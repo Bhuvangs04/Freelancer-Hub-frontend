@@ -243,6 +243,11 @@ const ProjectForm = () => {
 
   const handlePayment = async () => {
     const values = form.getValues();
+
+    if (parseFloat(values.budget) < 0) {
+      toast.error("Budget cannot be negative");
+      return;
+    }
     if (!values.budget) {
       toast.error("Please enter a budget amount");
       return;
