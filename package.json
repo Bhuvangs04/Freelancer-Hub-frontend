@@ -99,12 +99,12 @@
     "eslint-plugin-react-refresh": "^0.4.9",
     "eslint-plugin-vue": "^10.1.0",
     "globals": "^16.1.0",
-    "lovable-tagger": "^1.0.19",
+    "lovable-tagger": "^1.1.11",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.11",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.1",
-    "vite": "^5.4.21"
+    "vite": "^7.1.11"
   },
   "description": "Welcome to the Freelancer Frontend Code repository! This project is designed to provide a user-friendly interface for freelancers to manage their projects and communicate with clients. Below you will find all the necessary details to get started with this project.",
   "main": "eslint.config.js",
