@@ -153,6 +153,16 @@ export const Navigation = () => {
               variant="outline"
               onClick={() =>
                 navigate(
+                  `/agreements?id=${User_log}&y_id=${User_log}-${User_log}&xyy=${User_log}`
+                )
+              }
+            >
+              Agreements
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate(
                   `/client/ongoing/projects/details/routing/v1/s1?id=${User_log}&y_id=${User_log}-${User_log}&xyy=${User_log}`
                 )
               }

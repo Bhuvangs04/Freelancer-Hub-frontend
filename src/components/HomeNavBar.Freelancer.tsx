@@ -13,6 +13,7 @@ import {
   WalletCards,
   MessageCircle,
   UserCheck,
+  File
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -42,6 +43,11 @@ const Navbar = () => {
       name: "Messages",
       href: `/chat/freelancer?userid=${User_log}&${User_log}-${User_log}`,
       icon: <MessageCircle className="h-4 w-4 mr-2" />,
+    },
+    {
+      name: "Agreements",
+      href: `/agreements?userid=${User_log}&${User_log}-${User_log}`,
+      icon: <File className="h-4 w-4 mr-2" />,
     },
     {
       name: "Dashboard",

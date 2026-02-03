@@ -30,7 +30,14 @@ import ProtectedRoute from "@/components/Security/PorperCheck";
 import Freelancer_portfolio from "./pages/Freelancer-portfolio";
 import { Analytics } from "@vercel/analytics/react";
 
+// New page imports for backend integration
+import Agreements from "./pages/Agreements/Agreements";
+import AgreementDetails from "./pages/Agreements/AgreementDetails";
+import PaymentCheckout from "./pages/Payment/PaymentCheckout";
+import MilestoneManager from "./pages/Milestones/MilestoneManager";
+
 // import SecurityLayer from "./components/Security/SecurityLayer";
+
 
 const queryClient = new QueryClient();
 
@@ -239,6 +246,51 @@ const App = () => (
               </FreelancerAuth>
             }
           />
+
+          {/* ============================================================ */}
+          {/* NEW ROUTES - Agreement, Payment, Milestone System */}
+          {/* ============================================================ */}
+
+          {/* Agreement Routes - Both roles */}
+          <Route
+            path="/agreements"
+            element={
+              <FreelancerAuth>
+                <Agreements />
+              </FreelancerAuth>
+            }
+          />
+          <Route
+            path="/agreements/:id"
+            element={
+              <FreelancerAuth>
+                <AgreementDetails />
+              </FreelancerAuth>
+            }
+          />
+
+          {/* Payment Routes - Client only */}
+          <Route
+            path="/payment/:projectId"
+            element={
+              <FreelancerAuth>
+                <ProtectedRoute role="client">
+                  <PaymentCheckout />
+                </ProtectedRoute>
+              </FreelancerAuth>
+            }
+          />
+
+          {/* Milestone Routes - Both roles */}
+          <Route
+            path="/projects/:projectId/milestones"
+            element={
+              <FreelancerAuth>
+                <MilestoneManager />
+              </FreelancerAuth>
+            }
+          />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

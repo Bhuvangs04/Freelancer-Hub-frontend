@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { v4 as uuidv4 } from "uuid";
 import {
   Card,
   CardContent,
@@ -157,6 +158,12 @@ const ProjectForm = () => {
   });
   const params = useParams<{ clientId: string }>();
   const getFromLocal = localStorage.getItem("Chatting_id");
+  const projectKey = useRef<string>(uuidv4());
+  const orderKey = useRef<string>(uuidv4());
+  const verifyKey = useRef<string>(uuidv4());
+
+
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -186,7 +193,6 @@ const ProjectForm = () => {
 
   const addProject = async (values: FormValues) => {
     try {
-      setIsLoading(true);
       const formDataToSend = new FormData();
       formDataToSend.append("title", values.title);
       formDataToSend.append("description", values.description);
@@ -203,6 +209,9 @@ const ProjectForm = () => {
       const response = await fetch(`${API_URL}/client/clients/add-project`, {
         method: "POST",
         credentials: "include",
+        headers: {
+          "x-idempotency-key": projectKey.current,
+        },
         body: formDataToSend,
       });
 
@@ -220,10 +229,7 @@ const ProjectForm = () => {
     } catch (error) {
       console.error("Error adding project:", error);
       toast.error("Failed to add project");
-      setIsLoading(false);
       return null;
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -242,6 +248,8 @@ const ProjectForm = () => {
   };
 
   const handlePayment = async () => {
+    if (isLoading) return;
+    setIsLoading(true); 
     const values = form.getValues();
 
     if (parseFloat(values.budget) < 0) {
@@ -250,6 +258,7 @@ const ProjectForm = () => {
     }
     if (!values.budget) {
       toast.error("Please enter a budget amount");
+      setIsLoading(false);
       return;
     }
 
@@ -257,11 +266,15 @@ const ProjectForm = () => {
     const isValid = await form.trigger();
     if (!isValid) {
       toast.error("Please fill in all required fields");
+      setIsLoading(false);
       return;
     }
 
     const projectId = await addProject(values);
-    if (!projectId) return;
+    if (!projectId) {
+      setIsLoading(false);
+      return;
+    }
 
     const amount = parseFloat(values.budget);
     const commission = parseFloat(calculateCommission(amount));
@@ -275,7 +288,7 @@ const ProjectForm = () => {
 
       const response = await fetch(`${API_URL}/payments/create-order`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-idempotency-key": orderKey.current },
         credentials: "include",
         body: JSON.stringify({
           amount: totalAmount * 100,
@@ -315,7 +328,7 @@ const ProjectForm = () => {
     try {
       const response = await fetch(`${API_URL}/payments/verify-payment`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-idempotency-key": verifyKey.current },
         credentials: "include",
         body: JSON.stringify({
           ...paymentData,
@@ -328,6 +341,9 @@ const ProjectForm = () => {
 
       if (response.ok) {
         toast.success("Project added successfully!");
+        projectKey.current = uuidv4();
+        orderKey.current = uuidv4();
+        verifyKey.current = uuidv4();
         navigate("/find/freelancers");
       }
 

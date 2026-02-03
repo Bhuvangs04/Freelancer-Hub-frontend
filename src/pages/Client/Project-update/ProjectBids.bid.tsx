@@ -117,30 +117,42 @@ const ProjectBids = () => {
   const handleAcceptBid = async (freelancerId: string, bidId: string) => {
     try {
       setActionLoading((prev) => ({ ...prev, [bidId]: "accept" }));
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_API_URL
-        }/client/client/${freelancerId}?projectId=${projectId}`,
+
+      // Create the agreement - bid will be set to 'sign_pending'
+      // Bid is only truly 'accepted' after BOTH parties sign the agreement
+      const agreementResponse = await fetch(
+        `${import.meta.env.VITE_API_URL}/agreement/create`,
         {
           method: "POST",
           credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            projectId: projectId,
+            bidId: bidId,
+          }),
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
+      if (!agreementResponse.ok) {
+        const errorData = await agreementResponse.json();
+        throw new Error(errorData.message || `Error creating agreement: ${agreementResponse.status}`);
       }
 
       toast({
-        title: "Success",
-        description: "Bid accepted successfully!",
+        title: "Agreement Created",
+        description: "Review the agreement and send for signing. The bid will be fully accepted once both parties sign.",
         variant: "default",
       });
-    } catch (error) {
-      console.error("Failed to accept bid:", error);
+
+      // Navigate to agreements page to review and send for signing
+      navigate("/agreements");
+    } catch (error: any) {
+      console.error("Failed to create agreement:", error);
       toast({
         title: "Error",
-        description: "Failed to accept bid. Please try again.",
+        description: error.message || "Failed to create agreement. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -213,6 +225,15 @@ const ProjectBids = () => {
             Pending
           </Badge>
         );
+      case "sign_pending":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-blue-50 text-blue-800 border-blue-200"
+          >
+            Agreement Pending
+          </Badge>
+        );
       case "accepted":
         return (
           <Badge
@@ -229,6 +250,24 @@ const ProjectBids = () => {
             className="bg-red-50 text-red-800 border-red-200"
           >
             Rejected
+          </Badge>
+        );
+      case "agreement_cancelled":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-orange-50 text-orange-800 border-orange-200"
+          >
+            Agreement Cancelled
+          </Badge>
+        );
+      case "withdrawn":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-gray-50 text-gray-800 border-gray-200"
+          >
+            Withdrawn
           </Badge>
         );
       default:
@@ -411,11 +450,33 @@ const ProjectBids = () => {
                   </div>
                 )}
 
+                {bid.status === "sign_pending" && (
+                  <div className="pt-2">
+                    <Button
+                      className="w-full"
+                      variant="secondary"
+                      onClick={() => navigate("/agreements")}
+                    >
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      View Agreement
+                    </Button>
+                  </div>
+                )}
+
                 {bid.status === "rejected" && (
                   <div className="pt-2">
                     <Button className="w-full" variant="outline" disabled>
                       <XCircle className="mr-2 h-4 w-4" />
                       Rejected
+                    </Button>
+                  </div>
+                )}
+
+                {bid.status === "agreement_cancelled" && (
+                  <div className="pt-2">
+                    <Button className="w-full" variant="outline" disabled>
+                      <XCircle className="mr-2 h-4 w-4" />
+                      Agreement Cancelled
                     </Button>
                   </div>
                 )}
