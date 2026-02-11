@@ -121,6 +121,24 @@ const MyBids = () => {
             Project Removed by Owner
           </Badge>
         );
+      case "sign_pending":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-yellow-50 text-red-800 border-red-200"
+          >
+            Sign Pending
+          </Badge>
+        );
+      case "agreement_cancelled":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-red-50 text-red-800 border-red-200"
+          >
+            Agreement Cancelled
+          </Badge>
+        );
       default:
         return <Badge variant="outline">Unknown</Badge>;
     }

@@ -104,7 +104,7 @@ const SignUp = () => {
 
     setIsSendingOTP(true);
     try {
-      const response = await fetch(`https://backend-onsite-com-2.onrender.com/api/vi/send-otp`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/send-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -5,6 +5,7 @@ import ProfileHeader from "@/components/profile/ProfileHeader";
 import { useNavigate } from "react-router-dom";
 import BioSection from "@/components/profile/BioSection";
 import SkillsSection from "@/components/profile/SkillsSection";
+import GitHubSkillsVerification from "@/components/profile/GitHubSkillsVerification";
 import ProjectsSection from "@/components/profile/ProjectsSection";
 import ResumeSection from "@/components/profile/ResumeSection";
 import ExperiencesSection, {
@@ -12,17 +13,24 @@ import ExperiencesSection, {
 } from "@/components/profile/ExperiencesSection";
 import { ArrowLeftIcon } from "lucide-react";
 
+interface Skill {
+  name: string;
+  proficiency: "beginner" | "intermediate" | "expert";
+  verified?: boolean;
+  level?: string;
+  score?: number;
+}
+
 const ProfileUpdate = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // Profile states
-  const [bio, setBio] = useState(""); // ✅ Fixed missing bio state
-  const [location, setLocation] = useState(""); // ✅ Fixed missing location state
-  const [Role, setRole] = useState(""); // ✅ Fixed missing role state
-  const [skills, setSkills] = useState<
-    { name: string; proficiency: "beginner" | "intermediate" | "expert" }[]
-  >([]);
+  const [bio, setBio] = useState("");
+  const [location, setLocation] = useState("");
+  const [Role, setRole] = useState("");
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [githubUsername, setGithubUsername] = useState("");
   const [experiences, setExperiences] = useState<Experience[]>([
     {
       company: "Example Company",
@@ -45,15 +53,64 @@ const ProfileUpdate = () => {
     "beginner" | "intermediate" | "expert"
   >("beginner");
 
+  // Handle GitHub skills verification
+  const handleGitHubSkillsVerified = (
+    verifiedSkills: Array<{
+      name: string;
+      proficiency: "beginner" | "intermediate" | "expert";
+      verified: boolean;
+      level?: string;
+      score?: number;
+    }>
+  ) => {
+    setSkills((prevSkills) => {
+      const existingSkillNames = new Set(prevSkills.map((s) => s.name.toLowerCase()));
+      const newSkills: Skill[] = [];
+
+      for (const skill of verifiedSkills) {
+        if (!existingSkillNames.has(skill.name.toLowerCase())) {
+          newSkills.push({
+            name: skill.name,
+            proficiency: skill.proficiency,
+            verified: skill.verified,
+            level: skill.level,
+            score: skill.score,
+          });
+        } else {
+          // Update existing skill with verification data
+          const index = prevSkills.findIndex(
+            (s) => s.name.toLowerCase() === skill.name.toLowerCase()
+          );
+          if (index !== -1) {
+            prevSkills[index] = {
+              ...prevSkills[index],
+              verified: skill.verified,
+              level: skill.level,
+              score: skill.score,
+              proficiency: skill.proficiency,
+            };
+          }
+        }
+      }
+
+      return [...prevSkills, ...newSkills];
+    });
+
+    toast({
+      title: "Skills Imported",
+      description: `${verifiedSkills.length} skills imported from GitHub`,
+    });
+  };
+
   // Add skill
   const addSkill = () => {
     if (newSkill.trim() && !skills.some((s) => s.name === newSkill.trim())) {
       setSkills([
         ...skills,
-        { name: newSkill.trim(), proficiency: newProficiency },
+        { name: newSkill.trim(), proficiency: newProficiency, verified: false },
       ]);
       setNewSkill("");
-      setNewProficiency("beginner"); // Reset after adding
+      setNewProficiency("beginner");
     }
   };
 
@@ -80,7 +137,7 @@ const ProfileUpdate = () => {
     ]);
   };
 
-  // ✅ Profile Update API Call
+  // Profile Update API Call
   const updateProfile = async () => {
     try {
       const response = await fetch(
@@ -91,11 +148,15 @@ const ProfileUpdate = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             bio,
-            skills,
+            skills: skills.map((s) => ({
+              name: s.name,
+              proficiency: s.proficiency,
+            })),
             projects,
             experiences,
             location,
             title: Role,
+            githubUsername,
           }),
         }
       );
@@ -114,7 +175,7 @@ const ProfileUpdate = () => {
         });
       }
     } catch (error) {
-      console.error("Error updating profile:", error); 
+      console.error("Error updating profile:", error);
       toast({
         title: "Error",
         description: "Failed to update profile",
@@ -123,7 +184,7 @@ const ProfileUpdate = () => {
     }
   };
 
-  // ✅ Profile Image Upload API Call
+  // Profile Image Upload API Call
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -133,9 +194,7 @@ const ProfileUpdate = () => {
 
     try {
       const response = await fetch(
-        `${
-          import.meta.env.VITE_API_URL
-        }/freelancer/freelancer/upload-portfolio/photo`,
+        `${import.meta.env.VITE_API_URL}/freelancer/freelancer/upload-portfolio/photo`,
         {
           method: "POST",
           credentials: "include",
@@ -158,8 +217,7 @@ const ProfileUpdate = () => {
         });
       }
     } catch (error) {
-      console.error("Error updating profile:", error); 
-
+      console.error("Error updating profile:", error);
       toast({
         title: "Error",
         description: "Image upload failed",
@@ -168,7 +226,7 @@ const ProfileUpdate = () => {
     }
   };
 
-  // ✅ Resume Upload API Call
+  // Resume Upload API Call
   const handleResumeUpload = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -197,8 +255,7 @@ const ProfileUpdate = () => {
         });
       }
     } catch (error) {
-      console.error("Error updating profile:", error); 
-
+      console.error("Error updating profile:", error);
       toast({
         title: "Error",
         description: "Resume upload failed",
@@ -227,7 +284,9 @@ const ProfileUpdate = () => {
             Showcase your expertise and experience
           </p>
         </div>
+
         <ProfileHeader onImageUpload={handleImageUpload} />
+
         <BioSection
           bio={bio}
           onBioChange={setBio}
@@ -235,12 +294,19 @@ const ProfileUpdate = () => {
           onRoleChange={setRole}
           location={location}
           onLocationChange={setLocation}
-        />{" "}
-        {/* ✅ Fixed bio input */}
+        />
+
         <ExperiencesSection
           experiences={experiences}
           onExperiencesChange={setExperiences}
         />
+
+        {/* GitHub Skills Import Section */}
+        <GitHubSkillsVerification
+          onSkillsVerified={handleGitHubSkillsVerified}
+          existingGithubUsername={githubUsername}
+        />
+
         <SkillsSection
           skills={skills}
           newSkill={newSkill}
@@ -251,13 +317,15 @@ const ProfileUpdate = () => {
           onRemoveSkill={removeSkill}
           onProficiencyUpdate={updateSkillProficiency}
         />
+
         <ProjectsSection
           projects={projects}
           onProjectsChange={setProjects}
           onAddProject={addProject}
         />
+
         <ResumeSection onResumeUpload={handleResumeUpload} />
-        {/* ✅ Resume upload */}
+
         <div className="flex justify-end space-x-4">
           <Button variant="outline" className="hover:bg-neutral-100">
             Cancel

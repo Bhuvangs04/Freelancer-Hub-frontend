@@ -97,6 +97,7 @@ const SignIn = () => {
         localStorage.setItem("Chatting_id", data.chat_id);
         localStorage.setItem("username", data.username);
         localStorage.setItem("email", data.email);
+        localStorage.setItem("profileComplete", data.profileComplete ? "true" : "false");
 
         dispatch(
           setUser({
