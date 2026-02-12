@@ -92,7 +92,7 @@ const FreelancerDashboard = () => {
 
   // Calculate totals from mock data
   const totalEarnings = transactions
-    .filter((t) => t.type === "received")
+    .filter((t) => t.type === "received" || t.type === "dispute_award")
     .reduce((sum, transaction) => sum + transaction.amount, 0);
 
   const availableBalance =
@@ -434,12 +434,14 @@ const FreelancerDashboard = () => {
                           <div className="flex items-center gap-3">
                             <div
                               className={`p-2 rounded-full ${
-                                transaction.type === "received"
+                                transaction.type === "received" ||
+                                  transaction.type === "dispute_award"
                                   ? "bg-green-100"
                                   : "bg-amber-100"
                               }`}
                             >
-                              {transaction.type === "received" ? (
+                              {transaction.type === "received" ||
+                                transaction.type === "dispute_award" ? (
                                 <ArrowDownRight className="h-4 w-4 text-green-600" />
                               ) : (
                                 <ArrowUpRight className="h-4 w-4 text-amber-600" />
@@ -464,16 +466,21 @@ const FreelancerDashboard = () => {
                           <div className="text-right">
                             <p
                               className={`font-medium ${
-                                transaction.type === "received"
+                                transaction.type === "received" ||
+                                  transaction.type === "dispute_award"
                                   ? "text-green-600"
                                   : "text-amber-600"
                               }`}
                             >
-                              {transaction.type === "received" ? "+" : "-"}₹
-                              {transaction.amount}
+                              {transaction.type === "received" ||
+                                transaction.type === "dispute_award"
+                                ? "+"
+                                : "-"}
+                              ₹{transaction.amount}
                             </p>
                             <Badge variant="outline" className="text-xs">
-                              {transaction.type === "received"
+                              {transaction.type === "received" ||
+                                transaction.type === "dispute_award"
                                 ? "Received"
                                 : "Withdrawn"}
                             </Badge>

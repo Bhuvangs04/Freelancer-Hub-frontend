@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 
 const generateSecureRandomString = () => {
   const array = new Uint8Array(95); // 64 bits (8 bytes)
@@ -36,6 +37,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { siteName } = useSiteSettings();
 
   // Freelancer-specific links
   const freelancerLinks = [
@@ -104,7 +106,7 @@ const Navbar = () => {
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-white font-bold text-lg">F</span>
             </div>
-            <span>FreelancerHub</span>
+            <span>{siteName}</span>
           </Link>
 
           {/* Desktop Navigation */}

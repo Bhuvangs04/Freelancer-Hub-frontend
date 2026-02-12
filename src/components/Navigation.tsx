@@ -207,7 +207,7 @@ export const Navigation = () => {
                   {currentBalance ? currentBalance.toFixed(2) : "0.00"}
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  RA: (-)₹
+                  Refunds: ₹
                   {currentRefund ? currentRefund.toFixed(2) : "0.00"}
                 </DropdownMenuItem>
                 <DropdownMenuItem>
@@ -215,7 +215,7 @@ export const Navigation = () => {
                   {TotalDeposits ? TotalDeposits.toFixed(2) : "0.00"}
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  Total WA:(-) ₹
+                  Withdrawals: (-)₹
                   {TotalWithdrawals ? TotalWithdrawals.toFixed(2) : "0.00"}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setIsWithdrawModalOpen(true)}>

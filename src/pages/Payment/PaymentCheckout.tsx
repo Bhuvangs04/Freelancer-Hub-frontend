@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "@/lib/api";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +40,6 @@ interface ProjectDetails {
   status: string;
 }
 
-const PLATFORM_FEE_PERCENT = 10; // 10% platform fee
 
 export default function PaymentCheckout() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -51,13 +51,14 @@ export default function PaymentCheckout() {
   const [processing, setProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [escrowId, setEscrowId] = useState<string | null>(null);
+  const { platformCommissionPercent, siteName } = useSiteSettings();
 
   const bidAmount = searchParams.get("amount")
     ? Number(searchParams.get("amount"))
     : null;
 
   const amount = bidAmount ?? project?.budget ?? 0;
-  const platformFee = Math.round(amount * (PLATFORM_FEE_PERCENT / 100));
+  const platformFee = Math.round(amount * (platformCommissionPercent / 100));
   const totalAmount = amount + platformFee;
 
   useEffect(() => {
@@ -115,7 +116,7 @@ export default function PaymentCheckout() {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
-        name: "FreelancerHub",
+        name: siteName,
         description: `Payment for: ${project.title}`,
         order_id: order.id,
         handler: async function (response: any) {
@@ -410,7 +411,7 @@ export default function PaymentCheckout() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-600 dark:text-slate-400">
-                      Platform Fee ({PLATFORM_FEE_PERCENT}%)
+                      Platform Fee ({platformCommissionPercent}%)
                     </span>
                     <span className="font-medium">{formatCurrency(platformFee)}</span>
                   </div>

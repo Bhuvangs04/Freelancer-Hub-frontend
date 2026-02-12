@@ -4,10 +4,12 @@ import { Menu, X, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { motion } from "framer-motion";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { siteName } = useSiteSettings();
 
   // Toggle mobile menu
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -38,7 +40,7 @@ export default function Navbar() {
             to="/"
             className="text-gradient text-2xl font-bold flex items-center gap-2"
           >
-            FreelancerHub
+            {siteName}
           </Link>
 
           {/* Desktop Navigation */}

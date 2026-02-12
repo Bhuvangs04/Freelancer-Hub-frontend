@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -147,6 +148,8 @@ const EnhancedSkillsInput = ({ skills, setSkills }) => {
 
 const ProjectForm = () => {
   const navigate = useNavigate();
+  const { platformCommissionPercent } = useSiteSettings();
+  const commissionRate = platformCommissionPercent / 100;
   const [isLoading, setIsLoading] = useState(false);
   const [skills, setSkills] = useState<string[]>([]);
   const [attachment, setAttachment] = useState<File | null>(null);
@@ -189,7 +192,7 @@ const ProjectForm = () => {
   };
 
   const calculateCommission = (amount: number): string =>
-    (amount * 0.1).toFixed(2);
+    (amount * commissionRate).toFixed(2);
 
   const addProject = async (values: FormValues) => {
     try {
@@ -520,7 +523,7 @@ const ProjectForm = () => {
                     <FormMessage />
                     {field.value && (
                       <div className="mt-2 p-2 bg-primary/5 rounded-md border border-primary/10 flex items-center justify-between text-sm">
-                        <span>Service Fee (10%):</span>
+                        <span>Service Fee ({platformCommissionPercent}%):</span>
                         <span className="font-medium">
                           ₹{calculateCommission(parseFloat(field.value))}
                         </span>
@@ -618,7 +621,7 @@ const ProjectForm = () => {
                 <span className="font-medium">Total Amount:</span>
                 <span className="text-muted-foreground">
                   {" "}
-                  (Including 10% service fee)
+                  (Including {platformCommissionPercent}% service fee)
                 </span>
               </div>
               <div className="text-lg font-semibold text-primary">

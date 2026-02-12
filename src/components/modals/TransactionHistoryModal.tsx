@@ -9,7 +9,7 @@ import { format } from "date-fns";
 
 interface Transaction {
   id: string;
-  type: "deposit" | "withdrawal" | "release" | "refund" | "commission";
+  type: "deposit" | "withdrawal" | "release" | "refund" | "commission" | "dispute_award" | "dispute_refund";
   amount: number;
   date: Date;
   status: "completed" | "pending" | "failed";
@@ -67,12 +67,12 @@ export const TransactionHistoryModal = ({
                 <div className="text-right">
                   <p
                     className={`font-medium ${
-                      transaction.type === "deposit"
+                      ["deposit", "refund", "dispute_refund"].includes(transaction.type)
                         ? "text-green-600"
                         : "text-red-600"
                     }`}
                   >
-                    {transaction.type === "deposit" ? "+" : "-"}₹
+                    {["deposit", "refund", "dispute_refund"].includes(transaction.type) ? "+" : "-"}₹
                     {transaction.amount.toFixed(2)}
                   </p>
                   <p

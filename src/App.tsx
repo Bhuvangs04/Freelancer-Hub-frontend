@@ -3,6 +3,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { SiteSettingsProvider, useSiteSettings } from "@/context/SiteSettingsContext";
+import MaintenancePage from "@/pages/MaintenancePage";
+import DisputePaymentSuccess from "@/pages/Disputes/DisputePaymentSuccess";
 import Index from "./pages/Index";
 import Profile from "./pages/Freelancer/ViewProfile";
 import ProfileUpdate from "./pages/Freelancer/ProfileUpdate";
@@ -41,14 +44,26 @@ import MilestoneManager from "./pages/Milestones/MilestoneManager";
 
 const queryClient = new QueryClient();
 
+/**
+ * Checks maintenanceMode from SiteSettings context.
+ * If active, every route renders the MaintenancePage.
+ */
+const MaintenanceGate = ({ children }: { children: React.ReactNode }) => {
+  const { maintenanceMode } = useSiteSettings();
+  if (maintenanceMode) return <MaintenancePage />;
+  return <>{children}</>;
+};
+
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <Analytics />
-      <BrowserRouter>
-        <Routes>
+  <SiteSettingsProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <Analytics />
+        <BrowserRouter>
+          <MaintenanceGate>
+            <Routes>
           <Route path="/" element={<Index />} />
           <Route
             path="/freelancer/portfolio/:username/view"
@@ -291,11 +306,16 @@ const App = () => (
             }
           />
 
+              {/* Dispute Payment Callback */}
+              <Route path="/disputes/:id/payment-success" element={<DisputePaymentSuccess />} />
+
           <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+            </Routes>
+          </MaintenanceGate>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </SiteSettingsProvider>
 );
 
 export default App;
