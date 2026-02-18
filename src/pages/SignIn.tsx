@@ -15,15 +15,19 @@ import {
   UserCog,
   ArrowRight,
   AlertTriangle,
+  Sparkles,
+  Shield,
+  Zap,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -170,31 +174,87 @@ const SignIn = () => {
       {suspensionData ? (
         <SuspendSection {...suspensionData} />
       ) : (
-        <div className="min-h-screen bg-gradient-to-b from-background to-background/90">
+          <div className="min-h-screen bg-white">
           <Navbar />
-          <div className="container mx-auto pt-28 pb-12 px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="max-w-md mx-auto"
-            >
-              <Card className="border-gradient overflow-hidden">
-                <CardHeader className="space-y-1 pb-3">
-                  <CardTitle className="text-2xl font-bold text-center">
-                    <span className="text-gradient">Welcome Back</span>
-                  </CardTitle>
-                  <CardDescription className="text-center text-muted-foreground">
-                    Enter your credentials to access your account
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
+
+            <div className="min-h-screen flex">
+              {/* ─── Left Brand Panel ─────────────────────── */}
+              <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden hero-gradient items-center justify-center">
+                {/* Decorative blobs */}
+                <div className="absolute top-20 left-10 w-72 h-72 bg-primary/15 rounded-full blur-3xl animate-blob" />
+                <div className="absolute bottom-20 right-10 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl animate-blob animation-delay-2000" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-violet-500/8 rounded-full blur-3xl animate-blob animation-delay-4000" />
+
+                <div className="relative z-10 max-w-md px-12 text-center">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                  >
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl shadow-black/10 mb-8">
+                      <Sparkles className="w-10 h-10 text-white" />
+                    </div>
+                    <h2 className="text-3xl font-extrabold tracking-tight text-white mb-4">
+                      Welcome back to{" "}
+                      <span className="text-white drop-shadow-md">FreelanceHub</span>
+                    </h2>
+                    <p className="text-blue-100/90 leading-relaxed mb-8">
+                      Sign in to manage your projects, connect with talent, and
+                      grow your business.
+                    </p>
+
+                    {/* Feature pills */}
+                    <div className="space-y-3">
+                      {[
+                        { icon: Shield, text: "Secure escrow payments" },
+                        { icon: Zap, text: "Real-time collaboration" },
+                        { icon: UserCog, text: "Smart talent matching" },
+                      ].map((item, i) => (
+                        <motion.div
+                          key={item.text}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.4 + i * 0.1 }}
+                          className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20 shadow-sm"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+                            <item.icon className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="text-sm font-medium text-white/90">
+                            {item.text}
+                          </span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+
+              {/* ─── Right Form Panel ─────────────────────── */}
+              <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-20 lg:py-0">
+                <motion.div
+                  variants={fadeUp}
+                  initial="hidden"
+                  animate="visible"
+                  custom={0}
+                  className="w-full max-w-md"
+                >
+                  <div className="mb-8">
+                    <h1 className="text-2xl font-bold tracking-tight mb-2">
+                      Sign in to your account
+                    </h1>
+                    <p className="text-muted-foreground">
+                      Enter your credentials to access your dashboard
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    {/* Role Select */}
                     <div className="space-y-2">
-                      <Label htmlFor="role" className="font-medium">
+                      <Label htmlFor="role" className="text-sm font-medium">
                         <span className="flex items-center gap-2">
-                          <UserCog className="h-4 w-4" />
-                          Select Account Type
+                          <UserCog className="h-4 w-4 text-muted-foreground" />
+                          Account Type
                         </span>
                       </Label>
                       <div className="relative">
@@ -202,7 +262,7 @@ const SignIn = () => {
                           id="role"
                           value={role}
                           onChange={(e) => setRole(e.target.value)}
-                          className="w-full h-10 px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 appearance-none"
+                          className="w-full h-11 px-4 py-2 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 appearance-none"
                           disabled={isLoading}
                         >
                           <option value="Manager">Admin Access Only</option>
@@ -210,11 +270,12 @@ const SignIn = () => {
                             User (Freelancer/Client)
                           </option>
                         </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted-foreground">
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground">
                           <svg
-                            className="h-4 w-4 fill-current"
+                            className="h-4 w-4"
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 20 20"
+                            fill="currentColor"
                           >
                             <path
                               fillRule="evenodd"
@@ -226,31 +287,31 @@ const SignIn = () => {
                       </div>
                     </div>
 
+                    {/* Email */}
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="font-medium">
+                      <Label htmlFor="email" className="text-sm font-medium">
                         <span className="flex items-center gap-2">
-                          <Mail className="h-4 w-4" />
+                          <Mail className="h-4 w-4 text-muted-foreground" />
                           Email Address
                         </span>
                       </Label>
-                      <div className="relative">
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="enter@your.email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          className="pl-3 focus:ring-2 focus:ring-primary/30"
-                          disabled={isLoading}
-                        />
-                      </div>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="h-11 rounded-xl border-border focus:ring-2 focus:ring-primary/30"
+                        disabled={isLoading}
+                      />
                     </div>
 
+                    {/* Password */}
                     <div className="space-y-2">
-                      <Label htmlFor="password" className="font-medium">
+                      <Label htmlFor="password" className="text-sm font-medium">
                         <span className="flex items-center gap-2">
-                          <LockKeyhole className="h-4 w-4" />
+                          <LockKeyhole className="h-4 w-4 text-muted-foreground" />
                           Password
                         </span>
                       </Label>
@@ -261,11 +322,12 @@ const SignIn = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="focus:ring-2 focus:ring-primary/30"
+                        className="h-11 rounded-xl border-border focus:ring-2 focus:ring-primary/30"
                         disabled={isLoading}
                       />
                     </div>
 
+                    {/* Secret Code (Admin only) */}
                     {role === "Manager" && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
@@ -273,9 +335,12 @@ const SignIn = () => {
                         exit={{ opacity: 0, height: 0 }}
                         className="space-y-2"
                       >
-                        <Label htmlFor="secretCode" className="font-medium">
+                        <Label
+                          htmlFor="secretCode"
+                          className="text-sm font-medium"
+                        >
                           <span className="flex items-center gap-2">
-                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTriangle className="h-4 w-4 text-amber-500" />
                             Secret Code
                           </span>
                         </Label>
@@ -286,22 +351,23 @@ const SignIn = () => {
                           value={secretCode}
                           onChange={(e) => setSecretCode(e.target.value)}
                           required
-                          className="focus:ring-2 focus:ring-primary/30"
+                          className="h-11 rounded-xl border-border focus:ring-2 focus:ring-primary/30"
                           disabled={isLoading}
                         />
                       </motion.div>
                     )}
 
+                    {/* Submit */}
                     <Button
                       type="submit"
-                      className="w-full group relative overflow-hidden font-medium"
+                      className="w-full h-11 rounded-xl btn-premium text-white border-0 group text-sm font-semibold"
                       disabled={isLoading}
                     >
                       <span className="flex items-center justify-center gap-2">
                         {isLoading ? (
                           <>
                             <svg
-                              className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                              className="animate-spin h-4 w-4 text-white"
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
                               viewBox="0 0 24 24"
@@ -313,40 +379,36 @@ const SignIn = () => {
                                 r="10"
                                 stroke="currentColor"
                                 strokeWidth="4"
-                              ></circle>
+                              />
                               <path
                                 className="opacity-75"
                                 fill="currentColor"
                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              ></path>
+                              />
                             </svg>
                             Signing In...
                           </>
                         ) : (
                           <>
                             Sign In
-                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                           </>
                         )}
                       </span>
                     </Button>
                   </form>
-                </CardContent>
-                <CardFooter className="flex flex-col space-y-2 pt-0">
-                  <div className="text-center text-sm">
-                    <span className="text-muted-foreground">
-                      Don't have an account?{" "}
-                    </span>
+
+                  <p className="text-center mt-6 text-sm text-muted-foreground">
+                    Don't have an account?{" "}
                     <Link
                       to="/sign-up"
-                      className="font-medium text-primary hover:underline transition-colors duration-200"
+                      className="font-semibold text-primary hover:underline"
                     >
                       Sign Up
                     </Link>
-                  </div>
-                </CardFooter>
-              </Card>
-            </motion.div>
+                  </p>
+                </motion.div>
+              </div>
           </div>
         </div>
       )}

@@ -43,9 +43,11 @@ import {
   Clock,
   FileText,
   ArrowLeftIcon,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate, useParams } from "react-router-dom";
+import { motion } from "framer-motion";
 
 // Define form schema with Zod
 const formSchema = z.object({
@@ -55,16 +57,9 @@ const formSchema = z.object({
   duration: z.string().min(1, "Duration is required"),
   category: z.string().min(1, "Category is required"),
   deadline: z.string().min(1, "Deadline is required"),
-  // Skills and attachment are handled separately
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-
-// interface SkillsInputProps {
-//   skills: string[];
-//   setSkills: (skills: string[]) => void;
-// }
 
 const API_URL = import.meta.env.VITE_API_URL;
 const RAZORPAY_KEY = "rzp_test_Rllu5UrIWbb27c";
@@ -104,25 +99,25 @@ const EnhancedSkillsInput = ({ skills, setSkills }) => {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Enter a skill and press Enter"
-          className="flex-grow input-focus-ring"
+          className="flex-grow h-11 rounded-xl border-border focus:ring-2 focus:ring-primary/20"
         />
         <Button
           type="button"
           size="sm"
           variant="outline"
           onClick={addSkill}
-          className="flex items-center gap-1 group transition-all duration-200"
+          className="h-11 px-4 rounded-xl border-border hover:bg-primary/5 hover:text-primary transition-colors"
         >
-          <PlusCircle className="h-4 w-4 group-hover:scale-110 transition-transform" />
-          <span>Add</span>
+          <PlusCircle className="h-4 w-4 mr-1" />
+          Add
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-2 animate-fade-in">
+      <div className="flex flex-wrap gap-2 min-h-[30px]">
         {skills.map((skill, index) => (
           <Badge
             key={index}
-            className="flex items-center gap-1 py-1.5 pl-3 pr-2 bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 transition-all duration-200"
+            className="flex items-center gap-1 py-1.5 pl-3 pr-2 bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 transition-all rounded-lg"
           >
             {skill}
             <Button
@@ -137,8 +132,9 @@ const EnhancedSkillsInput = ({ skills, setSkills }) => {
           </Badge>
         ))}
         {skills.length === 0 && (
-          <div className="text-sm text-muted-foreground italic">
-            No skills added yet
+          <div className="text-sm text-muted-foreground italic flex items-center gap-2">
+            <Sparkles className="h-3 w-3" />
+            Add skills to help freelancers find your project
           </div>
         )}
       </div>
@@ -159,14 +155,10 @@ const ProjectForm = () => {
     projectId: "",
     clientId: "",
   });
-  const params = useParams<{ clientId: string }>();
   const getFromLocal = localStorage.getItem("Chatting_id");
   const projectKey = useRef<string>(uuidv4());
   const orderKey = useRef<string>(uuidv4());
   const verifyKey = useRef<string>(uuidv4());
-
-
-
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -179,11 +171,6 @@ const ProjectForm = () => {
       deadline: "",
     },
   });
-
-  // // Check if user is authenticated
-  // if (chattingIdFromUrl !== getFromLocal) {
-  //   navigate("/sign-in");
-  // }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -252,7 +239,7 @@ const ProjectForm = () => {
 
   const handlePayment = async () => {
     if (isLoading) return;
-    setIsLoading(true); 
+    setIsLoading(true);
     const values = form.getValues();
 
     if (parseFloat(values.budget) < 0) {
@@ -291,7 +278,10 @@ const ProjectForm = () => {
 
       const response = await fetch(`${API_URL}/payments/create-order`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-idempotency-key": orderKey.current },
+        headers: {
+          "Content-Type": "application/json",
+          "x-idempotency-key": orderKey.current,
+        },
         credentials: "include",
         body: JSON.stringify({
           amount: totalAmount * 100,
@@ -308,14 +298,14 @@ const ProjectForm = () => {
         key: RAZORPAY_KEY,
         amount: totalAmount * 100,
         currency: "INR",
-        name: "Freelance Platform",
+        name: "FreelanceHub",
         description: `Payment for ${values.title}`,
         order_id: order.id,
         handler: async (response) => {
           await verifyPayment(response, projectId);
         },
         prefill: { email: userData.email, name: userData.username },
-        theme: { color: "#0077ED" },
+        theme: { color: "#6366f1" },
       };
 
       const razorpayInstance = new window.Razorpay(options);
@@ -331,7 +321,10 @@ const ProjectForm = () => {
     try {
       const response = await fetch(`${API_URL}/payments/verify-payment`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-idempotency-key": verifyKey.current },
+        headers: {
+          "Content-Type": "application/json",
+          "x-idempotency-key": verifyKey.current,
+        },
         credentials: "include",
         body: JSON.stringify({
           ...paymentData,
@@ -364,292 +357,283 @@ const ProjectForm = () => {
     : 0;
 
   return (
-    <div className="w-full animate-fade-in">
-      <Button
-        variant="ghost"
-        className="ml-3 mt-5 flex items-center gap-2 hover:bg-green-400"
-        onClick={() => navigate(-1)}
-      >
-        <ArrowLeftIcon width={24} />
-        Back
-      </Button>
-      <Card className="glass-card shadow-md transition-all duration-300 overflow-hidden">
-        <CardHeader className="pb-6 space-y-4">
-          <div className="space-y-1">
-            <CardTitle className="text-2xl font-semibold tracking-tight">
-              Add New Project
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Create a project and find the perfect freelancer for your needs
-            </CardDescription>
-          </div>
-        </CardHeader>
+    <div className="min-h-screen bg-white hero-gradient-mesh py-8 px-4 sm:px-6">
+      <div className="max-w-4xl mx-auto">
+        <Button
+          variant="ghost"
+          className="mb-6 flex items-center gap-2 hover:bg-white/50 text-muted-foreground hover:text-foreground transition-colors"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeftIcon className="h-4 w-4" />
+          Back to Dashboard
+        </Button>
 
-        <CardContent className="space-y-6">
-          <Form {...form}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem
-                    className="space-y-2 animate-slide-in"
-                    style={{ animationDelay: "50ms" }}
-                  >
-                    <FormLabel className="flex items-center gap-2 font-medium">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="glass-card shadow-xl border-border/50 overflow-hidden">
+            <CardHeader className="pb-8 space-y-4 border-b border-border/40 bg-white/40">
+              <div className="space-y-2">
+                <CardTitle className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-600">
+                  Post a New Project
+                </CardTitle>
+                <CardDescription className="text-base text-muted-foreground">
+                  Provide details about your project to connect with top-tier
+                  freelancers.
+                </CardDescription>
+              </div>
+            </CardHeader>
+
+            <CardContent className="p-8 space-y-8">
+              <Form {...form}>
+                {/* 1. Project Basics */}
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold flex items-center gap-2 text-foreground">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                       <FileText className="h-4 w-4 text-primary" />
-                      Project Title
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="e.g. E-commerce Website Development"
-                        className="input-focus-ring"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem
-                    className="space-y-2 animate-slide-in"
-                    style={{ animationDelay: "100ms" }}
-                  >
-                    <FormLabel className="flex items-center gap-2 font-medium">
-                      <Tag className="h-4 w-4 text-primary" />
-                      Project Category
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="input-focus-ring">
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-background/95 backdrop-blur-sm">
-                        <SelectItem value="web">Web Development</SelectItem>
-                        <SelectItem value="mobile">
-                          Mobile Development
-                        </SelectItem>
-                        <SelectItem value="design">Design</SelectItem>
-                        <SelectItem value="writing">Content Writing</SelectItem>
-                        <SelectItem value="marketing">
-                          Digital Marketing
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem
-                  className="space-y-2 animate-slide-in"
-                  style={{ animationDelay: "150ms" }}
-                >
-                  <FormLabel className="flex items-center gap-2 font-medium">
-                    <FileText className="h-4 w-4 text-primary" />
-                    Project Description
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Describe your project requirements in detail..."
-                      className="min-h-[120px] input-focus-ring"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div
-              className="space-y-2 animate-slide-in"
-              style={{ animationDelay: "200ms" }}
-            >
-              <FormLabel className="flex items-center gap-2 font-medium">
-                <Tag className="h-4 w-4 text-primary" />
-                Required Skills
-              </FormLabel>
-              <EnhancedSkillsInput skills={skills} setSkills={setSkills} />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="budget"
-                render={({ field }) => (
-                  <FormItem
-                    className="space-y-2 animate-slide-in"
-                    style={{ animationDelay: "250ms" }}
-                  >
-                    <FormLabel className="flex items-center gap-2 font-medium">
-                      <IndianRupee className="h-4 w-4 text-primary" />
-                      Budget (₹)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="number"
-                        placeholder="Enter your budget"
-                        className="input-focus-ring"
-                        onChange={(e) => {
-                          const value = parseFloat(e.target.value);
-                          if (
-                            value + parseFloat(calculateCommission(value)) <=
-                            50000
-                          ) {
-                            field.onChange(e);
-                          } else {
-                            toast.error(
-                              "Total amount including service fee should not exceed ₹50000"
-                            );
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                    {field.value && (
-                      <div className="mt-2 p-2 bg-primary/5 rounded-md border border-primary/10 flex items-center justify-between text-sm">
-                        <span>Service Fee ({platformCommissionPercent}%):</span>
-                        <span className="font-medium">
-                          ₹{calculateCommission(parseFloat(field.value))}
-                        </span>
-                      </div>
-                    )}
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="duration"
-                render={({ field }) => (
-                  <FormItem
-                    className="space-y-2 animate-slide-in"
-                    style={{ animationDelay: "300ms" }}
-                  >
-                    <FormLabel className="flex items-center gap-2 font-medium">
-                      <Clock className="h-4 w-4 text-primary" />
-                      Duration (in weeks)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="number"
-                        placeholder="e.g. 4"
-                        className="input-focus-ring"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="deadline"
-                render={({ field }) => (
-                  <FormItem
-                    className="space-y-2 animate-slide-in"
-                    style={{ animationDelay: "350ms" }}
-                  >
-                    <FormLabel className="flex items-center gap-2 font-medium">
-                      <Calendar className="h-4 w-4 text-primary" />
-                      Project Deadline
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="date"
-                        className="input-focus-ring"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div
-                className="space-y-2 animate-slide-in"
-                style={{ animationDelay: "400ms" }}
-              >
-                <FormLabel
-                  htmlFor="attachment"
-                  className="flex items-center gap-2 font-medium"
-                >
-                  <Upload className="h-4 w-4 text-primary" />
-                  Attachment (Optional)
-                </FormLabel>
-                <div className="relative">
-                  <Input
-                    id="attachment"
-                    name="attachment"
-                    type="file"
-                    onChange={handleFileChange}
-                    className="input-focus-ring file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
-                  />
-                  {attachment && (
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      File: {attachment.name}
                     </div>
-                  )}
+                    Project Basics
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem className="col-span-1 md:col-span-2">
+                          <FormLabel className="font-medium text-foreground/80">Project Title</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="e.g. Full Stack E-commerce Application"
+                              className="h-11 rounded-xl border-border focus:ring-2 focus:ring-primary/20"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="font-medium text-foreground/80">Category</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="h-11 rounded-xl border-border focus:ring-2 focus:ring-primary/20">
+                                <SelectValue placeholder="Select a category" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="rounded-xl">
+                              <SelectItem value="web">Web Development</SelectItem>
+                              <SelectItem value="mobile">Mobile Development</SelectItem>
+                              <SelectItem value="design">Design & Creative</SelectItem>
+                              <SelectItem value="writing">Writing & Translation</SelectItem>
+                              <SelectItem value="marketing">Digital Marketing</SelectItem>
+                              <SelectItem value="data">Data Science</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="deadline"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="font-medium text-foreground/80">Deadline</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="date"
+                              className="h-11 rounded-xl border-border focus:ring-2 focus:ring-primary/20"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-medium text-foreground/80">Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            placeholder="Describe your project goals, deliverables, and any specific requirements..."
+                            className="min-h-[140px] rounded-xl border-border focus:ring-2 focus:ring-primary/20 resize-y"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-              </div>
-            </div>
-          </Form>
-        </CardContent>
 
-        <CardFooter className="flex flex-col border-t bg-secondary/30 pt-6">
-          {budget && (
-            <div className="w-full mb-4 p-3 bg-white rounded-md border flex flex-col sm:flex-row items-center justify-between gap-2 animate-fade-in">
-              <div className="text-sm">
-                <span className="font-medium">Total Amount:</span>
-                <span className="text-muted-foreground">
-                  {" "}
-                  (Including {platformCommissionPercent}% service fee)
-                </span>
-              </div>
-              <div className="text-lg font-semibold text-primary">
-                ₹{totalAmount.toFixed(2)}
-              </div>
-            </div>
-          )}
+                {/* 2. Skills & Files */}
+                <div className="space-y-6 pt-4 border-t border-border/40">
+                  <h3 className="text-lg font-semibold flex items-center gap-2 text-foreground">
+                    <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                      <Tag className="h-4 w-4 text-emerald-600" />
+                    </div>
+                    Skills & Assets
+                  </h3>
 
-          <Button
-            onClick={handlePayment}
-            disabled={isLoading}
-            className={cn(
-              "w-full py-6 text-base font-medium transition-all duration-300 relative overflow-hidden group",
-              "bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary",
-              "shadow-lg hover:shadow-primary/25 btn-shine"
-            )}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Processing Payment...
-              </>
-            ) : (
-              `Proceed to Payment (₹${totalAmount.toFixed(2)})`
-            )}
-          </Button>
-        </CardFooter>
-      </Card>
+                  <div className="space-y-3">
+                    <FormLabel className="font-medium text-foreground/80">Required Skills</FormLabel>
+                    <EnhancedSkillsInput skills={skills} setSkills={setSkills} />
+                  </div>
+
+                  <div className="space-y-3">
+                    <FormLabel className="font-medium text-foreground/80">Project Files (Optional)</FormLabel>
+                    <div className="border-2 border-dashed border-border hover:border-primary/40 rounded-xl p-6 transition-colors bg-muted/20 text-center cursor-pointer relative group">
+                      <Input
+                        id="attachment"
+                        name="attachment"
+                        type="file"
+                        onChange={handleFileChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      <div className="flex flex-col items-center gap-2">
+                        <Upload className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <div className="text-sm font-medium text-muted-foreground group-hover:text-foreground">
+                          {attachment ? (
+                            <span className="text-primary font-semibold">{attachment.name}</span>
+                          ) : (
+                            "Click to upload specs or design files"
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Budget & Duration */}
+                <div className="space-y-6 pt-4 border-t border-border/40">
+                  <h3 className="text-lg font-semibold flex items-center gap-2 text-foreground">
+                    <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                      <IndianRupee className="h-4 w-4 text-amber-600" />
+                    </div>
+                    Budget & Timeline
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="budget"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="font-medium text-foreground/80">Budget (₹)</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <span className="absolute left-3 top-2.5 text-muted-foreground">₹</span>
+                              <Input
+                                {...field}
+                                type="number"
+                                placeholder="5000"
+                                className="pl-7 h-11 rounded-xl border-border focus:ring-2 focus:ring-primary/20"
+                                onChange={(e) => {
+                                  // Validation logic preserved
+                                  const value = parseFloat(e.target.value);
+                                  if (value + parseFloat(calculateCommission(value)) <= 50000) {
+                                    field.onChange(e);
+                                  } else {
+                                    toast.error(
+                                      "Total amount including service fee should not exceed ₹50000"
+                                    );
+                                  }
+                                }}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                          {field.value && (
+                            <div className="mt-2 text-xs flex justify-between bg-muted/40 p-2 rounded-lg">
+                              <span className="text-muted-foreground">Service Fee ({platformCommissionPercent}%)</span>
+                              <span className="font-medium">₹{calculateCommission(parseFloat(field.value))}</span>
+                            </div>
+                          )}
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="duration"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="font-medium text-foreground/80">Duration (Weeks)</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                {...field}
+                                type="number"
+                                placeholder="2"
+                                className="pl-9 h-11 rounded-xl border-border focus:ring-2 focus:ring-primary/20"
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </Form>
+            </CardContent>
+
+            <CardFooter className="flex flex-col bg-muted/30 p-8 border-t border-border/40">
+              {budget && (
+                <div className="w-full mb-6 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-primary/10 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-2">
+                  <div className="text-sm">
+                    <span className="font-semibold text-foreground">Total Payable</span>
+                    <span className="text-muted-foreground ml-1">
+                      (Includes service fee)
+                    </span>
+                  </div>
+                  <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-600">
+                    ₹{totalAmount.toFixed(2)}
+                  </div>
+                </div>
+              )}
+
+              <Button
+                onClick={handlePayment}
+                disabled={isLoading}
+                className={cn(
+                  "w-full h-14 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 btn-premium text-white border-0",
+                  isLoading && "opacity-80 cursor-not-allowed"
+                )}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Processing Secure Payment...
+                  </>
+                ) : (
+                  `Proceed to Payment`
+                )}
+              </Button>
+              <p className="text-xs text-center text-muted-foreground mt-4">
+                Payments are secured by Razorpay and held in escrow until you approve the work.
+              </p>
+            </CardFooter>
+          </Card>
+        </motion.div>
+      </div>
     </div>
   );
 };

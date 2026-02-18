@@ -276,41 +276,43 @@ const Chat_client = () => {
   };
 
   return (
-    <>
-      <div className="absolute top-4 left-4">
+    <div className="min-h-screen hero-gradient-mesh flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[10%] left-[5%] w-[400px] h-[400px] rounded-full bg-purple-500/10 blur-[100px]" />
+        <div className="absolute bottom-[10%] right-[10%] w-[500px] h-[500px] rounded-full bg-blue-500/10 blur-[120px]" />
+      </div>
+
+      <div className="absolute top-4 left-4 z-20">
         <Button
           variant="ghost"
-          className="flex gap-2 hover:bg-green-400"
+          className="flex gap-2 text-gray-600 hover:text-gray-900 hover:bg-white/50 transition-all rounded-xl"
           onClick={() => navigate(-1)}
         >
           <ArrowLeftIcon width={24} />
           Back
         </Button>
       </div>
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <div className="container mx-auto px-4 py-8 flex-grow mt-8">
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden h-[calc(100vh-4rem)]">
-            <div className="flex h-full">
-              <ChatList
-                users={chatUsers}
-                selectedUser={selectedUser}
-                onSelectUser={handleSelectUser}
-                isLoading={isLoading}
-              />
-              <ChatWindow
-                selectedUser={selectedUser}
-                messages={messages}
-                onSendMessage={handleSendMessage}
-              />
-            </div>
-          </div>
-        </div>
-        <div className="flex justify-center mb-4">
-          <LockIcon width={24} className="mr-2 text-red-500" />
-          <span className="text-lg text-blue-500">Secure and Private</span>
-        </div>
+
+      <div className="w-full max-w-7xl h-[85vh] bg-white/60 backdrop-blur-xl border-2 border-white/60 rounded-3xl shadow-2xl overflow-hidden flex relative z-10 glass-card ring-1 ring-gray-900/5">
+        <ChatList
+          users={chatUsers}
+          selectedUser={selectedUser}
+          onSelectUser={handleSelectUser}
+          isLoading={isLoading}
+        />
+        <ChatWindow
+          selectedUser={selectedUser}
+          messages={messages}
+          onSendMessage={handleSendMessage}
+        />
       </div>
-    </>
+
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 text-gray-400 text-sm z-10">
+        <LockIcon className="w-4 h-4" />
+        <span>End-to-end encrypted</span>
+      </div>
+    </div>
   );
 };
 
