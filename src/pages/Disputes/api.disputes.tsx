@@ -167,10 +167,18 @@ const api = {
   /** Fetch user's projects for dispute filing (client or freelancer) */
   getMyProjects: async (role: "client" | "freelancer"): Promise<Project[]> => {
     try {
-      const url = role === "client" ? `${API_URL}/client/clients/projects` : `${API_URL}/freelancer/projects/approved/work`;
+      const url = role === "client"
+        ? `${API_URL}/client/clients/projects`
+        : `${API_URL}/freelancer/projects/approved/work`;
       const { data } = await axios.get(url, { withCredentials: true });
-      return data.projects || data || [];
-    } catch {
+      const projects: Project[] = data.projects || data || [];
+      // Return ALL projects — the backend validates whether a dispute can be filed
+      // and returns a clear error if the project has no assigned freelancer.
+      return projects;
+    } catch (err: any) {
+      // The freelancer endpoint returns 404 when there are no approved projects.
+      // Treat that as an empty list rather than an error.
+      if (err?.response?.status === 404) return [];
       return [];
     }
   },

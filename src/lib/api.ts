@@ -801,4 +801,129 @@ export const api = {
       return handleApiError(error, "Error fetching skills");
     }
   },
+
+  // ============================================================================
+  // GITHUB PROFILE APIs
+  // ============================================================================
+
+  getGitHubProfile: async (): Promise<ApiResponse<{ githubUsername: string; githubData: GitHubProfile; verifiedSkills?: Array<{ skillName: string; level: string; verificationScore: number; status: string }> }>> => {
+    try {
+      const response = await apiClient.get("/skills/github/profile");
+      return { status: "success", data: response.data };
+    } catch (error) {
+      return handleApiError(error, "Error fetching GitHub profile");
+    }
+  },
+
+  refreshGitHub: async (
+    githubUsername?: string
+  ): Promise<ApiResponse<{ githubProfile: GitHubProfile; verifiedSkills: SkillVerification[] }>> => {
+    try {
+      const response = await apiClient.post("/skills/github/refresh", { githubUsername });
+      toast.success(`GitHub data refreshed. ${response.data.verifiedSkills.length} skills updated.`);
+      return { status: "success", data: response.data };
+    } catch (error) {
+      return handleApiError(error, "Error refreshing GitHub data");
+    }
+  },
+
+  getPublicGitHubProfile: async (
+    userId: string
+  ): Promise<ApiResponse<{ githubUsername: string; githubData: GitHubProfile }>> => {
+    try {
+      const response = await apiClient.get(`/skills/github/profile/${userId}`);
+      return { status: "success", data: response.data };
+    } catch (error) {
+      return handleApiError(error, "Error fetching GitHub profile");
+    }
+  },
+
+  // ============================================================================
+  // SKILL CHALLENGE APIs
+  // ============================================================================
+
+  getAvailableChallenges: async (): Promise<ApiResponse<{ availableSkills: Array<{ skillName: string; questionCount: number; difficulties: string[] }> }>> => {
+    try {
+      const response = await apiClient.get("/skills/challenges/available");
+      return { status: "success", data: response.data };
+    } catch (error) {
+      return handleApiError(error, "Error fetching available challenges");
+    }
+  },
+
+  getChallengeQuestions: async (
+    skillName: string,
+    count?: number,
+    difficulty?: string
+  ): Promise<ApiResponse<{
+    challengeId: string;
+    skillName: string;
+    questionCount: number;
+    timeLimit: number;
+    questions: Array<{
+      _id: string;
+      question: string;
+      options: Array<{ text: string; _id: string }>;
+      difficulty: string;
+      skillName: string;
+    }>;
+  }>> => {
+    try {
+      const params = new URLSearchParams();
+      if (count) params.append("count", count.toString());
+      if (difficulty) params.append("difficulty", difficulty);
+      const response = await apiClient.get(`/skills/challenges/${skillName}/questions?${params.toString()}`);
+      return { status: "success", data: response.data };
+    } catch (error) {
+      return handleApiError(error, "Error fetching challenge questions");
+    }
+  },
+
+  submitChallengeAnswers: async (
+    skillName: string,
+    challengeId: string,
+    answers: Record<string, string>,
+    timeTaken: number
+  ): Promise<ApiResponse<{
+    message: string;
+    challengeResult: {
+      totalQuestions: number;
+      correctAnswers: number;
+      score: number;
+      passed: boolean;
+      results: Array<{
+        questionId: string;
+        question: string;
+        selectedOptionId: string;
+        correctOptionId: string;
+        isCorrect: boolean;
+        explanation: string;
+      }>;
+    };
+    verification: {
+      _id: string;
+      skillName: string;
+      score: number;
+      passed: boolean;
+      level: string;
+      status: string;
+      verificationScore: number;
+    };
+  }>> => {
+    try {
+      const response = await apiClient.post(`/skills/challenges/${skillName}/submit`, {
+        challengeId,
+        answers,
+        timeTaken,
+      });
+      if (response.data.challengeResult.passed) {
+        toast.success(`Challenge passed! Score: ${response.data.challengeResult.score}%`);
+      } else {
+        toast.error(`Challenge not passed. Score: ${response.data.challengeResult.score}% (need 70%)`);
+      }
+      return { status: "success", data: response.data };
+    } catch (error) {
+      return handleApiError(error, "Error submitting challenge answers");
+    }
+  },
 };

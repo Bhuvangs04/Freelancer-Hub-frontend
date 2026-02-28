@@ -33,8 +33,8 @@ const ProjectSelector = ({
       try {
         const fetchedProjects =
           userType === "client"
-            ? await api.getClientProjects()
-            : await api.getFreelancerProjects();
+            ? await api.getMyProjects("client")
+            : await api.getMyProjects("freelancer");
 
         setProjects(fetchedProjects);
       } catch (err) {

@@ -10,15 +10,69 @@ import {
   MapPin,
   ArrowDownCircle,
   Send,
-
   Github,
   ExternalLink,
   Briefcase,
   ChevronUp,
+  Star,
+  GitFork,
+  Users,
+  BookOpen,
+  GitPullRequest,
+  CircleDot,
+  Code2,
+  Building2,
+  Clock,
 } from "lucide-react";
 import { useParams } from "react-router-dom";
 
 // Types
+interface GitHubLang {
+  name: string;
+  percentage: number;
+  bytes: number;
+}
+
+interface GitHubRepo {
+  name: string;
+  url: string;
+  stars: number;
+  forks: number;
+  language: string;
+  description: string;
+  topics: string[];
+}
+
+interface GitHubOrg {
+  name: string;
+  avatarUrl: string;
+}
+
+interface GitHubData {
+  username: string;
+  avatarUrl: string;
+  name: string;
+  bio: string;
+  publicRepos: number;
+  privateRepos: number;
+  followers: number;
+  following: number;
+  totalContributions: number;
+  totalCommits: number;
+  commitFrequency: number;
+  pullRequests: { total: number; merged: number; open: number };
+  issues: { total: number; open: number; closed: number };
+  organizations: GitHubOrg[];
+  topLanguages: GitHubLang[];
+  topRepositories: GitHubRepo[];
+  accountAgeMonths: number;
+  gistsCount: number;
+  lastFetchedAt: string;
+  profileUrl: string;
+  company: string;
+  location: string;
+}
+
 interface ApiFreelancer {
   _id: string;
   username: string;
@@ -30,6 +84,8 @@ interface ApiFreelancer {
   bio: string;
   location: string;
   title: string;
+  githubUsername?: string;
+  githubData?: GitHubData;
 }
 
 interface ApiResponse {
@@ -100,6 +156,7 @@ interface AppData {
   experiences: Experience[];
   projects: Project[];
   socialLinks: SocialLink[];
+  githubData: GitHubData | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -315,6 +372,7 @@ const transformApiData = (apiResponse: ApiResponse): AppData => {
     experiences,
     projects,
     socialLinks: getDefaultSocialLinks(),
+    githubData: freelancer.githubData || null,
     isLoading: false,
     error: null,
   };
@@ -355,6 +413,7 @@ const getDefaultData = (): AppData => {
       },
     ],
     socialLinks: getDefaultSocialLinks(),
+    githubData: null,
     isLoading: true,
     error: null,
   };
@@ -679,6 +738,158 @@ const Skills: React.FC<{ skills: Skill[] }> = ({ skills }) => {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// GitHubStats Section for public portfolio view
+const GitHubStats: React.FC<{ githubData: GitHubData }> = ({ githubData }) => {
+  const [showAllRepos, setShowAllRepos] = useState(false);
+
+  return (
+    <section id="github" className="py-20 bg-gray-50 dark:bg-gray-800">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            GitHub{" "}
+            <span className="text-indigo-600 dark:text-indigo-400">Activity</span>
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300">
+            Verified open-source contributions and development activity.
+          </p>
+          <a
+            href={githubData.profileUrl || `https://github.com/${githubData.username}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 mt-4 text-indigo-600 dark:text-indigo-400 hover:underline text-sm"
+          >
+            <Github size={16} /> View on GitHub <ExternalLink size={14} />
+          </a>
+        </div>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+          {[
+            { icon: <BookOpen size={20} />, label: "Repositories", value: githubData.publicRepos + (githubData.privateRepos || 0) },
+            { icon: <Users size={20} />, label: "Followers", value: githubData.followers },
+            { icon: <GitPullRequest size={20} />, label: "Pull Requests", value: githubData.pullRequests?.total || 0 },
+            { icon: <CircleDot size={20} />, label: "Issues", value: githubData.issues?.total || 0 },
+            { icon: <Code2 size={20} />, label: "Contributions", value: githubData.totalContributions || 0 },
+            { icon: <Clock size={20} />, label: "Account Age", value: `${Math.floor((githubData.accountAgeMonths || 0) / 12)}y` },
+          ].map((stat, i) => (
+            <div
+              key={i}
+              className="bg-white dark:bg-gray-900 rounded-xl p-5 shadow-lg text-center hover:shadow-xl transition-shadow duration-300"
+            >
+              <div className="text-indigo-600 dark:text-indigo-400 flex justify-center mb-2">
+                {stat.icon}
+              </div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {stat.value}
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Organizations */}
+        {githubData.organizations && githubData.organizations.length > 0 && (
+          <div className="mb-12">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Building2 size={20} className="text-indigo-600 dark:text-indigo-400" /> Organizations
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {githubData.organizations.map((org) => (
+                <div key={org.name} className="flex items-center gap-2 bg-white dark:bg-gray-900 rounded-lg px-4 py-2 shadow-md">
+                  {org.avatarUrl && <img src={org.avatarUrl} alt={org.name} className="w-6 h-6 rounded" />}
+                  <span className="text-gray-800 dark:text-gray-200 font-medium">{org.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Two column: Languages + Repos */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Languages */}
+          {githubData.topLanguages && githubData.topLanguages.length > 0 && (
+            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                <Code2 size={20} className="text-indigo-600 dark:text-indigo-400" /> Top Languages
+              </h3>
+              <div className="space-y-4">
+                {githubData.topLanguages.slice(0, 8).map((lang) => (
+                  <div key={lang.name}>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{lang.name}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{lang.percentage}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div
+                        className="bg-indigo-600 dark:bg-indigo-500 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${Math.max(lang.percentage, 2)}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Top Repos */}
+          {githubData.topRepositories && githubData.topRepositories.length > 0 && (
+            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <BookOpen size={20} className="text-indigo-600 dark:text-indigo-400" /> Top Repositories
+                </h3>
+                {githubData.topRepositories.length > 4 && (
+                  <button
+                    onClick={() => setShowAllRepos(!showAllRepos)}
+                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+                  >
+                    {showAllRepos ? "Show Less" : `View All (${githubData.topRepositories.length})`}
+                  </button>
+                )}
+              </div>
+              <div className="space-y-4">
+                {(showAllRepos ? githubData.topRepositories : githubData.topRepositories.slice(0, 4)).map((repo) => (
+                  <a
+                    key={repo.name}
+                    href={repo.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-indigo-600 dark:text-indigo-400 truncate">{repo.name}</h4>
+                        {repo.description && (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{repo.description}</p>
+                        )}
+                        {repo.topics && repo.topics.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {repo.topics.slice(0, 4).map((topic) => (
+                              <span key={topic} className="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-xs">
+                                {topic}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 ml-4 shrink-0">
+                        {repo.language && <span className="text-xs">{repo.language}</span>}
+                        <span className="flex items-center gap-1"><Star size={14} /> {repo.stars}</span>
+                        <span className="flex items-center gap-1"><GitFork size={14} /> {repo.forks}</span>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -1268,6 +1479,7 @@ try {
       <main>
         <Hero personalInfo={data.personalInfo} />
         <Skills skills={data.skills} />
+        {data.githubData && <GitHubStats githubData={data.githubData} />}
         <Experience experiences={data.experiences} />
         <Contact
           socialLinks={data.socialLinks}

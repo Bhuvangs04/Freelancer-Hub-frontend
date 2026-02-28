@@ -1,13 +1,22 @@
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-import { XCircleIcon } from "@heroicons/react/solid";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowLeftIcon } from "@heroicons/react/solid";
 import { useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  Briefcase,
+  IndianRupee,
+  CalendarDays,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  FileText,
+  Ban,
+  Send,
+} from "lucide-react";
 
-// Define the bid type structure
 interface Bid {
   _id: string;
   projectId: {
@@ -41,7 +50,6 @@ const MyBids = () => {
     return result;
   }
 
-  // Fetch bids from the API
   useEffect(() => {
     const fetchBids = async () => {
       try {
@@ -52,14 +60,29 @@ const MyBids = () => {
             credentials: "include",
           }
         );
-
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
-
         const data = await response.json();
         if (data && data.bids) {
-          setBids(data.bids);
+          const sanitizedBids = data.bids.map((bid: Bid) => {
+            if (!bid.projectId) {
+              return {
+                ...bid,
+                projectId: {
+                  _id: "removed",
+                  title: "Project Removed",
+                  description: "This project has been deleted from the platform and is no longer available.",
+                  budget: 0,
+                  deadline: new Date().toISOString(),
+                  skillsRequired: [],
+                  status: "cancelled",
+                },
+              };
+            }
+            return bid;
+          });
+          setBids(sanitizedBids);
         }
       } catch (error) {
         console.error("Failed to fetch bids:", error);
@@ -68,90 +91,72 @@ const MyBids = () => {
         setLoading(false);
       }
     };
-
     fetchBids();
   }, []);
 
-  // Function to format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
-      month: "long",
+      month: "short",
       day: "numeric",
     });
   };
 
-  // Function to get status badge color
-  const getStatusBadge = (status: string) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
       case "pending":
-        return (
-          <Badge
-            variant="outline"
-            className="bg-yellow-50 text-yellow-800 border-yellow-200"
-          >
-            Pending
-          </Badge>
-        );
+        return {
+          label: "Pending",
+          icon: <Clock className="h-3 w-3" />,
+          className: "bg-amber-500/15 text-amber-400 border-0",
+        };
       case "accepted":
-        return (
-          <Badge
-            variant="outline"
-            className="bg-green-50 text-green-800 border-green-200"
-          >
-            Accepted
-          </Badge>
-        );
+        return {
+          label: "Accepted",
+          icon: <CheckCircle className="h-3 w-3" />,
+          className: "bg-emerald-500/15 text-emerald-400 border-0",
+        };
       case "rejected":
-        return (
-          <Badge
-            variant="outline"
-            className="bg-red-50 text-red-800 border-red-200"
-          >
-            Rejected
-          </Badge>
-        );
+        return {
+          label: "Rejected",
+          icon: <XCircle className="h-3 w-3" />,
+          className: "bg-rose-500/15 text-rose-400 border-0",
+        };
       case "cancelled":
-        return (
-          <Badge
-            variant="outline"
-            className="bg-red-50 text-red-800 border-red-200"
-          >
-            Project Removed by Owner
-          </Badge>
-        );
+        return {
+          label: "Project Removed",
+          icon: <Ban className="h-3 w-3" />,
+          className: "bg-rose-500/15 text-rose-400 border-0",
+        };
       case "sign_pending":
-        return (
-          <Badge
-            variant="outline"
-            className="bg-yellow-50 text-red-800 border-red-200"
-          >
-            Sign Pending
-          </Badge>
-        );
+        return {
+          label: "Sign Pending",
+          icon: <AlertCircle className="h-3 w-3" />,
+          className: "bg-orange-500/15 text-orange-400 border-0",
+        };
       case "agreement_cancelled":
-        return (
-          <Badge
-            variant="outline"
-            className="bg-red-50 text-red-800 border-red-200"
-          >
-            Agreement Cancelled
-          </Badge>
-        );
+        return {
+          label: "Agreement Cancelled",
+          icon: <XCircle className="h-3 w-3" />,
+          className: "bg-rose-500/15 text-rose-400 border-0",
+        };
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return {
+          label: "Unknown",
+          icon: <AlertCircle className="h-3 w-3" />,
+          className: "bg-slate-500/15 text-slate-400 border-0",
+        };
     }
   };
 
   return (
-    <>
-      <div className="container mx-auto py-8 px-4">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">My Bids</h1>
-          <Button
-            variant="ghost"
-            className="flex items-center gap-2 hover:bg-green-400"
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Hero Header */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-600/10 via-transparent to-transparent" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-6">
+          <button
             onClick={() =>
               navigate(
                 `/freelancer/home/in-en/?id=${getRandomString(
@@ -161,37 +166,49 @@ const MyBids = () => {
                 )}`
               )
             }
+            className="flex items-center gap-2 text-slate-400 hover:text-white text-sm font-medium transition-colors mb-6 group"
           >
-            <ArrowLeftIcon width={24} />
-            Back
-          </Button>
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+            Back to Projects
+          </button>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+                My Bids
+              </h1>
+              <p className="text-slate-400 mt-2 text-sm">
+                {loading
+                  ? "Loading your bids..."
+                  : `${bids.length} bid${bids.length !== 1 ? "s" : ""} placed`}
+              </p>
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         {loading ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <Card key={i} className="overflow-hidden">
-                <CardHeader className="pb-3 animate-pulse bg-muted h-12"></CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="h-16 bg-muted animate-pulse rounded"></div>
-                  <div className="h-8 bg-muted animate-pulse rounded"></div>
-                  <div className="space-y-2">
-                    {[1, 2, 3, 4].map((j) => (
-                      <div
-                        key={j}
-                        className="h-5 bg-muted animate-pulse rounded"
-                      ></div>
-                    ))}
-                  </div>
-                  <div className="h-24 bg-muted animate-pulse rounded"></div>
-                </CardContent>
-              </Card>
+              <div
+                key={i}
+                className="h-80 rounded-2xl bg-slate-800/30 border border-white/[0.04] animate-pulse"
+              />
             ))}
           </div>
         ) : bids.length === 0 ? (
-          <div className="text-center p-8 bg-muted rounded-lg">
-            <p className="text-lg">You haven't placed any bids yet.</p>
-            <Button
-              className="mt-4"
+            <div className="bg-slate-800/40 backdrop-blur-xl border border-white/[0.06] rounded-2xl p-14 text-center">
+              <div className="h-16 w-16 mx-auto rounded-2xl bg-gradient-to-br from-violet-500/15 to-indigo-500/15 flex items-center justify-center mb-5">
+                <Send className="h-7 w-7 text-violet-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                No bids yet
+              </h3>
+              <p className="text-slate-400 mb-8 max-w-sm mx-auto text-sm">
+                You haven't placed any bids yet. Browse open projects to get started.
+              </p>
+              <Button
               onClick={() =>
                 navigate(
                   `/freelancer/home/in-en/?id=${getRandomString(
@@ -201,106 +218,133 @@ const MyBids = () => {
                   )}`
                 )
               }
+                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl px-6 h-11 shadow-lg shadow-violet-500/20"
             >
+                <Briefcase className="h-4 w-4 mr-2" />
               Browse Projects
             </Button>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {bids.map((bid) => (
-              <Card key={bid._id} className="overflow-hidden">
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-xl">
-                      {bid.projectId.title}
-                    </CardTitle>
-                    {bid.projectId.status === "cancelled"
-                      ? getStatusBadge(bid.projectId.status)
-                      : getStatusBadge(bid.status)}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground line-clamp-3">
-                    {bid.projectId.description}
-                  </p>
+              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                {bids.map((bid) => {
+                  const statusConfig =
+                    bid.projectId.status === "cancelled"
+                      ? getStatusConfig("cancelled")
+                      : getStatusConfig(bid.status);
 
-                  <div className="flex flex-wrap gap-2">
-                    {bid.projectId.skillsRequired.map((skill) => (
-                      <Badge
-                        key={skill}
-                        variant="secondary"
-                        className="text-xs"
-                      >
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
+                  return (
+                    <div
+                      key={bid._id}
+                      className="group relative bg-slate-800/40 backdrop-blur-xl border border-white/[0.06] rounded-2xl overflow-hidden hover:border-violet-500/15 transition-all duration-500"
+                    >
+                      {/* Hover effect */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground underline">
-                        Your Bid
-                      </span>
-                      <span className="font-medium">
-                        ₹{bid.amount.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground underline">
-                        Project Budget
-                      </span>
-                      <span>₹{bid.projectId.budget.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground underline">
-                        Deadline
-                      </span>
-                      <span>{formatDate(bid.projectId.deadline)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground underline">
-                        Bid Date
-                      </span>
-                      <span>{formatDate(bid.createdAt)}</span>
-                    </div>
-                  </div>
-                  {bid.projectId.status === "cancelled" ? (
-                    <>
-                      <div className="pt-2">
-                        <h4 className="text-sm font-medium mb-2">
-                          Project Status
-                        </h4>
-                        <p className="mt-2 text-sm text-muted-foreground text-red-500">
-                          Project has been removed by the owner.
+                      <div className="relative p-5 space-y-4">
+                        {/* Header */}
+                        <div className="flex justify-between items-start gap-3">
+                          <h3 className="text-base font-semibold text-white leading-tight line-clamp-2">
+                            {bid.projectId.title}
+                          </h3>
+                          <Badge
+                            className={`flex-shrink-0 text-xs font-medium rounded-lg px-2.5 py-1 flex items-center gap-1.5 ${statusConfig.className}`}
+                          >
+                            {statusConfig.icon}
+                            {statusConfig.label}
+                          </Badge>
+                        </div>
+
+                        {/* Description */}
+                        <p className="text-sm text-slate-400 line-clamp-2 leading-relaxed">
+                          {bid.projectId.description}
                         </p>
+
+                        {/* Skills */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {bid.projectId.skillsRequired.slice(0, 3).map((skill) => (
+                            <span
+                              key={skill}
+                              className="px-2 py-0.5 rounded-md bg-violet-500/10 text-violet-300 text-[11px] font-medium"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                          {bid.projectId.skillsRequired.length > 3 && (
+                            <span className="px-2 py-0.5 rounded-md bg-slate-700/50 text-slate-400 text-[11px] font-medium">
+                              +{bid.projectId.skillsRequired.length - 3}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Financial Info */}
+                        <div className="space-y-2 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-slate-400 flex items-center gap-1.5">
+                              <Send className="h-3 w-3 text-violet-400" />
+                              Your Bid
+                            </span>
+                            <span className="font-semibold text-violet-300">
+                              ₹{bid.amount.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-slate-400 flex items-center gap-1.5">
+                              <IndianRupee className="h-3 w-3 text-emerald-400" />
+                              Budget
+                            </span>
+                            <span className="text-slate-300">
+                              ₹{bid.projectId.budget.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-slate-400 flex items-center gap-1.5">
+                              <CalendarDays className="h-3 w-3 text-amber-400" />
+                              Deadline
+                            </span>
+                            <span className="text-slate-300">
+                              {formatDate(bid.projectId.deadline)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-slate-400 flex items-center gap-1.5">
+                              <Clock className="h-3 w-3 text-slate-500" />
+                              Bid Date
+                            </span>
+                            <span className="text-slate-300">
+                              {formatDate(bid.createdAt)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Status Section */}
+                        {bid.projectId.status === "cancelled" ? (
+                          <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-500/8 border border-rose-500/10">
+                            <XCircle className="h-4 w-4 text-rose-400 flex-shrink-0" />
+                            <span className="text-xs text-rose-400">
+                              Project has been removed by the owner
+                            </span>
+                          </div>
+                        ) : (
+                            <div className="pt-1">
+                              <div className="flex items-start gap-2">
+                                <FileText className="h-3.5 w-3.5 text-violet-400 mt-0.5 flex-shrink-0" />
+                                <div>
+                                  <p className="text-xs font-medium text-violet-400 mb-1">Your Proposal</p>
+                                  <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                                    {bid.message}
+                                  </p>
+                                </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <span className="text-sm text-muted-foreground text-red-400 flex items-center space-x-1">
-                        <XCircleIcon className="h-4 w-4 text-red-500" />
-                        <span>Bid Cancelled</span>
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <div className="pt-2">
-                        <h4 className="text-sm font-medium mb-2  text-blue-500">
-                          Your Proposal
-                        </h4>
-                        <p className="text-sm text-muted-foreground line-clamp-3">
-                          {bid.message}
-                        </p>
-                      </div>
-                      <span className="text-sm text-muted-foreground flex items-center space-x-1">
-                        Status: {bid.status}
-                      </span>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                    </div>
+                  );
+                })}
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

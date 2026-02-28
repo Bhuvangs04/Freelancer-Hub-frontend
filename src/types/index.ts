@@ -483,11 +483,60 @@ export interface SkillVerification {
   lastUpdatedAt: string;
 }
 
+export interface GitHubRepo {
+  name: string;
+  url: string;
+  stars: number;
+  forks: number;
+  language: string;
+  description: string;
+  topics: string[];
+  private: boolean;
+  hasCI: boolean;
+  hasDocker: boolean;
+  hasTests: boolean;
+  hasReadme: boolean;
+}
+
+export interface GitHubLanguage {
+  name: string;
+  percentage: number;
+  bytes: number;
+}
+
+export interface GitHubOrg {
+  name: string;
+  avatarUrl: string;
+}
+
 export interface GitHubProfile {
   username: string;
-  repos: number;
+  profileUrl: string;
+  avatarUrl: string;
+  name: string;
+  bio: string;
+  email: string;
+  hireable: boolean;
+  company: string;
+  blog: string;
+  twitterUsername: string;
+  location: string;
+  publicRepos: number;
+  privateRepos: number;
+  totalRepos: number;
   followers: number;
-  topLanguages: string[];
+  following: number;
+  totalContributions: number;
+  totalCommits: number;
+  commitFrequency: number;
+  pullRequests: { total: number; merged: number; open: number };
+  issues: { total: number; open: number; closed: number };
+  organizations: GitHubOrg[];
+  topLanguages: GitHubLanguage[];
+  topRepositories: GitHubRepo[];
+  accountAgeMonths: number;
+  gistsCount: number;
+  lastFetchedAt: string;
 }
 
 export interface PortfolioDetails {

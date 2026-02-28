@@ -3,10 +3,13 @@ import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
   Calendar,
-
   LayoutGrid,
   List,
   ArrowLeftIcon,
+  Briefcase,
+  ChevronRight,
+  Clock,
+  FolderOpen,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Project } from "@/types";
@@ -26,7 +29,6 @@ export default function Dashboard() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // Initialize API and fetch projects
   useEffect(() => {
     api.init();
     fetchProjects();
@@ -38,8 +40,6 @@ export default function Dashboard() {
       const response = await api.getProjects();
       if (response.status === "success" && response.data) {
         setProjects(response.data);
-
-        // Auto-select the first project if none is selected
         if (response.data.length > 0 && !selectedProject) {
           setSelectedProject(response.data[0]);
         }
@@ -71,8 +71,6 @@ export default function Dashboard() {
 
   const handleProjectUpdate = (updatedProject: Project) => {
     setSelectedProject(updatedProject[0]);
-
-    // Also update the project in the projects list
     setProjects((prevProjects) =>
       prevProjects.map((p) =>
         p._id === updatedProject._id ? updatedProject : p
@@ -85,96 +83,103 @@ export default function Dashboard() {
   };
 
   return (
-    <>
-      <div className=" min-h-screen bg-gray-50 animate-in fade-in">
-        <Button
-          variant="ghost"
-          className="ml-3 mt-5 flex items-center gap-2 hover:bg-green-400"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeftIcon width={24} />
-          Back
-        </Button>
-        <div className="container mx-auto px-4 py-6">
-          {/* Dashboard Header */}
-          <header className="mb-8">
-            {selectedProject ? (
-              <div className="flex items-center mb-6">
-                <button
-                  onClick={goBack}
-                  className="mr-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  <ChevronLeft size={20} className="text-gray-600" />
-                </button>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    {selectedProject.title}
-                  </h1>
-                  <p className="text-gray-500">{selectedProject.description}</p>
-                </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Hero Header */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-600/10 via-transparent to-transparent" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-slate-400 hover:text-white text-sm font-medium transition-colors mb-6 group"
+          >
+            <ArrowLeftIcon className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+            Back
+          </button>
+
+          {selectedProject ? (
+            <div className="flex items-center gap-4 mb-2">
+              <button
+                onClick={goBack}
+                className="h-9 w-9 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.1] transition-colors"
+              >
+                <ChevronLeft size={18} className="text-slate-300" />
+              </button>
+              <div className="min-w-0">
+                <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight truncate">
+                  {selectedProject.title}
+                </h1>
+                <p className="text-slate-400 text-sm mt-1 line-clamp-1">{selectedProject.description}</p>
               </div>
-            ) : (
-              <div className="flex justify-between items-center mb-6">
+            </div>
+          ) : (
+              <div className="flex justify-between items-end gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
+                  <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                     Ongoing Projects
                   </h1>
-                  <p className="text-gray-500">
+                  <p className="text-slate-400 mt-1 text-sm">
                     Manage your active freelance projects
                   </p>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                {/* View Toggle */}
+                <div className="flex items-center bg-slate-800/60 border border-white/[0.06] rounded-xl p-1 gap-1">
                   <button
                     onClick={() => setViewMode("grid")}
                     className={cn(
-                      "p-2 rounded-md transition-colors",
-                      viewMode === "grid"
-                        ? "bg-gray-200 text-gray-900"
-                        : "bg-white text-gray-500 hover:bg-gray-100"
-                    )}
+                    "p-2 rounded-lg transition-all duration-200",
+                    viewMode === "grid"
+                      ? "bg-white/[0.1] text-white shadow-sm"
+                      : "text-slate-400 hover:text-white hover:bg-white/[0.05]"
+                  )}
                   >
-                    <LayoutGrid size={18} />
+                    <LayoutGrid size={16} />
                   </button>
                   <button
                     onClick={() => setViewMode("list")}
                     className={cn(
-                      "p-2 rounded-md transition-colors",
-                      viewMode === "list"
-                        ? "bg-gray-200 text-gray-900"
-                        : "bg-white text-gray-500 hover:bg-gray-100"
-                    )}
+                    "p-2 rounded-lg transition-all duration-200",
+                    viewMode === "list"
+                      ? "bg-white/[0.1] text-white shadow-sm"
+                      : "text-slate-400 hover:text-white hover:bg-white/[0.05]"
+                  )}
                   >
-                    <List size={18} />
-                  </button>
-                </div>
-              </div>
-            )}
-          </header>
-
-          {/* Dashboard Content */}
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-pulse flex flex-col items-center">
-                <div className="h-12 w-12 rounded-full bg-gray-200 mb-4"></div>
-                <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                  <List size={16} />
+                </button>
               </div>
             </div>
-          ) : projects.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-              <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-6">
-                <Calendar size={32} className="text-primary" />
+          )}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="text-center">
+              <div className="relative h-12 w-12 mx-auto">
+                <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-violet-500 animate-spin" />
+                <div className="absolute inset-2 rounded-full border-2 border-transparent border-t-indigo-400 animate-spin" style={{ animationDirection: "reverse", animationDuration: "0.8s" }} />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <p className="mt-4 text-slate-400 text-sm">Loading projects...</p>
+            </div>
+          </div>
+        ) : projects.length === 0 ? (
+            <div className="bg-slate-800/40 backdrop-blur-xl border border-white/[0.06] rounded-2xl p-14 text-center">
+              <div className="h-16 w-16 mx-auto rounded-2xl bg-gradient-to-br from-violet-500/15 to-indigo-500/15 flex items-center justify-center mb-5">
+                <FolderOpen className="h-7 w-7 text-violet-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">
                 No projects yet
               </h3>
-              <p className="text-gray-500 mb-6">
-                You don't have any ongoing projects at the moment.
+              <p className="text-slate-400 mb-8 max-w-sm mx-auto">
+                You don't have any ongoing projects at the moment. Browse opportunities to get started.
               </p>
               <Link
                 to="#"
-                className="inline-flex items-center justify-center px-5 py-2.5 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl font-medium shadow-lg shadow-violet-500/20 transition-all duration-300 gap-2"
               >
+                <Briefcase className="h-4 w-4" />
                 Find Opportunities
               </Link>
             </div>
@@ -200,23 +205,22 @@ export default function Dashboard() {
           ) : (
             <div
               className={cn(
-                "grid gap-6",
-                viewMode === "grid"
-                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                  : "grid-cols-1"
-              )}
-            >
-              {projects.map((project) => (
-                <ProjectCard
-                  key={project._id}
-                  project={project}
-                  onClick={handleProjectSelect}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+              "grid gap-5",
+              viewMode === "grid"
+                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                : "grid-cols-1"
+            )}
+          >
+            {projects.map((project) => (
+              <ProjectCard
+                key={project._id}
+                project={project}
+                onClick={handleProjectSelect}
+              />
+            ))}
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }

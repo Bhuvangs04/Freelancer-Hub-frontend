@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import ProfileHeader from "@/components/profile/ProfileHeader";
@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import BioSection from "@/components/profile/BioSection";
 import SkillsSection from "@/components/profile/SkillsSection";
 import GitHubSkillsVerification from "@/components/profile/GitHubSkillsVerification";
+import { api } from "@/lib/api";
+import { GitHubProfile } from "@/types";
 import ProjectsSection from "@/components/profile/ProjectsSection";
 import ResumeSection from "@/components/profile/ResumeSection";
 import ExperiencesSection, {
@@ -31,6 +33,27 @@ const ProfileUpdate = () => {
   const [Role, setRole] = useState("");
   const [skills, setSkills] = useState<Skill[]>([]);
   const [githubUsername, setGithubUsername] = useState("");
+  const [githubData, setGithubData] = useState<GitHubProfile | null>(null);
+  const [initialVerifiedSkills, setInitialVerifiedSkills] = useState<any[]>([]);
+
+  // Fetch existing GitHub data on mount
+  useEffect(() => {
+    const loadGitHubData = async () => {
+      try {
+        const response = await api.getGitHubProfile();
+        if (response.status === "success" && response.data) {
+          setGithubUsername(response.data.githubUsername || "");
+          setGithubData(response.data.githubData || null);
+          if (response.data.verifiedSkills) {
+            setInitialVerifiedSkills(response.data.verifiedSkills);
+          }
+        }
+      } catch (err) {
+        // No existing GitHub data, that's fine
+      }
+    };
+    loadGitHubData();
+  }, []);
   const [experiences, setExperiences] = useState<Experience[]>([
     {
       company: "Example Company",
@@ -305,6 +328,8 @@ const ProfileUpdate = () => {
         <GitHubSkillsVerification
           onSkillsVerified={handleGitHubSkillsVerified}
           existingGithubUsername={githubUsername}
+          initialGithubData={githubData}
+          initialVerifiedSkills={initialVerifiedSkills}
         />
 
         <SkillsSection

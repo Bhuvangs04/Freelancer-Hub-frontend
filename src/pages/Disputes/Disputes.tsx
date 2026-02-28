@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import {
   AlertTriangle, ChevronLeft, Clock, DollarSign, FileText,
@@ -76,7 +77,8 @@ const DisputeDashboard = () => {
     url: "",
   });
 
-  /* detect role from cookie/token (fallback to client) */
+  /* detect role from Redux (client | freelancer) */
+  const userRole = useSelector((state: any) => state.user?.role) as "client" | "freelancer" | undefined;
   const getUserId = () => localStorage.getItem("Chatting_id") || "";
 
   /* ── fetch ── */
@@ -107,10 +109,17 @@ const DisputeDashboard = () => {
 
   /* ── open create ── */
   const openCreate = async () => {
-    // try to detect role from last dispute or default
-    const clientProjects = await api.getMyProjects("client");
-    const freelancerProjects = await api.getMyProjects("freelancer");
-    setProjects([...clientProjects, ...freelancerProjects]);
+    // Only fetch the endpoint that matches the current user's role.
+    // Calling the wrong endpoint returns 403 and silently returns []
+    // which made the project dropdown appear empty.
+    if (userRole === "freelancer") {
+      const freelancerProjects = await api.getMyProjects("freelancer");
+      setProjects(freelancerProjects);
+    } else {
+      // Default to client projects (covers clients and unknown roles)
+      const clientProjects = await api.getMyProjects("client");
+      setProjects(clientProjects);
+    }
     setView("create");
   };
 

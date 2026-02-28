@@ -31,6 +31,7 @@ import Forbidden from "./pages/ForbiddenPage";
 import DisputeForm from "./pages/Disputes/Disputes";
 import ProtectedRoute from "@/components/Security/PorperCheck";
 import Freelancer_portfolio from "./pages/Freelancer-portfolio";
+import SkillsEvaluation from "./pages/Freelancer/SkillsEvaluation";
 import { Analytics } from "@vercel/analytics/react";
 
 // New page imports for backend integration
@@ -250,6 +251,18 @@ const App = () => (
               </FreelancerAuth>
             }
           />
+
+              {/* Skill Verification - Freelancer */}
+              <Route
+                path="/freelancer/skills"
+                element={
+                  <FreelancerAuth>
+                    <ProtectedRoute role="freelancer">
+                      <SkillsEvaluation />
+                    </ProtectedRoute>
+                  </FreelancerAuth>
+                }
+              />
 
           <Route
             path="/client/ongoing/projects/details/routing/v1/s1"
