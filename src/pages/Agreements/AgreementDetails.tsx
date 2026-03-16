@@ -37,8 +37,10 @@ import {
   Send,
   Save,
   ScrollText,
+  StarHalf,
 } from "lucide-react";
 import { toast } from "sonner";
+import SubmitReviewDialog from "@/components/modals/SubmitReviewDialog";
 
 export default function AgreementDetails() {
   const { id } = useParams<{ id: string }>();
@@ -62,6 +64,10 @@ export default function AgreementDetails() {
   const [editAmount, setEditAmount] = useState<number>(0);
   const [editDescription, setEditDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Review state
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
+  const [isReviewPending, setIsReviewPending] = useState(false);
   
   // User role for this agreement (from API, not localStorage)
   const [userRole, setUserRole] = useState<string>("");
@@ -88,6 +94,14 @@ export default function AgreementDetails() {
       setEditDeadline(response.data.agreement.deadline?.split('T')[0] || "");
       setEditAmount(response.data.agreement.agreedAmount);
       setEditDescription(response.data.agreement.projectDescription);
+
+      if (response.data.agreement.status === "completed") {
+        const reviewRes = await api.getPendingReviews();
+        if (reviewRes.status === "success" && reviewRes.data) {
+          const isPending = reviewRes.data.some((a: any) => a.agreementId === id || a._id === id);
+          setIsReviewPending(isPending);
+        }
+      }
     }
     setLoading(false);
   };
@@ -380,6 +394,33 @@ export default function AgreementDetails() {
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid gap-6">
+          {/* Pending Review Banner */}
+          {isReviewPending && (
+            <Card className="bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800">
+              <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900/50 flex flex-shrink-0 items-center justify-center">
+                    <StarHalf className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-amber-900 dark:text-amber-300">
+                      Submit a Review
+                    </h3>
+                    <p className="text-sm text-amber-700 dark:text-amber-400/80">
+                      The project is complete. Please review {userRole === "client" ? getFreelancerName() : getClientName()} to help the community.
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => setShowReviewDialog(true)}
+                  className="bg-amber-500 hover:bg-amber-600 text-white w-full sm:w-auto"
+                >
+                  Write Review
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Draft Mode Banner */}
           {isInDraftMode() && (
             <Card className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-950/30 dark:to-gray-950/30 border-slate-200 dark:border-slate-800">
@@ -983,6 +1024,19 @@ export default function AgreementDetails() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <SubmitReviewDialog
+        open={showReviewDialog}
+        onOpenChange={setShowReviewDialog}
+        agreementId={agreement._id}
+        projectTitle={agreement.projectDescription || "Project"}
+        revieweeName={userRole === "client" ? getFreelancerName() : getClientName()}
+        onSuccess={() => {
+          setIsReviewPending(false);
+          setShowReviewDialog(false);
+          fetchAgreement();
+        }}
+      />
     </div>
   );
 }
