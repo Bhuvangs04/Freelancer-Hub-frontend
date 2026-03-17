@@ -278,6 +278,7 @@ export const api = {
       deadline?: string;
       agreedAmount?: number;
       projectDescription?: string;
+      paymentType?: "project_completion" | "milestone";
     }
   ): Promise<ApiResponse<Agreement>> => {
     try {

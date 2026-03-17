@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { TransactionHistoryModal } from "./modals/TransactionHistoryModal";
 import { WithdrawModal } from "./modals/WithdrawModal";
+import { TopUpModal } from "./modals/TopUpModal";
 import { useSiteSettings } from "@/context/SiteSettingsContext";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -79,6 +80,7 @@ export const Navigation = () => {
   const { siteName } = useSiteSettings();
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
   const [currentBalance, setCurrentBalance] = useState<number>(0);
   const [currentRefund, setCurrentRefund] = useState<number>(0);
   const [TotalDeposits, setTotalDeposits] = useState<number>(0);
@@ -287,6 +289,13 @@ export const Navigation = () => {
                 </div>
                 <DropdownMenuItem
                   className="cursor-pointer flex items-center gap-2 text-primary focus:text-primary focus:bg-primary/5"
+                  onClick={() => setIsTopUpModalOpen(true)}
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  Top Up Wallet
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center gap-2 text-muted-foreground focus:bg-muted/50"
                   onClick={() => setIsWithdrawModalOpen(true)}
                 >
                   <Wallet className="h-4 w-4" />
@@ -437,6 +446,20 @@ export const Navigation = () => {
         onClose={() => setIsHistoryModalOpen(false)}
         transactions={transactions}
       />
+      <TopUpModal 
+        isOpen={isTopUpModalOpen}
+        onClose={() => setIsTopUpModalOpen(false)}
+        onSuccess={() => {
+          fetchWalletData(
+            client_id,
+            setCurrentBalance,
+            setCurrentRefund,
+            setTotalDeposits,
+            setTotalWithdrawals,
+            setTransactions
+          );
+        }}
+      />
       <WithdrawModal
         isOpen={isWithdrawModalOpen}
         onClose={() => setIsWithdrawModalOpen(false)}
@@ -447,3 +470,4 @@ export const Navigation = () => {
     </nav>
   );
 };
+

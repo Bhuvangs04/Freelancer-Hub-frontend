@@ -62,7 +62,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.R
     color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
     icon: <CheckCircle2 className="h-4 w-4" />,
   },
-  revision_requested: {
+  revision: {
     label: "Revision Requested",
     color: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
     icon: <RotateCcw className="h-4 w-4" />,
@@ -258,7 +258,7 @@ export default function MilestoneManager() {
                   Overall Progress
                 </span>
                 <span className="text-sm font-medium">
-                  {summary.completedMilestones} of {summary.totalMilestones} completed
+                  {summary.released} of {summary.total} completed
                 </span>
               </div>
               <Progress value={progressPercent} className="h-2" />
@@ -267,7 +267,7 @@ export default function MilestoneManager() {
                   Released: {formatCurrency(summary.releasedAmount)}
                 </span>
                 <span className="text-slate-600 dark:text-slate-400">
-                  Pending: {formatCurrency(summary.pendingAmount)}
+                  Pending: {formatCurrency(summary.totalAmount - summary.releasedAmount)}
                 </span>
               </div>
             </div>
@@ -291,6 +291,26 @@ export default function MilestoneManager() {
           </Card>
         ) : (
           <div className="space-y-4">
+            {/* All Milestones Completed Banner */}
+            {milestones.every(m => m.status === "released") && (
+              <Card className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border-emerald-200 dark:border-emerald-800">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+                      <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">
+                        🎉 All Milestones Completed
+                      </h3>
+                      <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                        All milestone payments have been released. The project has been automatically marked as completed.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
             {milestones.map((milestone, index) => {
               const daysRemaining = getDaysRemaining(milestone.dueDate);
               const isOverdue = daysRemaining < 0 && !["released", "confirmed"].includes(milestone.status);
@@ -399,7 +419,7 @@ export default function MilestoneManager() {
                             Submit
                           </Button>
                         )}
-                        {userRole === "freelancer" && milestone.status === "revision_requested" && (
+                        {userRole === "freelancer" && milestone.status === "revision" && (
                           <Button
                             onClick={() => {
                               setSelectedMilestone(milestone);
@@ -475,13 +495,13 @@ export default function MilestoneManager() {
                     )}
 
                     {/* Revision history */}
-                    {milestone.revisionHistory?.length > 0 && (
+                    {milestone.revisionNotes?.length > 0 && (
                       <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                         <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                           Revision History ({milestone.revisionCount}/{milestone.maxRevisions})
                         </h4>
                         <div className="space-y-2">
-                          {milestone.revisionHistory.slice(-2).map((revision, i) => (
+                          {milestone.revisionNotes.slice(-2).map((revision, i) => (
                             <div key={i} className="text-sm text-slate-600 dark:text-slate-400">
                               <span className="font-medium">
                                 {formatDate(revision.requestedAt)}:

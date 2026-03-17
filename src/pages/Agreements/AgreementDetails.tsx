@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
-import { Agreement, User } from "@/types";
+import { Agreement, User, Milestone, MilestoneInput, MilestoneSummary } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +38,11 @@ import {
   Save,
   ScrollText,
   StarHalf,
+  Target,
+  Layers,
+  Plus,
+  Trash2,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import SubmitReviewDialog from "@/components/modals/SubmitReviewDialog";
@@ -63,6 +68,7 @@ export default function AgreementDetails() {
   const [editDeadline, setEditDeadline] = useState("");
   const [editAmount, setEditAmount] = useState<number>(0);
   const [editDescription, setEditDescription] = useState("");
+  const [editPaymentType, setEditPaymentType] = useState<"project_completion" | "milestone">("project_completion");
   const [isSaving, setIsSaving] = useState(false);
   
   // Review state
@@ -71,6 +77,15 @@ export default function AgreementDetails() {
   
   // User role for this agreement (from API, not localStorage)
   const [userRole, setUserRole] = useState<string>("");
+
+  // Milestone management state
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [milestoneSummary, setMilestoneSummary] = useState<MilestoneSummary | null>(null);
+  const [showMilestoneDialog, setShowMilestoneDialog] = useState(false);
+  const [milestoneEntries, setMilestoneEntries] = useState<MilestoneInput[]>([
+    { title: "", description: "", amount: 0, dueDate: "" },
+  ]);
+  const [isCreatingMilestones, setIsCreatingMilestones] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -94,6 +109,15 @@ export default function AgreementDetails() {
       setEditDeadline(response.data.agreement.deadline?.split('T')[0] || "");
       setEditAmount(response.data.agreement.agreedAmount);
       setEditDescription(response.data.agreement.projectDescription);
+      setEditPaymentType(response.data.agreement.paymentType || "project_completion");
+
+      // Fetch milestones if milestone-based payment
+      if (response.data.agreement.paymentType === "milestone" && response.data.agreement.status === "active") {
+        const projId = typeof response.data.agreement.projectId === "object"
+          ? (response.data.agreement.projectId as any)._id
+          : response.data.agreement.projectId;
+        fetchMilestones(projId);
+      }
 
       if (response.data.agreement.status === "completed") {
         const reviewRes = await api.getPendingReviews();
@@ -104,6 +128,14 @@ export default function AgreementDetails() {
       }
     }
     setLoading(false);
+  };
+
+  const fetchMilestones = async (projectId: string) => {
+    const res = await api.getMilestones(projectId);
+    if (res.status === "success" && res.data) {
+      setMilestones(res.data.milestones);
+      setMilestoneSummary(res.data.summary);
+    }
   };
 
   const handleSign = async () => {
@@ -167,6 +199,7 @@ export default function AgreementDetails() {
       deadline: editDeadline,
       agreedAmount: editAmount,
       projectDescription: editDescription,
+      paymentType: editPaymentType,
     });
     if (response.status === "success") {
       setIsEditMode(false);
@@ -533,6 +566,83 @@ export default function AgreementDetails() {
                   </p>
                 </div>
               </div>
+
+              {/* Payment Type */}
+              <Separator />
+              <div>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                  <Layers className="h-4 w-4" />
+                  Payment Release Strategy
+                </p>
+                {isEditMode ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div
+                      onClick={() => setEditPaymentType("project_completion")}
+                      className={`cursor-pointer p-4 rounded-xl border-2 transition-all ${
+                        editPaymentType === "project_completion"
+                          ? "border-violet-500 bg-violet-50 dark:bg-violet-950/30"
+                          : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${
+                          editPaymentType === "project_completion"
+                            ? "bg-violet-100 dark:bg-violet-900/50"
+                            : "bg-slate-100 dark:bg-slate-800"
+                        }`}>
+                          <CheckCircle2 className={`h-4 w-4 ${
+                            editPaymentType === "project_completion"
+                              ? "text-violet-600 dark:text-violet-400"
+                              : "text-slate-500"
+                          }`} />
+                        </div>
+                        <h4 className="font-semibold text-sm">After Project Completion</h4>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Full payment released when the entire project is completed and approved.
+                      </p>
+                    </div>
+                    <div
+                      onClick={() => setEditPaymentType("milestone")}
+                      className={`cursor-pointer p-4 rounded-xl border-2 transition-all ${
+                        editPaymentType === "milestone"
+                          ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30"
+                          : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${
+                          editPaymentType === "milestone"
+                            ? "bg-emerald-100 dark:bg-emerald-900/50"
+                            : "bg-slate-100 dark:bg-slate-800"
+                        }`}>
+                          <Target className={`h-4 w-4 ${
+                            editPaymentType === "milestone"
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-slate-500"
+                          }`} />
+                        </div>
+                        <h4 className="font-semibold text-sm">Milestone-Based</h4>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Payment released incrementally as each milestone is confirmed.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <Badge className={`text-sm py-1.5 px-3 ${
+                    agreement.paymentType === "milestone"
+                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                      : "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400"
+                  }`}>
+                    {agreement.paymentType === "milestone" ? (
+                      <><Target className="h-3.5 w-3.5 mr-1.5" /> Milestone-Based Payment</>
+                    ) : (
+                      <><CheckCircle2 className="h-3.5 w-3.5 mr-1.5" /> Payment After Project Completion</>
+                    )}
+                  </Badge>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -664,6 +774,138 @@ export default function AgreementDetails() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Milestone Management Section */}
+          {agreement.paymentType === "milestone" && agreement.status === "active" && (
+            <>
+              {milestones.length === 0 && userRole === "client" ? (
+                /* Setup Milestones Banner */
+                <Card className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border-emerald-200 dark:border-emerald-800 overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
+                        <Target className="h-7 w-7 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-emerald-900 dark:text-emerald-100">
+                          Set Up Milestones
+                        </h3>
+                        <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                          Split your project into milestones to release payments incrementally.
+                          Milestone amounts must total {formatCurrency(agreement.agreedAmount)}.
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => setShowMilestoneDialog(true)}
+                      className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 w-full sm:w-auto"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Milestones
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : milestones.length === 0 && userRole === "freelancer" ? (
+                /* Freelancer waiting for milestones */
+                <Card className="bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-3">
+                      <Clock className="h-5 w-5 text-slate-400" />
+                      <div>
+                        <h3 className="font-semibold text-slate-700 dark:text-slate-200">Awaiting Milestone Setup</h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                          The client needs to define milestones for this project. You'll be notified when milestones are ready.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : milestones.length > 0 ? (
+                /* Milestones Overview Card */
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <Target className="h-5 w-5" />
+                        Milestones
+                      </CardTitle>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const projId = typeof agreement.projectId === "object"
+                            ? (agreement.projectId as any)._id
+                            : agreement.projectId;
+                          navigate(`/projects/${projId}/milestones`);
+                        }}
+                      >
+                        <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+                        View Full Details
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Summary bar */}
+                    {milestoneSummary && (
+                      <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                        <div className="flex justify-between text-sm mb-2">
+                          <span className="text-slate-600 dark:text-slate-400">
+                            {milestoneSummary.released} of {milestoneSummary.total} completed
+                          </span>
+                          <span className="text-slate-600 dark:text-slate-400">
+                            Released: {formatCurrency(milestoneSummary.releasedAmount)}
+                          </span>
+                        </div>
+                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                          <div
+                            className="bg-gradient-to-r from-emerald-500 to-green-500 h-2 rounded-full transition-all"
+                            style={{ width: `${milestoneSummary.totalAmount > 0 ? (milestoneSummary.releasedAmount / milestoneSummary.totalAmount) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Milestone list */}
+                    <div className="space-y-2">
+                      {milestones.map((m) => (
+                        <div key={m._id} className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-700/50">
+                          <div className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                            m.status === "released"
+                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                              : m.status === "in_progress"
+                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                              : m.status === "submitted"
+                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                              : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                          }`}>
+                            {m.status === "released" ? <CheckCircle2 className="h-4 w-4" /> : m.milestoneNumber}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate text-slate-900 dark:text-white">{m.title}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">{formatCurrency(m.amount)}</p>
+                          </div>
+                          <Badge className={`text-xs ${
+                            m.status === "released"
+                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                              : m.status === "in_progress"
+                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                              : m.status === "submitted"
+                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                              : m.status === "confirmed"
+                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                              : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                          }`}>
+                            {m.status.replace("_", " ")}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : null}
+            </>
+          )}
 
           {/* Agreement Hash */}
           <Card>
@@ -1037,6 +1279,173 @@ export default function AgreementDetails() {
           fetchAgreement();
         }}
       />
+
+      {/* Create Milestones Dialog */}
+      <Dialog open={showMilestoneDialog} onOpenChange={setShowMilestoneDialog}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-emerald-600" />
+              Create Milestones
+            </DialogTitle>
+            <DialogDescription>
+              Split the project into milestones. Amounts must total{" "}
+              <strong>{agreement ? formatCurrency(agreement.agreedAmount) : ""}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            {milestoneEntries.map((entry, idx) => (
+              <Card key={idx} className="relative">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-slate-500">Milestone {idx + 1}</span>
+                    {milestoneEntries.length > 1 && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-red-500 hover:text-red-700"
+                        onClick={() => {
+                          setMilestoneEntries(milestoneEntries.filter((_, i) => i !== idx));
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Title</Label>
+                      <Input
+                        placeholder="e.g. Design Phase"
+                        value={entry.title}
+                        onChange={(e) => {
+                          const updated = [...milestoneEntries];
+                          updated[idx] = { ...updated[idx], title: e.target.value };
+                          setMilestoneEntries(updated);
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Amount (₹)</Label>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        value={entry.amount || ""}
+                        onChange={(e) => {
+                          const updated = [...milestoneEntries];
+                          updated[idx] = { ...updated[idx], amount: Number(e.target.value) };
+                          setMilestoneEntries(updated);
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Description</Label>
+                    <Textarea
+                      placeholder="What will be delivered in this milestone..."
+                      className="min-h-[60px]"
+                      value={entry.description}
+                      onChange={(e) => {
+                        const updated = [...milestoneEntries];
+                        updated[idx] = { ...updated[idx], description: e.target.value };
+                        setMilestoneEntries(updated);
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Due Date</Label>
+                    <Input
+                      type="date"
+                      value={entry.dueDate}
+                      onChange={(e) => {
+                        const updated = [...milestoneEntries];
+                        updated[idx] = { ...updated[idx], dueDate: e.target.value };
+                        setMilestoneEntries(updated);
+                      }}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+            <Button
+              variant="outline"
+              onClick={() => setMilestoneEntries([...milestoneEntries, { title: "", description: "", amount: 0, dueDate: "" }])}
+              className="w-full"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Milestone
+            </Button>
+
+            {/* Amount summary */}
+            <Card className="bg-slate-50 dark:bg-slate-800/50">
+              <CardContent className="p-3">
+                <div className="flex justify-between text-sm">
+                  <span>Total Milestone Amount</span>
+                  <span className={`font-semibold ${
+                    Math.abs(milestoneEntries.reduce((s, m) => s + (m.amount || 0), 0) - (agreement?.agreedAmount || 0)) < 0.01
+                      ? "text-emerald-600" : "text-red-600"
+                  }`}>
+                    {formatCurrency(milestoneEntries.reduce((s, m) => s + (m.amount || 0), 0))}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Agreement Amount</span>
+                  <span className="font-semibold">{agreement ? formatCurrency(agreement.agreedAmount) : ""}</span>
+                </div>
+                {Math.abs(milestoneEntries.reduce((s, m) => s + (m.amount || 0), 0) - (agreement?.agreedAmount || 0)) > 0.01 && (
+                  <p className="text-xs text-red-500 mt-2 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    Milestone amounts must equal the agreement amount
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowMilestoneDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                // Validate
+                const total = milestoneEntries.reduce((s, m) => s + (m.amount || 0), 0);
+                if (Math.abs(total - (agreement?.agreedAmount || 0)) > 0.01) {
+                  toast.error("Milestone amounts must equal the agreement amount");
+                  return;
+                }
+                for (let i = 0; i < milestoneEntries.length; i++) {
+                  const m = milestoneEntries[i];
+                  if (!m.title || !m.description || !m.amount || !m.dueDate) {
+                    toast.error(`Milestone ${i + 1}: all fields are required`);
+                    return;
+                  }
+                }
+                setIsCreatingMilestones(true);
+                const res = await api.createMilestones(agreement!._id, milestoneEntries);
+                if (res.status === "success") {
+                  setShowMilestoneDialog(false);
+                  setMilestoneEntries([{ title: "", description: "", amount: 0, dueDate: "" }]);
+                  // Refresh milestones
+                  const projId = typeof agreement!.projectId === "object"
+                    ? (agreement!.projectId as any)._id
+                    : agreement!.projectId;
+                  fetchMilestones(projId);
+                }
+                setIsCreatingMilestones(false);
+              }}
+              disabled={isCreatingMilestones}
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+            >
+              {isCreatingMilestones ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating...</>
+              ) : (
+                <><Target className="h-4 w-4 mr-2" /> Create Milestones</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

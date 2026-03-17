@@ -192,6 +192,7 @@ export interface Agreement {
   clientSignature: AgreementSignature;
   freelancerSignature: AgreementSignature;
   version: number;
+  paymentType?: 'project_completion' | 'milestone';
   previousVersion?: string;
   amendmentReason?: string;
   contentHash: string;
@@ -284,7 +285,7 @@ export interface Milestone {
   amount: number;
   dueDate: string;
   slaDeadline: string;
-  status: 'pending' | 'in_progress' | 'submitted' | 'confirmed' | 'revision_requested' | 'released' | 'disputed';
+  status: 'pending' | 'in_progress' | 'submitted' | 'confirmed' | 'revision' | 'released' | 'disputed' | 'cancelled';
   startedAt?: string;
   submittedAt?: string;
   confirmedAt?: string;
@@ -292,7 +293,7 @@ export interface Milestone {
   deliverables: MilestoneDeliverable[];
   revisionCount: number;
   maxRevisions: number;
-  revisionHistory: MilestoneRevision[];
+  revisionNotes: MilestoneRevision[];
   bonusPercent: number;
   penaltyPercent: number;
   daysEarly: number;
@@ -315,11 +316,13 @@ export interface MilestoneInput {
 }
 
 export interface MilestoneSummary {
-  totalMilestones: number;
-  completedMilestones: number;
+  total: number;
   totalAmount: number;
+  released: number;
   releasedAmount: number;
-  pendingAmount: number;
+  pending: number;
+  inProgress: number;
+  disputed: number;
 }
 
 // ============================================================================
