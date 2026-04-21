@@ -4,7 +4,7 @@ import { ChatList } from "./ChatList";
 import { ChatWindow } from "./ChatWindow";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeftIcon, LockIcon } from "lucide-react";
+import { ArrowLeftIcon, LockIcon, ShieldAlert } from "lucide-react";
 
 interface Message {
   _id: string;
@@ -12,81 +12,36 @@ interface Message {
   receiver: string;
   message: string;
   timestamp: string;
+  flagged?: boolean;
 }
 
-interface ChatUser {
-  _id: string;
-  username: string;
-  profilePictureUrl: string;
-  status: string;
-  lastMessage?: string;
-  unreadCount?: number;
+interface ProjectChat {
+  projectId: string;
+  projectTitle: string;
+  chatPartner: {
+    _id: string;
+    username: string;
+    profilePictureUrl: string;
+  };
+  lastMessage: string;
+  lastMessageAt: string | null;
+  unreadCount: number;
 }
-
-async function importEncryptionKey(hexKey: string): Promise<CryptoKey> {
-  const keyBuffer = new Uint8Array(
-    hexKey.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16))
-  );
-
-  return crypto.subtle.importKey("raw", keyBuffer, { name: "AES-GCM" }, false, [
-    "encrypt",
-    "decrypt",
-  ]);
-}
-
-async function decryptMessage(encryptedMessage: string, hexKey: string) {
-  try {
-    const key = await importEncryptionKey(hexKey);
-
-    const [ivHex, encryptedText, authTagHex] = encryptedMessage.split(":");
-    if (!ivHex || !encryptedText || !authTagHex) {
-      throw new Error("Invalid encrypted message format");
-    }
-
-    const hexToUint8Array = (hex: string) =>
-      new Uint8Array(hex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));
-
-    const iv = hexToUint8Array(ivHex);
-    const encrypted = hexToUint8Array(encryptedText);
-    const authTag = hexToUint8Array(authTagHex);
-
-    // Combine encrypted text and authTag for decryption
-    const encryptedWithAuthTag = new Uint8Array([...encrypted, ...authTag]);
-
-    const decrypted = await crypto.subtle.decrypt(
-      { name: "AES-GCM", iv },
-      key,
-      encryptedWithAuthTag
-    );
-
-    return new TextDecoder().decode(decrypted);
-  } catch (error) {
-    console.error("Decryption failed:", error.message);
-    return "Decryption error";
-  }
-}
-
-const secretKey = import.meta.env.VITE_ENCRYPTION_KEY;
 
 const Chat_client = () => {
   const navigate = useNavigate();
-  const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectChat | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
+  const [projectChats, setProjectChats] = useState<ProjectChat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [chatBlocked, setChatBlocked] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const { toast } = useToast();
 
   const userId = localStorage.getItem("Chatting_id");
 
-  const containsSensitiveInfo = (message: string): boolean => {
-    const phoneRegex = /\b\d{10,15}\b/; // Matches 10-15 digit numbers (adjust as needed)
-    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/; // Basic email regex
-    return phoneRegex.test(message) || emailRegex.test(message);
-  };
-
   useEffect(() => {
-    fetchChatUsers();
+    fetchProjectChats();
     initializeWebSocket();
 
     return () => {
@@ -96,16 +51,15 @@ const Chat_client = () => {
     };
   }, []);
 
-  // Add effect to fetch messages when selected user changes
   useEffect(() => {
-    if (selectedUser && userId) {
-      fetchMessages(userId);
+    if (selectedProject && userId) {
+      fetchMessages();
     } else {
-      setMessages([]); // Clear messages when no user is selected
+      setMessages([]);
     }
-  }, [selectedUser, userId]);
+  }, [selectedProject, userId]);
 
-  const initializeWebSocket = async () => {
+  const initializeWebSocket = () => {
     const ws = new WebSocket(`${import.meta.env.VITE_WS_URL}/chat/${userId}`);
 
     ws.onopen = () => {
@@ -114,32 +68,63 @@ const Chat_client = () => {
 
     ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
-      if (!data.alreadyStored) {
-        try {
-          const decryptedMessage = await decryptMessage(
-            data.message,
-            secretKey
-          );
-          data.message = decryptedMessage;
-          if (!data.timestamp) {
-            data.timestamp = new Date().toISOString(); // Assign current time if missing
-          }
 
-          if (containsSensitiveInfo(decryptedMessage)) {
-            console.warn(
-              "Received a message with sensitive info, ignoring it."
-            );
-            return; // Ignore the message for the receiver
-          }
-          handleNewMessage(data);
-        } catch (error) {
-          console.error("Error decrypting message:", error);
+      // Handle error messages
+      if (data.type === "error") {
+        toast({
+          title: "Chat Restricted",
+          description: data.message,
+          variant: "destructive",
+        });
+        setChatBlocked(data.message);
+        return;
+      }
+
+      // Handle violation warnings
+      if (data.type === "violation_warning") {
+        toast({
+          title: "⚠️ Policy Warning",
+          description: data.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Handle account restriction
+      if (data.type === "account_restricted") {
+        setChatBlocked(data.message);
+        toast({
+          title: "Account Restricted",
+          description: data.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Handle typing indicator
+      if (data.type === "typing") {
+        return;
+      }
+
+      // Handle chat messages
+      if (data.sender && data.message && !data.alreadyStored) {
+        if (data.projectId === selectedProject?.projectId) {
+          const newMsg: Message = {
+            _id: Date.now().toString(),
+            sender: data.sender,
+            receiver: data.receiver,
+            message: data.message,
+            timestamp: new Date().toISOString(),
+            flagged: data.flagged,
+          };
+          setMessages((prev) => [...prev, newMsg]);
         }
+        // Update unread counts
+        fetchProjectChats();
       }
     };
 
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
+    ws.onerror = () => {
       toast({
         title: "Connection Error",
         description: "Failed to connect to chat server",
@@ -150,35 +135,44 @@ const Chat_client = () => {
     wsRef.current = ws;
   };
 
-  const fetchChatUsers = async () => {
+  const fetchProjectChats = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/chat/users`,
-        {
-          credentials: "include",
-        }
+        `${import.meta.env.VITE_API_URL}/chat/projects`,
+        { credentials: "include" }
       );
+
+      if (response.status === 403) {
+        const data = await response.json();
+        setChatBlocked(data.message);
+        setIsLoading(false);
+        return;
+      }
+
       const data = await response.json();
-      setChatUsers(data.users);
+      setProjectChats(data.projects || []);
       setIsLoading(false);
     } catch (error) {
-      console.error("Error fetching chat users:", error);
+      console.error("Error fetching project chats:", error);
       setIsLoading(false);
     }
   };
 
-  const fetchMessages = async (userId: string) => {
-    if (!selectedUser) return;
+  const fetchMessages = async () => {
+    if (!selectedProject) return;
 
     try {
       const response = await fetch(
-        `${
-          import.meta.env.VITE_API_URL
-        }/chat/messages?sender=${userId}&receiver=${selectedUser._id}`,
-        {
-          credentials: "include",
-        }
+        `${import.meta.env.VITE_API_URL}/chat/messages?projectId=${selectedProject.projectId}`,
+        { credentials: "include" }
       );
+
+      if (response.status === 403) {
+        const data = await response.json();
+        setChatBlocked(data.message);
+        return;
+      }
+
       const data = await response.json();
       setMessages(data);
     } catch (error) {
@@ -191,43 +185,13 @@ const Chat_client = () => {
     }
   };
 
-  const handleNewMessage = (message: Message) => {
-    setMessages((prev) => [...prev, message]);
-    updateChatUserLastMessage(message);
-  };
-
-  const updateChatUserLastMessage = (message: Message) => {
-    setChatUsers((prev) =>
-      prev.map((user) => {
-        if (user._id === message.sender) {
-          // Only update unread count for the receiver
-          return {
-            ...user,
-            lastMessage: message.message,
-            unreadCount: (user.unreadCount || 0) + 1,
-          };
-        }
-        if (user._id === message.receiver) {
-          // Update last message but don't increment unread count for sender
-          return {
-            ...user,
-            lastMessage: message.message,
-          };
-        }
-        return user;
-      })
-    );
-  };
-
   const handleSendMessage = async (message: string) => {
-    if (!selectedUser || !message.trim() || !userId) return;
+    if (!selectedProject || !message.trim() || !userId) return;
 
-    if (containsSensitiveInfo(message)) {
-      console.warn("Cannot send message: Contains sensitive info.");
+    if (chatBlocked) {
       toast({
-        title: "Warning",
-        description:
-          "Your message contains sensitive information and was not sent.",
+        title: "Chat Blocked",
+        description: chatBlocked,
         variant: "destructive",
       });
       return;
@@ -238,29 +202,58 @@ const Chat_client = () => {
         `${import.meta.env.VITE_API_URL}/chat/send`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
-            sender: userId,
-            receiver: selectedUser._id,
+            receiver: selectedProject.chatPartner._id,
             message: message.trim(),
+            projectId: selectedProject.projectId,
           }),
         }
       );
 
-      if (!response.ok) throw new Error("Failed to send message");
+      const data = await response.json();
 
-      const newMessage = {
+      if (!response.ok) {
+        if (response.status === 403) {
+          setChatBlocked(data.message);
+        }
+        toast({
+          title: "Error",
+          description: data.message || "Failed to send message",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Show violation warning if flagged
+      if (data.flagged && data.violationWarning) {
+        toast({
+          title: "⚠️ Policy Warning",
+          description: data.violationWarning,
+          variant: "destructive",
+        });
+      }
+
+      const newMessage: Message = {
         _id: Date.now().toString(),
         sender: userId,
-        receiver: selectedUser._id,
+        receiver: selectedProject.chatPartner._id,
         message: message.trim(),
         timestamp: new Date().toISOString(),
+        flagged: data.flagged,
       };
 
-      handleNewMessage(newMessage);
+      setMessages((prev) => [...prev, newMessage]);
+
+      // Update last message in project list
+      setProjectChats((prev) =>
+        prev.map((pc) =>
+          pc.projectId === selectedProject.projectId
+            ? { ...pc, lastMessage: message.trim(), lastMessageAt: new Date().toISOString() }
+            : pc
+        )
+      );
     } catch (error) {
       console.error("Error sending message:", error);
       toast({
@@ -271,9 +264,34 @@ const Chat_client = () => {
     }
   };
 
-  const handleSelectUser = (user: ChatUser) => {
-    setSelectedUser(user);
+  const handleSelectProject = (project: ProjectChat) => {
+    setSelectedProject(project);
+    setChatBlocked(null);
+    // Clear unread count
+    setProjectChats((prev) =>
+      prev.map((pc) =>
+        pc.projectId === project.projectId ? { ...pc, unreadCount: 0 } : pc
+      )
+    );
   };
+
+  // Blocked state
+  if (chatBlocked && !selectedProject) {
+    return (
+      <div className="min-h-screen hero-gradient-mesh flex items-center justify-center p-4 md:p-8">
+        <div className="text-center p-8 bg-white/60 backdrop-blur-xl rounded-3xl border-2 border-white/60 shadow-2xl max-w-md">
+          <div className="mx-auto w-20 h-20 bg-red-100/50 rounded-2xl flex items-center justify-center mb-6">
+            <ShieldAlert className="h-10 w-10 text-red-500" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-800 mb-2">Chat Access Restricted</h3>
+          <p className="text-gray-500 mb-6">{chatBlocked}</p>
+          <Button onClick={() => navigate(-1)} variant="outline" className="rounded-xl">
+            Go Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen hero-gradient-mesh flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
@@ -296,15 +314,16 @@ const Chat_client = () => {
 
       <div className="w-full max-w-7xl h-[85vh] bg-white/60 backdrop-blur-xl border-2 border-white/60 rounded-3xl shadow-2xl overflow-hidden flex relative z-10 glass-card ring-1 ring-gray-900/5">
         <ChatList
-          users={chatUsers}
-          selectedUser={selectedUser}
-          onSelectUser={handleSelectUser}
+          projects={projectChats}
+          selectedProject={selectedProject}
+          onSelectProject={handleSelectProject}
           isLoading={isLoading}
         />
         <ChatWindow
-          selectedUser={selectedUser}
+          selectedProject={selectedProject}
           messages={messages}
           onSendMessage={handleSendMessage}
+          chatBlocked={chatBlocked}
         />
       </div>
 

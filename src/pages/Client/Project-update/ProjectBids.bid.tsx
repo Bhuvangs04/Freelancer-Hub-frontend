@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import ResumeViewer from "@/components/ResumeViewer";
+import SuccessScoreBadge from "@/components/ml/SuccessScoreBadge";
 
 const useQueryParams = () => {
   return new URLSearchParams(useLocation().search);
@@ -23,6 +24,7 @@ interface Bid {
   projectId: string;
   freelancerId: Freelancer;
   resume_permission: boolean;
+  resume_request_status: "none" | "requested" | "approved" | "denied";
   amount: number;
   message: string;
   status: string;
@@ -340,7 +342,15 @@ const ProjectBids = () => {
                           className="w-12 h-12 rounded-full object-cover border border-gray-200 shadow-sm"
                         />
                       )}
-                      <span>{bid.freelancerId.username}</span>
+                      <div>
+                        <span>{bid.freelancerId.username}</span>
+                        <div className="mt-1">
+                          <SuccessScoreBadge
+                            freelancerId={bid.freelancerId._id}
+                            projectId={projectId || ""}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </CardTitle>
                   {getStatusBadge(bid.status)}
@@ -373,6 +383,24 @@ const ProjectBids = () => {
                       hasPermission={bid.resume_permission}
                       title={`${bid.freelancerId.username}'s Resume`}
                     />
+                  ) : bid.resume_request_status === "requested" ? (
+                    <Button
+                      variant="secondary"
+                      className="w-full bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                      disabled
+                    >
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Waiting for Freelancer Approval
+                    </Button>
+                  ) : bid.resume_request_status === "denied" ? (
+                    <Button
+                      variant="secondary"
+                      className="w-full bg-red-50 text-red-700 border-red-200"
+                      disabled
+                    >
+                      <XCircle className="mr-2 h-4 w-4" />
+                      Resume Request Denied
+                    </Button>
                   ) : (
                     <Button
                       variant="secondary"

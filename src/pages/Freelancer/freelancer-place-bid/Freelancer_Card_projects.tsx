@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import NavBar from "@/components/HomeNavBar.Freelancer";
+import ProjectFitBadge from "@/components/ml/ProjectFitBadge";
 
 const fetchOpenProjects = async () => {
   try {
@@ -129,9 +130,12 @@ const ProjectCard = ({
             <IndianRupee className="h-3.5 w-3.5" />
             {project.projectId.budget.toLocaleString()}
           </div>
-          <div className="flex items-center gap-1.5 text-slate-400 text-xs">
-            <CalendarDays className="h-3.5 w-3.5" />
-            {formattedDeadline}
+          <div className="flex items-center gap-3">
+            <ProjectFitBadge projectId={project.projectId._id} />
+            <div className="flex items-center gap-1.5 text-slate-400 text-xs">
+              <CalendarDays className="h-3.5 w-3.5" />
+              {formattedDeadline}
+            </div>
           </div>
         </div>
 
@@ -483,7 +487,7 @@ const Freelancer_Card_projects = () => {
 
         {/* Project Details Dialog */}
         <Dialog open={showProjectDetails} onOpenChange={setShowProjectDetails}>
-          <DialogContent className="sm:max-w-md md:max-w-xl bg-slate-900 border-white/[0.08] text-white rounded-2xl shadow-2xl">
+          <DialogContent className="sm:max-w-md md:max-w-xl max-h-[85vh] overflow-y-auto bg-slate-900 border-white/[0.08] text-white rounded-2xl shadow-2xl">
             <DialogHeader>
               <DialogTitle className="text-xl font-semibold text-white">
                 {selectedProject?.projectId.title}
@@ -534,6 +538,9 @@ const Freelancer_Card_projects = () => {
                     ))}
                   </div>
                 </div>
+
+                {/* AI Project Fit Score */}
+                <ProjectFitBadge projectId={selectedProject.projectId._id} variant="detailed" />
               </div>
             )}
 

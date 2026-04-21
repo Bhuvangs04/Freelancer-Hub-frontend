@@ -5,7 +5,6 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import EmojiPicker from "emoji-picker-react";
-import FileSharingModal from "@/components/FileSharingModal";
 import {
   Dialog,
   DialogContent,
@@ -341,14 +340,9 @@ export default function MessageForm({
                   <DialogHeader>
                     <DialogTitle>Send File</DialogTitle>
                   </DialogHeader>
-                  {userId && freelancerId && (
-                    <FileSharingModal
-                      senderId={userId}
-                      recipientId={freelancerId}
-                      recipientName="You"
-                      className="text-gray-400 hover:text-gray-600"
-                    />
-                  )}
+                  <p className="text-sm text-gray-500 py-4">
+                    File sharing is currently under maintenance. Please use the project workspace for file uploads.
+                  </p>
                 </DialogContent>
               </Dialog>
 

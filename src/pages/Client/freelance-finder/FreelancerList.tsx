@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/dialog";
 import { Navigation } from "@/components/Navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import TrustScoreBadge from "@/components/ml/TrustScoreBadge";
+import AIMatchPanel from "@/components/ml/AIMatchPanel";
 
 interface Skill {
   name: string;
@@ -58,9 +60,11 @@ const FreelancerList = () => {
   const [selectedFreelancer, setSelectedFreelancer] =
     useState<Freelancer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [clientProjects, setClientProjects] = useState<any[]>([]);
 
   useEffect(() => {
     fetchFreelancers();
+    fetchClientProjects();
   }, []);
 
   const fetchFreelancers = async () => {
@@ -77,6 +81,21 @@ const FreelancerList = () => {
     } catch (error) {
       console.error("Error fetching freelancers:", error);
       setIsLoading(false);
+    }
+  };
+
+  const fetchClientProjects = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/client/projects`,
+        { credentials: "include" }
+      );
+      const data = await response.json();
+      if (data.projects) {
+        setClientProjects(data.projects);
+      }
+    } catch {
+      // silent - AI match panel just won't show projects
     }
   };
 
@@ -209,6 +228,11 @@ const FreelancerList = () => {
                 </div>
               </div>
             </div>
+
+            {/* AI Match Panel */}
+            {clientProjects.length > 0 && (
+              <AIMatchPanel projects={clientProjects} />
+            )}
           </div>
 
           {/* Freelancers List Section */}
@@ -275,6 +299,9 @@ const FreelancerList = () => {
                           <p className="mt-2 text-gray-600 line-clamp-4">
                             {freelancer.bio}
                           </p>
+                          <div className="mt-2">
+                            <TrustScoreBadge userId={freelancer._id} />
+                          </div>
                         </div>
                       </div>
                     </Card>
@@ -346,6 +373,9 @@ const FreelancerList = () => {
                   <p className="whitespace-pre-wrap">
                     {selectedFreelancer.bio}
                   </p>
+                  <div className="mt-3">
+                    <TrustScoreBadge userId={selectedFreelancer._id} variant="detailed" />
+                  </div>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Skills</h3>

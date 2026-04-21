@@ -43,6 +43,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
+import TrustScoreBadge from "@/components/ml/TrustScoreBadge";
 
 const generateSecureRandomString = () => {
   const array = new Uint8Array(72);
@@ -418,6 +419,21 @@ const FreelancerDashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* AI Profile Health */}
+        {freelancerId && (
+          <div className="mb-8">
+            <div className="bg-slate-800/40 backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6">
+              <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                <span className="h-8 w-8 rounded-lg bg-indigo-500/15 flex items-center justify-center">
+                  <Activity className="h-4 w-4 text-indigo-400" />
+                </span>
+                AI Profile Health
+              </h3>
+              <TrustScoreBadge userId={freelancerId} variant="detailed" />
+            </div>
+          </div>
+        )}
 
         {/* Activity and Transactions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

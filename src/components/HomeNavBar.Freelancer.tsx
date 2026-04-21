@@ -14,6 +14,7 @@ import {
   MessageCircle,
   UserCheck,
   File,
+  FileText,
   ChevronDown,
   Sparkles,
   Shield,
@@ -73,6 +74,11 @@ const Navbar = () => {
       name: "Skills",
       href: `/freelancer/skills`,
       icon: <Shield className="h-4 w-4" />,
+    },
+    {
+      name: "Resume Requests",
+      href: `/freelancer/resume-requests`,
+      icon: <FileText className="h-4 w-4" />,
     },
   ];
 

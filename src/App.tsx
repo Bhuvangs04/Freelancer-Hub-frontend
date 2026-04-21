@@ -32,6 +32,7 @@ import DisputeForm from "./pages/Disputes/Disputes";
 import ProtectedRoute from "@/components/Security/PorperCheck";
 import Freelancer_portfolio from "./pages/Freelancer-portfolio";
 import SkillsEvaluation from "./pages/Freelancer/SkillsEvaluation";
+import ResumeRequests from "./pages/Freelancer/ResumeRequests";
 import { Analytics } from "@vercel/analytics/react";
 
 // New page imports for backend integration
@@ -259,6 +260,18 @@ const App = () => (
                   <FreelancerAuth>
                     <ProtectedRoute role="freelancer">
                       <SkillsEvaluation />
+                    </ProtectedRoute>
+                  </FreelancerAuth>
+                }
+              />
+
+              {/* Resume Requests - Freelancer */}
+              <Route
+                path="/freelancer/resume-requests"
+                element={
+                  <FreelancerAuth>
+                    <ProtectedRoute role="freelancer">
+                      <ResumeRequests />
                     </ProtectedRoute>
                   </FreelancerAuth>
                 }
